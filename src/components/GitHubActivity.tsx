@@ -50,7 +50,7 @@ export function GitHubActivity() {
           <div className="activity-heading">
             <div>
               <p className="eyebrow">{t('activity_contributions')}</p>
-              <h3>{activity?.summary || (loading ? t('activity_loading') : t('activity_graph_unavailable'))}</h3>
+              <h3>{activity?.summary || t('activity_contributions')}</h3>
             </div>
             <a href="https://github.com/shreyashjagtap157?tab=overview" target="_blank" rel="noopener noreferrer">{t('activity_profile')} ↗</a>
           </div>

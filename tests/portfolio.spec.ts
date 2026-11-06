@@ -80,17 +80,18 @@ test.describe('theme, density and dropdown interactions', () => {
   test('language search selects an RTL locale and updates document direction', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 900 })
     await page.goto('/')
-    await page.getByRole('button', { name: /Language/ }).click()
+    await page.getByRole('button', { name: /^Language:/ }).click()
     await page.getByRole('combobox', { name: /Search languages/i }).fill('ar')
     await page.getByRole('option').first().click()
     await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-    await expect(page.locator('html')).toHaveJSProperty('scrollWidth', expect.any(Number))
+    const widths = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, page: document.documentElement.scrollWidth }))
+    expect(widths.page).toBeLessThanOrEqual(widths.viewport)
   })
 
   test('empty language search is safe when Enter is pressed', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /Language/ }).click()
+    await page.getByRole('button', { name: /^Language:/ }).click()
     await page.getByRole('combobox', { name: /Search languages/i }).fill('not-a-real-language')
     await expect(page.getByText('No matching languages')).toBeVisible()
     await page.keyboard.press('Enter')
@@ -139,7 +140,10 @@ test.describe('navigation and project behavior', () => {
     await expect(cards).toHaveCount(14)
     await page.getByRole('button', { name: /AI and agents/ }).click()
     await expect(cards).toHaveCount(5)
-    await page.getByRole('button', { name: /All selected projects/ }).click()
+    const showAll = page.locator('.selected-work-toolbar').getByRole('button')
+    await expect(showAll).toHaveAttribute('aria-pressed', 'false')
+    await showAll.click()
+    await expect(showAll).toHaveAttribute('aria-pressed', 'true')
     await expect(cards).toHaveCount(14)
   })
 
