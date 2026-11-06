@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <style>
+      .bg { fill: #070b10; }
+      .text { fill: #d7e3ee; font-family: 'JetBrains Mono', monospace; }
+      .accent { fill: #22d3ee; }
+      .small { fill: #8aa0b2; }
+      .line { fill: none; stroke: #1a2a38; stroke-width: 2; }
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="630"/>
+  <!-- Grid background -->
+  <g opacity="0.15">
+    <path d="M0 60 L1200 60 M0 180 L1200 180 M0 300 L1200 300 M0 420 L1200 420 M0 540 L1200 540" class="line"/>
+    <path d="M120 0 L120 630 M360 0 L360 630 M600 0 L600 630 M840 0 L840 630 M1080 0 L1080 630" class="line"/>
+  </g>
+  <!-- Logo -->
+  <g transform="translate(100, 100)">
+    <path d="M32 3l25 14.5v29L32 61 7 46.5v-29z" fill="none" stroke="#22d3ee" stroke-width="2.5"/>
+    <path d="M32 11l18 10.5v21L32 53 14 42.5v-21z" fill="#0b121a" stroke="#22d3ee" stroke-width="1"/>
+    <text x="32" y="39" font-size="14" font-family="JetBrains Mono, monospace" font-weight="700" text-anchor="middle" fill="#22d3ee">SJ</text>
+  </g>
+  <!-- Name -->
+  <text x="220" y="130" class="text" font-size="48" font-weight="bold" letter-spacing="-0.02em">Shreyash Satish Jagtap</text>
+  <text x="220" y="180" class="small" font-size="24">Engineering Intelligent Systems</text>
+  <!-- Build log visual -->
+  <g transform="translate(100, 260)">
+    <text x="0" y="0" class="text" font-size="16" font-family="JetBrains Mono, monospace">$ omni build --edition 1</text>
+    <text x="0" y="28" class="text" font-size="16" font-family="JetBrains Mono, monospace"><tspan class="accent">ok</tspan> lex   <tspan class="accent">ok</tspan> parse   <tspan class="accent">ok</tspan> sema</text>
+    <text x="0" y="56" class="text" font-size="16" font-family="JetBrains Mono, monospace"><tspan class="accent">ok</tspan> ir    <tspan class="small">..</tspan> codegen</text>
+    <text x="0" y="84" class="small" font-size="14" font-family="JetBrains Mono, monospace"># governed by spec/, not guesswork</text>
+  </g>
+  <!-- Projects list -->
+  <g transform="translate(100, 360)">
+    <text x="0" y="0" class="small" font-size="16" font-family="JetBrains Mono, monospace">Selected work:</text>
+    <text x="0" y="28" class="text" font-size="16" font-family="JetBrains Mono, monospace">&#9642; Omni &bull; Specification-governed language</text>
+    <text x="0" y="56" class="text" font-size="16" font-family="JetBrains Mono, monospace">&#9642; NexusAgent &bull; Local-first multi-agent platform</text>
+    <text x="0" y="84" class="text" font-size="16" font-family="JetBrains Mono, monospace">&#9642; UEP &bull; Multi-tenant education platform</text>
+    <text x="0" y="112" class="text" font-size="16" font-family="JetBrains Mono, monospace">&#9642; AetherOS &bull; Capability-based OS architecture</text>
+  </g>
+  <!-- Contact -->
+  <g transform="translate(100, 520)">
+    <text x="0" y="0" class="small" font-size="16" font-family="JetBrains Mono, monospace">Pune, Maharashtra, India</text>
+    <text x="0" y="28" class="small" font-size="16" font-family="JetBrains Mono, monospace">ssjagtap2016@gmail.com &bull; +91 80876 79022</text>
+  </g>
+</svg>

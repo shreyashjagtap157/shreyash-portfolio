@@ -1,0 +1,23 @@
+/* Design tokens: theme (color, type, shape) and density (scale, spacing) are independent axes. */
+:root{
+  --bg:#070b10;--fg:#d7e3ee;--mut:#8aa0b2;--ac:#22d3ee;--ac2:#22d3ee;--card:#0b121a;--line:#1a2a38;--on:#04141a;
+  --f:"JetBrains Mono","Noto Sans Devanagari",ui-monospace,monospace;--m:"JetBrains Mono",ui-monospace,monospace;
+  --r:.3rem;--h:500;--ls:-.02em;color-scheme:dark;
+  --bgi:linear-gradient(#0f1a24 1px,transparent 1px),linear-gradient(90deg,#0f1a24 1px,transparent 1px);--bgs:2rem 2rem;--bga:.9;
+}
+[data-theme=orbital]{--bg:#05030f;--fg:#e9e6ff;--mut:#a29cc9;--ac:#8b7cff;--ac2:#22d3ee;--card:#0d0a20;--line:#2a2250;--on:#0b0620;
+  --f:Sora,"Noto Sans Devanagari",system-ui,sans-serif;--r:.9rem;--h:300;
+  --bgi:radial-gradient(#fff 1px,transparent 1px),radial-gradient(#8b7cff 1px,transparent 1px),radial-gradient(circle at 82% 6%,#2a1a5e,transparent 42%);--bgs:5rem 5rem,8rem 8rem,auto;--bga:.4}
+[data-theme=blueprint]{--bg:#f1f5fb;--fg:#0d2a57;--mut:#4a6490;--ac:#0d2a57;--ac2:#c2272d;--card:#f8fafd;--line:#9fb3d3;--on:#fff;
+  --f:"IBM Plex Sans","Noto Sans Devanagari",system-ui,sans-serif;--m:"IBM Plex Mono",ui-monospace,monospace;--r:.12rem;--h:500;color-scheme:light;
+  --bgi:linear-gradient(#c9d6ea 1px,transparent 1px),linear-gradient(90deg,#c9d6ea 1px,transparent 1px);--bgs:1.5rem 1.5rem}
+[data-theme=aurora]{--bg:#0a0d14;--fg:#f2f4fa;--mut:#9ba5bd;--ac:#14b8a6;--ac2:#a78bfa;--card:rgba(255,255,255,.06);--line:rgba(255,255,255,.14);--on:#0a0d14;
+  --f:Manrope,"Noto Sans Devanagari",system-ui,sans-serif;--r:1.1rem;--h:800;--ls:-.04em;
+  --bgi:radial-gradient(circle at 85% 6%,rgba(20,184,166,.45),transparent 32%),radial-gradient(circle at 8% 38%,rgba(124,58,237,.38),transparent 34%),radial-gradient(circle at 92% 78%,rgba(20,184,166,.25),transparent 30%);--bgs:auto}
+
+/* Density: root font size scales every rem, --s scales spacing, --ctl is control height. */
+:root,[data-density=comfortable]{--fs:15px;--s:1;--ctl:2.4rem;--gutter:clamp(1rem,4vw,2rem)}
+[data-density=compact]{--fs:13.5px;--s:.7;--ctl:2rem}
+[data-density=spacious]{--fs:16.5px;--s:1.4;--ctl:2.9rem}
+html{font-size:var(--fs)}
+:root{--gap:calc(1rem*var(--s));--pad:calc(1.25rem*var(--s));--sec:calc(3.5rem*var(--s))}
