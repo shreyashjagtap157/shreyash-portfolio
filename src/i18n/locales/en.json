@@ -151,5 +151,6 @@
   "activity_level_2": "Moderate activity",
   "activity_level_3": "High activity",
   "activity_level_4": "Very high activity",
-  "activity_public_only": "Recent pushes are from public repositories only. Private repository events are not included."
+  "activity_public_only": "Recent pushes are from public repositories only. Private repository events are not included.",
+  "activity_partial": "Some activity data is temporarily stale because GitHub did not return every source."
 }

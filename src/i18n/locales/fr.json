@@ -151,5 +151,6 @@
   "activity_level_2": "Activité modérée",
   "activity_level_3": "Activité élevée",
   "activity_level_4": "Très forte activité",
-  "activity_public_only": "Les push récents proviennent uniquement de dépôts publics. Les événements des dépôts privés ne sont pas inclus."
+  "activity_public_only": "Les push récents proviennent uniquement de dépôts publics. Les événements des dépôts privés ne sont pas inclus.",
+  "activity_partial": "Certaines données d’activité sont temporairement anciennes, car GitHub n’a pas renvoyé toutes les sources."
 }

@@ -201,7 +201,25 @@ test.describe('Cloudflare-backed GitHub activity', () => {
     await expect(page.getByText('The contribution calendar is temporarily unavailable.')).toBeVisible()
   })
 
-  test('manual refresh explicitly bypasses the Cloudflare edge cache', async ({ page }) => {
+  test('explains when GitHub can only provide a partial activity response', async ({ page }) => {
+    await page.route('**/api/github/activity**', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      json: {
+        summary: '42 contributions in the last year',
+        updatedAt: '2026-11-06T12:00:00Z',
+        partial: true,
+        stale: true,
+        contributions: [{ date: '2026-11-06', level: 2 }],
+        pushes: [],
+      },
+    }))
+    await page.goto('/')
+    await page.locator('#activity').scrollIntoViewIfNeeded()
+    await expect(page.getByText('Some activity data is temporarily stale because GitHub did not return every source.')).toBeVisible()
+  })
+
+  test('manual refresh asks the Cloudflare Worker to refresh its cached activity', async ({ page }) => {
     const requests: string[] = []
     await page.route('**/api/github/activity**', async route => {
       requests.push(route.request().url())

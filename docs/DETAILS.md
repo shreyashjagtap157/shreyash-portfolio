@@ -11,7 +11,7 @@ This document records the content permitted on the public portfolio. Repository 
 - **Email:** ssjagtap2016@gmail.com. A separate professional email has not yet been supplied.
 - **Phone:** +91 80876 79022.
 - **LinkedIn:** https://www.linkedin.com/in/shreyash-jagtap-48a359356/.
-- **GitHub:** https://github.com/shreyashjagtap157 (profile handle: warrite).
+- **GitHub:** https://github.com/shreyashjagtap157.
 - **Hosting URL:** The connected Cloudflare account has the free account subdomain `ssjagtap2016.workers.dev`; the existing `shreyash-portfolio` Worker has its `workers.dev` hostname enabled. Public URL: https://shreyash-portfolio.ssjagtap2016.workers.dev/. No custom domain purchase is required.
 
 ## Experience
@@ -67,6 +67,11 @@ All listed repositories are under https://github.com/shreyashjagtap157/.
 ## Inventory reconciliation
 
 The selected-work list contains exactly **14 repositories**: 4 languages/systems, 5 AI/agents, and 5 platforms/web. Every entry has a unique project ID and repository slug. This is a selected-work list, not a claim that these are the only repositories in the account.
+
+## Repository-to-portfolio contradiction ledger
+
+- **Helios:** the public Helios README still states that pretrained neural models and model-inference services must not be used. The newer direction discussed for Helios permits frozen foundation models strictly as perception-only peripherals, with provenance-bearing outputs treated as untrusted observations and all reasoning/memory/planning/action authorization remaining non-neural and symbolic. This is a real specification/documentation conflict in the separate Helios repository. The portfolio describes the newer intended direction but does not silently rewrite the canonical Helios README or master specification.
+- **Kilo Code fork:** the fork's public README still primarily describes upstream Kilo Code. Portfolio wording therefore labels specialist-agent/NVIDIA NIM work as experimental fork work and does not claim it is upstream functionality or a released capability.
 
 ## Excluded content
 

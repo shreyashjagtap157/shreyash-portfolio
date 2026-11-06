@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseContributions, parsePushes } from './worker'
+import { isCacheFresh, isRefreshThrottled, parseContributions, parsePushes } from './worker'
 
 describe('GitHub activity normalization', () => {
   it('extracts valid dated contribution cells and the profile summary', () => {
@@ -76,5 +76,27 @@ describe('GitHub activity normalization', () => {
     expect(parsePushes(null)).toEqual([])
     expect(parsePushes({ events: [] })).toEqual([])
     expect(parsePushes([undefined, 3, 'not-an-event'])).toEqual([])
+  })
+})
+
+
+describe('GitHub activity cache policy', () => {
+  const now = Date.parse('2026-11-06T12:00:00Z')
+
+  it('serves fresh cache entries for five minutes', () => {
+    expect(isCacheFresh('2026-11-06T11:56:00Z', now)).toBe(true)
+    expect(isCacheFresh('2026-11-06T11:54:59Z', now)).toBe(false)
+  })
+
+  it('rejects malformed, future-dated, and stale cache timestamps', () => {
+    expect(isCacheFresh('not-a-date', now)).toBe(false)
+    expect(isCacheFresh('2026-11-06T12:01:00Z', now)).toBe(false)
+    expect(isCacheFresh('2026-11-06T11:00:00Z', now)).toBe(false)
+  })
+
+  it('limits manual upstream refreshes to one per minute', () => {
+    expect(isRefreshThrottled('2026-11-06T11:59:30Z', now)).toBe(true)
+    expect(isRefreshThrottled('2026-11-06T11:58:59Z', now)).toBe(false)
+    expect(isRefreshThrottled('not-a-date', now)).toBe(false)
   })
 })

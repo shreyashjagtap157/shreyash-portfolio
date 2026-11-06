@@ -151,5 +151,6 @@
   "activity_level_2": "मध्यम ॲक्टिव्हिटी",
   "activity_level_3": "जास्त ॲक्टिव्हिटी",
   "activity_level_4": "खूप जास्त ॲक्टिव्हिटी",
-  "activity_public_only": "अलीकडील pushes फक्त सार्वजनिक repositories मधील आहेत. खाजगी repository events समाविष्ट नाहीत."
+  "activity_public_only": "अलीकडील pushes फक्त सार्वजनिक repositories मधील आहेत. खाजगी repository events समाविष्ट नाहीत.",
+  "activity_partial": "GitHub कडून सर्व डेटा स्रोत न मिळाल्यामुळे काही ॲक्टिव्हिटी डेटा तात्पुरता जुना असू शकतो."
 }
