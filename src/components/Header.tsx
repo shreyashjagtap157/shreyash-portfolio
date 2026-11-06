@@ -5,53 +5,44 @@ import { useI18n } from '../i18n/I18nProvider'
 import { NAME } from '../data/profile'
 
 const NAV: [string, string][] = [
-  ['work', 'n_work'],
-  ['case', 'n_case'],
-  ['skills', 'n_skills'],
-  ['activity', 'n_activity'],
-  ['exp', 'n_exp'],
-  ['contact', 'n_contact'],
+  ['work', 'n_work'], ['case', 'n_case'], ['skills', 'n_skills'],
+  ['activity', 'n_activity'], ['exp', 'n_exp'], ['contact', 'n_contact'],
 ]
 
 export function Header() {
   const { t, mt, lang } = useI18n()
-  const translatedCopyUrl = `https://translate.google.com/translate?sl=en&tl=${lang}&u=${encodeURIComponent(location.href)}`
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const translatedCopyUrl = 'https://translate.google.com/translate?sl=en&tl=' + lang + '&u=' + encodeURIComponent(window.location.href)
 
   useEffect(() => {
     if (!('IntersectionObserver' in window)) return
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && NAV.some(([id]) => id === entry.target.id)) setActiveSection(entry.target.id)
-        })
-      },
-      { root: null, rootMargin: '-20% 0%', threshold: 0.2 },
-    )
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting && NAV.some(([id]) => id === entry.target.id))
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+      if (visible) setActiveSection(visible.target.id)
+    }, { rootMargin: '-18% 0px -62% 0px', threshold: [0, 0.15, 0.35, 0.6] })
     NAV.forEach(([id]) => {
-      const element = document.getElementById(id)
-      if (element) observer.observe(element)
+      const section = document.getElementById(id)
+      if (section) observer.observe(section)
     })
     return () => observer.disconnect()
   }, [])
 
   return (
     <>
-      <header className="container top">
-        <a className="brand" href="#top" id="top" aria-label={`${NAME}, home`}>
+      <header className="container top" id="top">
+        <a className="brand" href="#top" aria-label={NAME + ', home'}>
           <Logo /><span className="brand-name" translate="no">{NAME}</span>
         </a>
-        <address className="details">
-          <p className="meta"><span>{t('loc')}</span></p>
-        </address>
+        <p className="header-location">{t('loc')}</p>
       </header>
       <div className="toolbar">
         <div className="container toolbar-in">
-          <nav aria-label={t('nav_primary')} tabIndex={0}>
+          <nav className="primary-nav" aria-label={t('nav_primary')} tabIndex={0}>
             {NAV.map(([id, key]) => (
-              <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>
-                {t(key)}
-              </a>
+              <a key={id} href={'#' + id} className={activeSection === id ? 'active' : ''}
+                aria-current={activeSection === id ? 'location' : undefined}>{t(key)}</a>
             ))}
           </nav>
           <Controls />

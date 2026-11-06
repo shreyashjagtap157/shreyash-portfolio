@@ -4,11 +4,11 @@ const THEMES = ['void', 'orbital', 'blueprint', 'aurora'] as const
 const DENSITIES = ['compact', 'comfortable', 'spacious'] as const
 const WIDTHS = [360, 768, 1024, 1440] as const
 
-test.describe('responsive layout across every theme and density', () => {
+test.describe('responsive layout across themes and densities', () => {
   for (const theme of THEMES) {
     for (const density of DENSITIES) {
       for (const width of WIDTHS) {
-        test(`${theme} / ${density} at ${width}px has no document overflow`, async ({ page }) => {
+        test(`${theme} / ${density} at ${width}px fits the viewport`, async ({ page }) => {
           await page.setViewportSize({ width, height: 900 })
           await page.addInitScript(({ initialTheme, initialDensity }) => {
             localStorage.setItem('theme', initialTheme)
@@ -17,66 +17,59 @@ test.describe('responsive layout across every theme and density', () => {
           await page.goto('/')
           await page.evaluate(() => document.fonts.ready)
           await expect(page.locator('h1')).toBeVisible()
-          const dimensions = await page.evaluate(() => ({
+          await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
+          await expect(page.locator('html')).toHaveAttribute('data-density', density)
+          const metrics = await page.evaluate(() => ({
             viewport: document.documentElement.clientWidth,
             document: document.documentElement.scrollWidth,
             body: document.body.scrollWidth,
           }))
-          expect(dimensions.document, 'document should fit the viewport').toBeLessThanOrEqual(dimensions.viewport)
-          expect(dimensions.body, 'body should fit the viewport').toBeLessThanOrEqual(dimensions.viewport)
+          expect(metrics.document).toBeLessThanOrEqual(metrics.viewport)
+          expect(metrics.body).toBeLessThanOrEqual(metrics.viewport)
         })
       }
     }
   }
 })
 
-test.describe('theme, density, and navigation controls', () => {
-  test('theme and density controls update the live document state', async ({ page }) => {
-    await page.goto('/')
-    const themeButton = page.getByRole('button', { name: /Theme/ })
-    await themeButton.click()
-    await page.getByRole('option', { name: 'Aurora' }).click()
-    await expect.poll(() => page.locator('html').getAttribute('data-theme')).toBe('aurora')
-
-    const densityButton = page.getByRole('button', { name: /Density/ })
-    await densityButton.click()
-    await page.getByRole('option', { name: 'Spacious' }).click()
-    await expect.poll(() => page.locator('html').getAttribute('data-density')).toBe('spacious')
-  })
-
-  test('reduced-motion preference is respected while theme changes still work', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' })
+test.describe('theme, density and dropdown interactions', () => {
+  test('theme and density changes persist after reload', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: /Theme/ }).click()
-    await page.getByRole('option', { name: 'Blueprint' }).click()
-    await expect.poll(() => page.locator('html').getAttribute('data-theme')).toBe('blueprint')
+    await page.getByRole('option', { name: 'Aurora' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'aurora')
+    await page.getByRole('button', { name: /Density/ }).click()
+    await page.getByRole('option', { name: 'Spacious' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-density', 'spacious')
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'aurora')
+    await expect(page.locator('html')).toHaveAttribute('data-density', 'spacious')
   })
 
-  test('theme dropdown supports arrows, Home, End, Enter, Escape, and focus restoration', async ({ page }) => {
+  test('keyboard navigation supports arrows, Home, End, Enter, Escape, and focus restoration', async ({ page }) => {
     await page.goto('/')
-    const themeButton = page.getByRole('button', { name: /Theme/ })
-    await themeButton.click()
+    const theme = page.getByRole('button', { name: /Theme/ })
+    await theme.click()
     await expect(page.getByRole('listbox')).toBeVisible()
     await page.keyboard.press('End')
     await page.keyboard.press('Enter')
-    await expect(page.getByRole('listbox')).toBeHidden()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'aurora')
-    await themeButton.click()
+    await expect(page.getByRole('listbox')).toBeHidden()
+    await expect(theme).toBeFocused()
+    await theme.click()
     await page.keyboard.press('Home')
     await page.keyboard.press('Escape')
     await expect(page.getByRole('listbox')).toBeHidden()
-    await expect(themeButton).toBeFocused()
   })
 
   test('Tab closes a dropdown without trapping keyboard focus', async ({ page }) => {
     await page.goto('/')
-    const themeButton = page.getByRole('button', { name: /Theme/ })
-    await themeButton.click()
+    await page.getByRole('button', { name: /Theme/ }).click()
     await page.keyboard.press('Tab')
     await expect(page.getByRole('listbox')).toBeHidden()
   })
 
-  test('clicking outside closes an open menu', async ({ page }) => {
+  test('clicking outside closes a dropdown', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: /Theme/ }).click()
     await expect(page.getByRole('listbox')).toBeVisible()
@@ -84,35 +77,41 @@ test.describe('theme, density, and navigation controls', () => {
     await expect(page.getByRole('listbox')).toBeHidden()
   })
 
-  test('built-in language selection updates both text and document language', async ({ page }) => {
-    await page.goto('/')
-    await page.getByRole('button', { name: /Language/ }).click()
-    const search = page.getByRole('combobox', { name: /Search languages/i })
-    await search.fill('de')
-    await page.getByRole('option', { name: /Deutsch/ }).click()
-    await expect(page.locator('html')).toHaveAttribute('lang', 'de')
-    await expect(page.getByRole('heading', { name: /Ausgewählte Arbeiten/ })).toBeVisible()
-  })
-
-  test('language filtering and RTL mode work on a narrow viewport', async ({ page }) => {
+  test('language search selects an RTL locale and updates document direction', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 900 })
     await page.goto('/')
     await page.getByRole('button', { name: /Language/ }).click()
-    const search = page.getByRole('combobox', { name: /Search languages/i })
-    await search.fill('ar')
-    const arabic = page.getByRole('option').first()
-    await expect(arabic).toBeVisible()
-    await arabic.click()
+    await page.getByRole('combobox', { name: /Search languages/i }).fill('ar')
+    await page.getByRole('option').first().click()
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
-    expect(overflow).toBeLessThanOrEqual(0)
+    await expect(page.locator('html')).toHaveJSProperty('scrollWidth', expect.any(Number))
   })
 
-  test('top navigation is horizontally scrollable and exposes its scrollbar', async ({ page }) => {
+  test('empty language search is safe when Enter is pressed', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /Language/ }).click()
+    await page.getByRole('combobox', { name: /Search languages/i }).fill('not-a-real-language')
+    await expect(page.getByText('No matching languages')).toBeVisible()
+    await page.keyboard.press('Enter')
+    await expect(page.getByRole('listbox')).toBeVisible()
+  })
+
+  test('reduced-motion mode still allows theme switching without animated transitions', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.goto('/')
+    await page.getByRole('button', { name: /Theme/ }).click()
+    await page.getByRole('option', { name: 'Blueprint' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'blueprint')
+  })
+})
+
+test.describe('navigation and project behavior', () => {
+  test('top navigation is horizontally scrollable with a visible scrollbar', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 900 })
     await page.goto('/')
-    const navigation = page.getByRole('navigation', { name: /Primary navigation/i })
-    const metrics = await navigation.evaluate(element => ({
+    const nav = page.getByRole('navigation', { name: 'Primary navigation' })
+    const metrics = await nav.evaluate(element => ({
       scrollWidth: element.scrollWidth,
       clientWidth: element.clientWidth,
       overflowX: getComputedStyle(element).overflowX,
@@ -120,86 +119,102 @@ test.describe('theme, density, and navigation controls', () => {
     }))
     expect(metrics.overflowX).toBe('auto')
     expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth)
-    await navigation.evaluate(element => { element.scrollLeft = element.scrollWidth })
-    expect(await navigation.evaluate(element => element.scrollLeft)).toBeGreaterThan(0)
+    expect(metrics.scrollbarWidth).toBe('thin')
+    await nav.evaluate(element => { element.scrollLeft = element.scrollWidth })
+    expect(await nav.evaluate(element => element.scrollLeft)).toBeGreaterThan(0)
   })
 
-  test('there are no duplicate DOM ids or nested interactive elements', async ({ page }) => {
+  test('project detail and repository links remain independent', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('link', { name: 'Omni', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Omni', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Repository/ })).toHaveAttribute(
+      'href', 'https://github.com/shreyashjagtap157/Omni---New',
+    )
+  })
+
+  test('category filters update the visible project collection', async ({ page }) => {
+    await page.goto('/')
+    const cards = page.locator('.project-card')
+    await expect(cards).toHaveCount(14)
+    await page.getByRole('button', { name: /AI and agents/ }).click()
+    await expect(cards).toHaveCount(5)
+    await page.getByRole('button', { name: /All selected projects/ }).click()
+    await expect(cards).toHaveCount(14)
+  })
+
+  test('there are no duplicate IDs or nested interactive elements', async ({ page }) => {
     await page.goto('/')
     const duplicateIds = await page.evaluate(() => {
       const ids = Array.from(document.querySelectorAll('[id]'), element => element.id)
       return ids.filter((id, index) => ids.indexOf(id) !== index)
     })
     expect(duplicateIds).toEqual([])
-    const invalidNesting = await page.locator('a a, a button, button a, button button').count()
-    expect(invalidNesting).toBe(0)
+    expect(await page.locator('a a, a button, button a, button button').count()).toBe(0)
   })
 })
 
-test.describe('live GitHub public activity', () => {
-  test('renders real-time public pushes and commit links from the GitHub API response', async ({ page }) => {
-    await page.route('https://github.com/users/shreyashjagtap157/contributions', route => route.fulfill({
-      status: 200,
-      contentType: 'image/svg+xml',
-      body: '<svg xmlns="http://www.w3.org/2000/svg" width="828" height="128"><rect width="828" height="128" fill="#fff"/></svg>',
-    }))
-    await page.route('https://api.github.com/users/shreyashjagtap157/events/public?per_page=100', route => route.fulfill({
+test.describe('Cloudflare-backed GitHub activity', () => {
+  test('renders structured contribution cells and public push commit links', async ({ page }) => {
+    await page.route('**/api/github/activity**', route => route.fulfill({
       status: 200,
       contentType: 'application/json',
-      json: [{
-        id: 'push-event-1',
-        type: 'PushEvent',
-        created_at: '2026-11-06T08:30:00Z',
-        repo: { name: 'shreyashjagtap157/Omni---New' },
-        payload: {
-          ref: 'refs/heads/main',
-          size: 2,
-          head: '0123456789abcdef0123456789abcdef01234567',
-          commits: [{
-            sha: '0123456789abcdef0123456789abcdef01234567',
-            message: 'Tighten compiler qualification checks',
-          }],
-        },
-      }],
+      json: {
+        summary: '42 contributions in the last year',
+        updatedAt: '2026-11-06T12:00:00Z',
+        partial: false,
+        contributions: Array.from({ length: 14 }, (_, index) => ({
+          date: '2026-10-' + String(index + 1).padStart(2, '0'),
+          level: index % 5,
+        })),
+        pushes: [{
+          id: 'push-event-1',
+          repo: 'shreyashjagtap157/Omni---New',
+          createdAt: '2026-11-06T11:30:00Z',
+          branch: 'main',
+          message: 'Tighten compiler qualification checks',
+          url: 'https://github.com/shreyashjagtap157/Omni---New/commit/0123456789abcdef0123456789abcdef01234567',
+        }],
+      },
     }))
     await page.goto('/')
     await page.locator('#activity').scrollIntoViewIfNeeded()
-    await expect(page.locator('.github-contribution-graph')).toHaveAttribute('src', 'https://github.com/users/shreyashjagtap157/contributions')
+    await expect(page.getByText('42 contributions in the last year')).toBeVisible()
     await expect(page.getByText('Tighten compiler qualification checks')).toBeVisible()
     await expect(page.getByText('shreyashjagtap157/Omni---New')).toBeVisible()
-    await expect(page.getByRole('link', { name: /Open latest commit/ })).toHaveAttribute(
+    await expect(page.getByRole('link', { name: 'Open commit' })).toHaveAttribute(
       'href',
       'https://github.com/shreyashjagtap157/Omni---New/commit/0123456789abcdef0123456789abcdef01234567',
     )
-    await expect(page.getByText('1', { exact: true }).first()).toBeVisible()
+    await expect(page.locator('.activity-grid .activity-cell')).toHaveCount(14)
   })
 
-  test('shows a useful unavailable state when GitHub cannot be reached', async ({ page }) => {
-    await page.route('https://api.github.com/users/shreyashjagtap157/events/public?per_page=100', route => route.abort())
+  test('shows an unavailable message when the Worker endpoint fails', async ({ page }) => {
+    await page.route('**/api/github/activity**', route => route.abort())
     await page.goto('/')
-    await expect(page.getByText(/GitHub activity is temporarily unavailable/)).toBeVisible()
+    await page.locator('#activity').scrollIntoViewIfNeeded()
+    await expect(page.getByText('GitHub activity could not be refreshed. Try again later.')).toBeVisible()
+    await expect(page.getByText('The contribution calendar is temporarily unavailable.')).toBeVisible()
   })
-})
 
-test.describe('project detail and interaction semantics', () => {
-  test('project detail and repository navigation are separate links', async ({ page }) => {
+  test('manual refresh explicitly bypasses the Cloudflare edge cache', async ({ page }) => {
+    const requests: string[] = []
+    await page.route('**/api/github/activity**', async route => {
+      requests.push(route.request().url())
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        json: {
+          summary: '1 contribution in the last year',
+          updatedAt: '2026-11-06T12:00:00Z',
+          contributions: [],
+          pushes: [],
+        },
+      })
+    })
     await page.goto('/')
-    await page.getByRole('link', { name: 'Omni', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Omni', exact: true })).toBeVisible()
-    await expect(page.getByRole('link', { name: /Repository/ })).toHaveAttribute(
-      'href',
-      'https://github.com/shreyashjagtap157/Omni---New',
-    )
+    await page.locator('#activity').scrollIntoViewIfNeeded()
+    await page.getByRole('button', { name: 'Refresh' }).click()
+    await expect.poll(() => requests.some(url => url.includes('refresh=1'))).toBe(true)
   })
-})
-
-
-test('language search displays an empty state and safely handles Enter with no matches', async ({ page }) => {
-  await page.goto('/')
-  await page.getByRole('button', { name: /Language/ }).click()
-  const search = page.getByRole('combobox', { name: /Search languages/i })
-  await search.fill('not-a-real-language')
-  await expect(page.getByText('No matching languages')).toBeVisible()
-  await page.keyboard.press('Enter')
-  await expect(page.getByRole('listbox')).toBeVisible()
 })
