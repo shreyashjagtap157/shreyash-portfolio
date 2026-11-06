@@ -22,7 +22,7 @@
 
 ### Validation status
 
-GitHub Actions run [42258764088](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42258764088) passed on commit `4210968c2d9ff3e4554b5fa425834fbbe72464c`: TypeScript, unit tests, production build, Chromium installation, and the full Chromium browser suite. Cloudflare production deployment and a live-site smoke test remain pending.
+GitHub Actions run [42262546330](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42262546330) passed on commit `137cd2cb532fca981f2a4853ea14a3ef44339c8e`: TypeScript, unit tests, production build, Chromium installation, and the full Chromium browser suite. Cloudflare Workers Builds has been connected to this GitHub repository with `main` as the production branch and non-production previews enabled. Production deployment and live-site smoke verification remain pending.
 
 ### Baseline issues observed
 
@@ -40,3 +40,11 @@ GitHub Actions run [42258764088](https://github.com/shreyashjagtap157/shreyash-p
 - Helios source README/specification still conflicts with the newer frozen-perception-only model exception. The portfolio flags this explicitly; the Helios repository remains to be reconciled.
 - The public Kilo fork README still mirrors upstream Kilo documentation; experimental swarm/NIM claims are labeled as fork work and not attributed to upstream Kilo.
 - The portfolio's activity/privacy documentation now matches the actual Worker-backed architecture.
+
+
+### Cloudflare deployment wiring
+
+- Connected the existing `shreyash-portfolio` Worker to this repository through Cloudflare Workers Builds.
+- Production build: `npm run build` followed by `npx wrangler deploy` on `main`.
+- Preview build: `npm run build` followed by `npx wrangler preview` for non-production branches.
+- The free `workers.dev` hostname is the only production address; no custom domain or paid hosting service is configured.

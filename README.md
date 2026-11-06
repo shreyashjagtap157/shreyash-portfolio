@@ -10,7 +10,7 @@ The project is configured for Cloudflare Workers Static Assets. The connected Cl
 
 Public address: **https://shreyash-portfolio.ssjagtap2016.workers.dev/**
 
-A custom domain such as `shreyashjagtap.com` is optional, not required. This site does not depend on a paid domain.
+A custom domain such as `shreyashjagtap.com` is optional, not required. This site does not depend on a paid domain. The account's `workers.dev` hostname is enabled and is the sole public production address.
 
 ## Requirements and local development
 
@@ -39,11 +39,13 @@ Or run typecheck, unit tests, and production build together:
 npm run check
 ```
 
-The browser suite checks all four themes, all three density modes, and viewport widths of 360, 768, 1024, and 1440 CSS pixels. It also exercises theme and density switching, reduced-motion behavior, dropdown keyboard behavior, language filtering, RTL layout, horizontal navigation scrolling, duplicate IDs, project-card semantics, GitHub contribution-calendar rendering, and recent public-push rendering/failure handling. GitHub Actions runs the verification pipeline for pushes and pull requests.
+The browser suite checks all four themes, all three density modes, and viewport widths of 360, 768, 1024, and 1440 CSS pixels. It also exercises theme and density switching, reduced-motion behavior, dropdown keyboard behavior, language filtering, RTL layout, horizontal navigation scrolling, duplicate IDs, project-card semantics, GitHub contribution-calendar rendering, and recent public-push rendering/failure handling. GitHub Actions runs the verification pipeline for pushes and pull requests. Cloudflare Workers Builds is connected to this GitHub repository: commits to `main` build and publish the production Worker; non-production branches receive isolated Worker Previews.
 
 ## Deploy
 
-The static output is written to `dist/`. The repository includes `wrangler.jsonc` targeting the existing Worker:
+Production deployment is automatic through Cloudflare Workers Builds on `main`. Pull-request and non-production branch builds use Cloudflare Worker Previews; only the `main` branch publishes production. The existing Worker is `shreyash-portfolio` and the `workers.dev` hostname remains enabled.
+
+For a deliberate manual deploy from a trusted local checkout, the static output is written to `dist/`. The repository includes `wrangler.jsonc` targeting the existing Worker:
 
 ```bash
 npx wrangler login
