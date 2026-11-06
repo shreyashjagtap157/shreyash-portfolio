@@ -2,44 +2,36 @@ import { Logo } from './Logo'
 import { Controls } from './Controls'
 import { useEffect, useState } from 'react'
 import { useI18n } from '../i18n/I18nProvider'
-import { EMAIL, GITHUB, LINKEDIN, NAME, PHONE_DISPLAY, PHONE_HREF, RESUME } from '../data/profile'
+import { NAME } from '../data/profile'
 
-const NAV: [string, string][] = [['work', 'n_work'], ['case', 'n_case'], ['skills', 'n_skills'], ['exp', 'n_exp'], ['contact', 'n_contact']]
+const NAV: [string, string][] = [
+  ['work', 'n_work'],
+  ['case', 'n_case'],
+  ['skills', 'n_skills'],
+  ['activity', 'n_activity'],
+  ['exp', 'n_exp'],
+  ['contact', 'n_contact'],
+]
 
 export function Header() {
   const { t, mt, lang } = useI18n()
-  const gt = `https://translate.google.com/translate?sl=en&tl=${lang}&u=${encodeURIComponent(location.href)}`
+  const translatedCopyUrl = `https://translate.google.com/translate?sl=en&tl=${lang}&u=${encodeURIComponent(location.href)}`
+  const [activeSection, setActiveSection] = useState<string | null>(null)
 
-  // Active section state
-  const [activeSection, setActiveSection] = useState<'work' | 'case' | 'skills' | 'exp' | 'contact' | null>(null)
-
-  // IntersectionObserver to track visible sections
   useEffect(() => {
+    if (!('IntersectionObserver' in window)) return
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.target) {
-            const sectionId = entry.target.id as 'work' | 'case' | 'skills' | 'exp' | 'contact'
-            if (sectionId && NAV.some(([id]) => id === sectionId)) {
-              setActiveSection(sectionId)
-            }
-          }
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && NAV.some(([id]) => id === entry.target.id)) setActiveSection(entry.target.id)
         })
       },
-      {
-        root: null,
-        rootMargin: '-20% 0%',
-        threshold: 0.3,
-      }
+      { root: null, rootMargin: '-20% 0%', threshold: 0.2 },
     )
-
-    // Observe all navigation-related sections
-    const sectionIds = NAV.map(([id]) => id)
-    sectionIds.forEach((id) => {
+    NAV.forEach(([id]) => {
       const element = document.getElementById(id)
       if (element) observer.observe(element)
     })
-
     return () => observer.disconnect()
   }, [])
 
@@ -50,25 +42,15 @@ export function Header() {
           <Logo /><span className="brand-name" translate="no">{NAME}</span>
         </a>
         <address className="details">
-          <p className="meta"><span>{t('loc')}</span><a href={`mailto:${EMAIL}`}>{EMAIL}</a><a href={PHONE_HREF}>{PHONE_DISPLAY}</a></p>
-          <p className="links">
-            <a className="chip" href={LINKEDIN} target="_blank" rel="noopener noreferrer" translate="no">Shreyash Jagtap | LinkedIn</a>
-            <a className="chip" href={GITHUB} target="_blank" rel="noopener noreferrer" translate="no">shreyashjagtap157 (warrite)</a>
-            <a className="chip" href={RESUME} target="_blank" rel="noopener noreferrer">{t('resume')}</a>
-          </p>
+          <p className="meta"><span>{t('loc')}</span></p>
         </address>
       </header>
       <div className="toolbar">
         <div className="container toolbar-in">
-          <nav aria-label="Primary">
-            {NAV.map(([id, k]) => (
-              <a
-                key={id}
-                href={`#${id}`}
-                className={activeSection === id ? 'active' : ''}
-                style={{ color: activeSection === id ? 'var(--ac)' : 'var(--mut)' }}
-              >
-                {t(k)}
+          <nav aria-label={t('nav_primary')} tabIndex={0}>
+            {NAV.map(([id, key]) => (
+              <a key={id} href={`#${id}`} className={activeSection === id ? 'active' : ''} aria-current={activeSection === id ? 'location' : undefined}>
+                {t(key)}
               </a>
             ))}
           </nav>
@@ -78,7 +60,7 @@ export function Header() {
           <div className="container notice" role="status">
             {mt === 'busy' && t('mt_busy')}
             {mt === 'ok' && t('mt_note')}
-            {mt === 'none' && <>{t('mt_none')} <a href={gt} target="_blank" rel="noopener noreferrer">{t('mt_open')}</a></>}
+            {mt === 'none' && <>{t('mt_none')} <a href={translatedCopyUrl} target="_blank" rel="noopener noreferrer">{t('mt_open')}</a></>}
           </div>
         )}
       </div>

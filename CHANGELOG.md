@@ -1,31 +1,33 @@
 # Changelog
 
-## 2026-10-23 — Layout, testing, SEO, and project detail improvements
+## 2026-11-06 — Portfolio quality, Cloudflare hosting, and activity refresh
 
-### Fixed
-- Layout verified grid/flex with rem/token units across all 12 theme × density combinations at 360, 768, 1024 and 1440 px widths (Playwright screenshots).
-- Dropdown accessibility: keyboard navigation (ArrowDown/Up, Home, End, Enter, Escape, Tab), click-outside close, searchable language list, no horizontal overflow at any width, RTL (`dir=rtl`) when switching to Arabic.
-- TypeScript `strict` typecheck passes; `npm run build` passes cleanly.
+### Implemented in the review branch
 
-### Added
-- **Tests**: Playwright screenshot tests (4 themes × 3 densities × 4 widths = 48 screenshots) plus dropdown accessibility tests; Vitest unit tests for i18n locale key consistency, RTL detection, `baseCode`, and Translator API fallback logic unsupported/cache behavior.
-- **SEO**: canonical URL, Open Graph tags (title, description, image 1200×630 in Void style), Twitter card tags, `sitemap.xml`, `og-image.svg` in `public/`, all copied to `dist/` at build time.
-- **Project details**: per-project case-study sections for Omni, NexusAgent and UEP with inline SVG architecture diagrams, status notes, and repository links. Clicking any project card expands its detail below the project grid.
-- **Dependencies**: `@playwright/test`, `vitest`, `jsdom`, `@types/node` added as dev dependencies (all justified: screenshot/accessibility testing, unit testing, DOM environment, Node types for typecheck).
+- Reworked project cards into semantic article/link structures with separate repository navigation and localized project notes.
+- Added Helios as an explicitly concept/specification-stage project. Described frozen foundation models as isolated perception peripherals whose outputs remain untrusted observations; clearly stated no Helios runtime exists.
+- Removed the duplicate earlier Omni repository from the selected-work grid; current Omni content is described as an early-stage implementation, with self-hosting a roadmap target.
+- Corrected project maturity labels to avoid implying that prototypes and unreleased work are stable or production-ready.
+- Replaced the invalid project-detail import with an explicit localized detail-key map.
+- Replaced the incomplete events-only contribution heatmap with GitHub's official contribution-calendar image and a separately refreshed public PushEvent/commit list. Activity scope and limitations are stated explicitly.
+- Added a ten-minute local cache for public push events and safe validation of cached event data and repository/commit destinations.
+- Made the top section menu horizontally scrollable, keyboard focusable, and visibly scrollable on narrow screens.
+- Removed the old external contribution widget and obsolete architecture/explorer sections from the active page.
+- Improved responsive card/tag behavior, contact layout, menu touch targets, and reduced-motion handling.
+- Hardened theme changes against unsupported/rejected View Transitions API calls and prevented automatic language detection from overriding an explicit user language choice.
+- Added translated activity and project labels in English, German, French, Hindi, and Marathi.
+- Updated canonical, Open Graph, Twitter, robots, and sitemap URLs to the existing Cloudflare Workers URL. No paid custom domain is required.
+- Configured `workers_dev: true` for the existing Cloudflare Worker and aligned the deployment output directory with Vite's `dist/`.
+- Added comprehensive Playwright checks and GitHub Actions CI; removed stale snapshots, generated test reports, and an accidental temporary file.
 
-### Verified
-- `npm run typecheck` passes.
-- `npm run build` passes.
-- `npx vitest run` — 10/10 tests pass.
-- `npx playwright test` — 53/53 tests pass.
-- Lighthouse desktop: Performance 100, Accessibility 96, Best Practices 100, SEO 100.
-- Strict CSP in `public/_headers` retained (no inline scripts, no third-party requests).
-- CSP: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'.
+### Validation status
 
-### Rules honored
-- All facts sourced from `docs/DETAILS.md` only; no invented employers, dates, metrics, or test counts.
-- Name, LinkedIn and GitHub link text exact per spec.
-- City level only (Pune, Maharashtra, India); no street address.
-- No Earth-Aria story or fiction.
-- No trackers, cookies, databases, or server code; static output deployable on Cloudflare free tier.
-- All user-visible strings in `src/i18n/locales/*.json` (project names, tech tags, personal names carry `translate="no"`).
+Fresh verification is being run from the review branch. No local or browser result should be treated as passed until the actual command output and Cloudflare deployment have been inspected.
+
+### Baseline issues observed
+
+- The retained Playwright run record reported failed screenshot cases in Aurora / spacious mode at 1024px and 1440px.
+- The old changelog claimed 53 passing Playwright tests despite those retained failure artifacts.
+- The October 2026 Lighthouse JSON was stale and included failed accessibility audits despite reported aggregate scores.
+- The earlier page relied on third-party contribution endpoints despite its privacy statement claiming no third-party runtime requests.
+- The former HTML and sitemap advertised an unowned/unconfirmed custom-domain origin.

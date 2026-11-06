@@ -8,9 +8,10 @@ interface Props {
   onChange: (value: string, origin: { x: number; y: number }) => void
   searchable?: boolean
   searchLabel?: string
+  noMatches: string
 }
 
-export function Dropdown({ label, value, options, onChange, searchable, searchLabel }: Props) {
+export function Dropdown({ label, value, options, onChange, searchable, searchLabel, noMatches }: Props) {
   const uid = useId()
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
@@ -45,13 +46,14 @@ export function Dropdown({ label, value, options, onChange, searchable, searchLa
   }
   const key = (e: KeyboardEvent) => {
     const n = shown.length
+    if (e.key === 'Escape') { e.preventDefault(); close(); return }
+    if (e.key === 'Tab') { setOpen(false); setQ(''); return }
+    if (!n) return
     if (e.key === 'ArrowDown') { e.preventDefault(); setActive(a => Math.min(n - 1, a + 1)) }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(a => Math.max(0, a - 1)) }
     else if (e.key === 'Home') { e.preventDefault(); setActive(0) }
     else if (e.key === 'End') { e.preventDefault(); setActive(n - 1) }
     else if (e.key === 'Enter') { e.preventDefault(); choose(active) }
-    else if (e.key === 'Escape') { e.preventDefault(); close() }
-    else if (e.key === 'Tab') setOpen(false)
   }
 
   return (
@@ -67,16 +69,18 @@ export function Dropdown({ label, value, options, onChange, searchable, searchLa
         <div className="dd-pop" onKeyDown={key}>
           {searchable && (
             <input ref={input} className="dd-search" type="search" value={q} placeholder={searchLabel} aria-label={searchLabel}
-              role="combobox" aria-expanded="true" aria-controls={`${uid}-l`} aria-activedescendant={`${uid}-o${active}`}
+              role="combobox" aria-expanded="true" aria-controls={`${uid}-l`}
+              aria-activedescendant={shown[active] ? `${uid}-o${active}` : undefined}
               onChange={e => { setQ(e.target.value); setActive(0) }} />
           )}
-          <ul ref={list} id={`${uid}-l`} role="listbox" aria-label={label} tabIndex={-1} aria-activedescendant={`${uid}-o${active}`}>
-            {shown.map((o, i) => (
+          <ul ref={list} id={`${uid}-l`} role="listbox" aria-label={label} tabIndex={-1}
+            aria-activedescendant={shown[active] ? `${uid}-o${active}` : undefined}>
+            {shown.length ? shown.map((o, i) => (
               <li key={o.value} id={`${uid}-o${i}`} role="option" aria-selected={o.value === value} data-active={i === active}
                 onPointerEnter={() => setActive(i)} onClick={() => choose(i)}>
                 <span translate="no">{o.label}</span>{o.hint && <small>{o.hint}</small>}
               </li>
-            ))}
+            )) : <li className="dd-empty" role="presentation">{noMatches}</li>}
           </ul>
         </div>
       )}

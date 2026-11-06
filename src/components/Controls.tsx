@@ -12,7 +12,7 @@ export function Controls() {
   return (
     <div className="controls">
       <Dropdown label={t('th')} value={theme} options={THEMES.map(x => ({ value: x.id, label: x.name }))} onChange={(v, o) => setTheme(v as ThemeId, o)} />
-      <Dropdown label={t('lg')} value={lang} options={langs} onChange={v => setLang(v)} searchable searchLabel={t('srch')} />
+      <Dropdown label={t('lg')} value={lang} options={langs} onChange={v => setLang(v)} searchable searchLabel={t('srch')} noMatches={t('mt_no_matches')} />
       <Dropdown label={t('dens')} value={density} options={dens} onChange={v => setDensity(v as Density)} />
     </div>
   )

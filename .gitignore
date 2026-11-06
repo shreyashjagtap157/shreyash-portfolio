@@ -1,5 +1,10 @@
-node_modules
-dist
-dist-single
+node_modules/
+dist/
+dist-single/
+.wrangler/
+.vite/
+coverage/
 *.log
-.wrangler
+playwright-report/
+test-results/
+lighthouse-report.json
