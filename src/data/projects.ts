@@ -1,5 +1,5 @@
 export type Category = 'sys' | 'ai' | 'plat'
-export type Status = 'active' | 'alpha' | 'progress' | 'spec' | 'research' | 'candidate' | 'prototype' | 'earlier' | 'built'
+export type Status = 'alpha' | 'progress' | 'spec' | 'research' | 'candidate' | 'prototype'
 export interface Project { id: string; name: string; cat: Category; status: Status; tags: string[]; repo: string }
 export const REPO_BASE = 'https://github.com/shreyashjagtap157/'
 export const PROJECTS: Project[] = [
@@ -8,12 +8,12 @@ export const PROJECTS: Project[] = [
   { id: 'nexus', name: 'NexusAgent', cat: 'ai', status: 'alpha', tags: ['Python', 'Multi-agent systems', 'MCP'], repo: 'nexus-agent' },
   { id: 'aether', name: 'AetherOS', cat: 'sys', status: 'spec', tags: ['OS architecture', 'Rust', 'Capabilities'], repo: 'AetherOS' },
   { id: 'mosaic', name: 'Mosaic-µ', cat: 'sys', status: 'candidate', tags: ['C', 'Rust', 'Python', 'Unicode'], repo: 'Mosaic' },
-  { id: 'kilo', name: 'Kilo Code swarm', cat: 'ai', status: 'progress', tags: ['TypeScript', 'Agent orchestration', 'NVIDIA NIM'], repo: 'kilocode' },
-  { id: 'dnc', name: 'Dynamic Neural Computing', cat: 'ai', status: 'research', tags: ['Python', 'Execution model', 'Formal methods'], repo: 'Dynamic-Neural-Computing' },
+  { id: 'kilo', name: 'Kilo Code fork', cat: 'ai', status: 'progress', tags: ['TypeScript', 'Specialist agents', 'NVIDIA NIM'], repo: 'kilocode' },
+  { id: 'dnc', name: 'Dynamic Neural Computation', cat: 'ai', status: 'research', tags: ['Python', 'Execution model', 'Formal methods'], repo: 'Dynamic-Neural-Computing' },
   { id: 'tensor', name: 'Tensor Ring Decomposition', cat: 'ai', status: 'progress', tags: ['Python', 'PyTorch', 'Tensor decomposition'], repo: 'tensor-ring-decomposition' },
   { id: 'uep', name: 'Universal Education Platform', cat: 'plat', status: 'progress', tags: ['Java', 'Spring Boot', 'React', 'PostgreSQL'], repo: 'UEP' },
   { id: 'iot', name: 'Decentralized IoT Network', cat: 'plat', status: 'prototype', tags: ['Python', 'IoT', 'Smart contracts'], repo: 'decentralized-iot-network' },
-  { id: 'acts', name: 'ACTSConnect', cat: 'plat', status: 'prototype', tags: ['JavaScript', 'Networking'], repo: 'ACTSConnect' },
+  { id: 'acts', name: 'ACTSConnect', cat: 'plat', status: 'prototype', tags: ['React', 'Spring Boot', 'Networking'], repo: 'ACTSConnect' },
   { id: 'oah', name: 'OldAgeHome', cat: 'plat', status: 'progress', tags: ['Python', 'Django', 'REST APIs'], repo: 'OldAgeHome' },
   { id: 'milky', name: 'MilkyWay', cat: 'plat', status: 'progress', tags: ['Python', 'Django', 'Services'], repo: 'MilkyWay' },
   { id: 'aios', name: 'AI-OS', cat: 'sys', status: 'prototype', tags: ['Python', 'Agents', 'Multimodal input'], repo: 'ai-os' },

@@ -2,13 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { parseContributions, parsePushes } from './worker'
 
 describe('GitHub activity normalization', () => {
-  it('extracts dated contribution cells and the profile summary', () => {
+  it('extracts valid dated contribution cells and the profile summary', () => {
     const html = [
       '<h2 id="js-contribution-activity-description">12 contributions in the last year</h2>',
       '<td class="ContributionCalendar-day" data-date="2026-11-02" data-level="4"></td>',
       '<td class="ContributionCalendar-day" data-date="2026-11-01" data-level="0"></td>',
+      '<td class="ContributionCalendar-day" data-date="2026-02-30" data-level="2"></td>',
       '<td class="ContributionCalendar-day" data-date="invalid" data-level="2"></td>',
       '<td class="ContributionCalendar-day" data-date="2026-11-03"></td>',
+      '<td class="not-a-calendar-day" data-date="2026-11-04" data-level="1"></td>',
     ].join('')
     expect(parseContributions(html)).toEqual({
       summary: '12 contributions in the last year',
@@ -28,7 +30,7 @@ describe('GitHub activity normalization', () => {
     expect(parseContributions(html).contributions).toEqual([{ date: '2026-11-01', level: 3 }])
   })
 
-  it('keeps only valid public PushEvents and constructs validated commit links', () => {
+  it('keeps only safe public PushEvents and constructs validated commit links', () => {
     const pushes = parsePushes([
       {
         id: '1',
@@ -44,6 +46,8 @@ describe('GitHub activity normalization', () => {
       { id: '2', type: 'IssuesEvent', created_at: '2026-11-06T11:00:00Z', repo: { name: 'owner/project' } },
       { id: '3', type: 'PushEvent', created_at: '2026-11-06T12:00:00Z', repo: { name: 'javascript:alert(1)' }, payload: {} },
       { id: '4', type: 'PushEvent', created_at: 'not-a-date', repo: { name: 'owner/project' }, payload: {} },
+      null,
+      { type: 'PushEvent', created_at: '2026-11-06T13:00:00Z', repo: { name: 'owner/project' }, payload: { commits: [{ message: 4 }] } },
     ])
     expect(pushes).toHaveLength(1)
     expect(pushes[0]).toMatchObject({
@@ -54,7 +58,7 @@ describe('GitHub activity normalization', () => {
     })
   })
 
-  it('returns the newest push events first and limits the activity feed to six entries', () => {
+  it('returns newest valid push events first and limits the activity feed to six entries', () => {
     const events = Array.from({ length: 8 }, (_, index) => ({
       id: String(index),
       type: 'PushEvent',
@@ -66,5 +70,11 @@ describe('GitHub activity normalization', () => {
     expect(pushes).toHaveLength(6)
     expect(pushes[0].id).toBe('7')
     expect(pushes.at(-1)?.id).toBe('2')
+  })
+
+  it('returns an empty list for an invalid upstream event payload', () => {
+    expect(parsePushes(null)).toEqual([])
+    expect(parsePushes({ events: [] })).toEqual([])
+    expect(parsePushes([undefined, 3, 'not-an-event'])).toEqual([])
   })
 })

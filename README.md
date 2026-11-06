@@ -78,10 +78,10 @@ docs/                 Content source, design rules, verification notes
 
 ## GitHub activity
 
-The page embeds GitHub's own contribution-calendar image and separately fetches recent public push events for commit links. The event endpoint is unauthenticated and rate-limited, so a local ten-minute cache and graceful stale/error states are used. The recent-push list is not a complete contribution total and does not expose private activity. No GitHub access token is shipped to visitors.
+The page requests a same-origin `/api/github/activity` endpoint from the Cloudflare Worker. The Worker retrieves GitHub's contribution-calendar HTML and unauthenticated public-events API, parses dated contribution levels and recent public PushEvents, validates commit destinations, and returns structured JSON. The Worker Cache API keeps a per-data-center cache entry for five minutes; manual refresh bypasses the cached entry and refreshes it. GitHub's public-events API is rate-limited and exposes only recent public events, not a complete contribution history or private activity. No GitHub access token is shipped to the browser.
 
 ## Privacy and security
 
-The site is static and has no application backend, analytics, advertising trackers, or cookies. It does not use third-party contribution-image widgets. Fonts and translations are bundled locally. Browser preferences and the public-events cache stay in local storage.
+The site has no persistent application database, user-account backend, analytics, advertising trackers, or cookies. A stateless Cloudflare Worker handles the same-origin GitHub activity endpoint and serves static assets. GitHub is contacted server-side by that Worker; the browser only calls the site's own origin. Fonts and translations are bundled locally. Theme, language, and density preferences stay in browser storage.
 
 Security headers are configured in `public/_headers`. Keep the Content Security Policy restrictive and avoid inline scripts, inline styles, analytics, and unnecessary external runtime dependencies.

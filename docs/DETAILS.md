@@ -45,7 +45,7 @@ All listed repositories are under https://github.com/shreyashjagtap157/.
 | NexusAgent | `nexus-agent` | Local-first general-purpose multi-agent platform for coding, research, analysis, and automation, with specialist teams, tools, memory, MCP, and provider routing. Version 0.3.0-alpha.5 is an unreleased prerelease. |
 | AetherOS | `AetherOS` | Operating-system architecture/specification and host reference prototype. Not a bootable kernel; the QEMU RISC-V64 product slice has not started. |
 | Mosaic-µ | `Mosaic` | Byte-exact tokenizer/runtime candidate with C, Rust, and Python components, Unicode handling, and deterministic model packs. Full-release qualification is blocked; do not imply a qualified stable release. |
-| Kilo Code swarm | `kilocode` | Local fork of upstream Kilo Code. Experimental specialist-agent/swarm changes are in development. Clearly distinguish personal fork work from upstream product capabilities. |
+| Kilo Code fork | `kilocode` | Local fork of upstream Kilo Code. Experimental specialist-agent/swarm/NVIDIA NIM work belongs to the local fork context; the public README still mirrors upstream documentation and does not prove those changes are published. Keep those claims clearly separated. |
 | Dynamic Neural Computing | `Dynamic-Neural-Computing` | Formal execution model and Python research/reference runtime. External production qualification and full tensor-native execution remain open. |
 | Tensor Ring Decomposition | `tensor-ring-decomposition` | Python/PyTorch library with tensor-ring, ALS/SVD, and quantization-related implementations. Release readiness and benchmark claims require verification. |
 | Universal Education Platform | `UEP` | Multi-tenant education/training operations platform using Java/Spring Boot, React, and database adapters. Production qualification has not passed; local Windows acceptance remains in progress. |
@@ -63,6 +63,10 @@ All listed repositories are under https://github.com/shreyashjagtap157/.
 - For Helios, state clearly that it is concept/specification stage with no runtime implementation.
 - Do not publish private operational data, credentials, API keys, customer data, internal service identifiers, or personal data from project repositories.
 - Do not infer skill levels or impact metrics.
+
+## Inventory reconciliation
+
+The selected-work list contains exactly **14 repositories**: 4 languages/systems, 5 AI/agents, and 5 platforms/web. Every entry has a unique project ID and repository slug. This is a selected-work list, not a claim that these are the only repositories in the account.
 
 ## Excluded content
 

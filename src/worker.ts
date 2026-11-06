@@ -2,9 +2,9 @@ interface AssetFetcher { fetch(request: Request): Promise<Response> }
 interface Env { ASSETS: AssetFetcher }
 interface EdgeCache { match(request: Request): Promise<Response | undefined>; put(request: Request, response: Response): Promise<void> }
 interface RuntimeCaches { default: EdgeCache }
-type PushEvent = { id: string; type: string; created_at: string; repo?: { name?: string }; payload?: { ref?: string; head?: string; commits?: Array<{ sha: string; message: string }> } }
+type PushRecord = { id: string; repo: string; createdAt: string; branch: string; message: string; url: string | null }
 const USERNAME = 'shreyashjagtap157'
-const CACHE_CONTROL = 'public, max-age=0, s-maxage=300, stale-while-revalidate=900'
+const CACHE_CONTROL = 'public, max-age=300'
 
 function plainText(value: string): string {
   return value.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
@@ -12,17 +12,23 @@ function plainText(value: string): string {
     .replace(/&#39;/g, "'").replace(/&#x27;/gi, "'").replace(/\s+/g, ' ').trim()
 }
 function attribute(tag: string, name: string): string | null {
-  return tag.match(new RegExp('\\b' + name + '="([^"]*)"', 'i'))?.[1] ?? null
+  return tag.match(new RegExp('\\b' + name + '\\s*=\\s*"([^"]*)"', 'i'))?.[1] ?? null
+}
+function isCalendarDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const parsed = new Date(value + 'T00:00:00.000Z')
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
 }
 export function parseContributions(source: string) {
   const tags = source.match(/<td\b[^>]*>/gi) ?? []
   const days = new Map<string, number>()
   for (const tag of tags) {
-    if (!(attribute(tag, 'class') ?? '').includes('ContributionCalendar-day')) continue
+    const classes = (attribute(tag, 'class') ?? '').split(/\s+/)
+    if (!classes.includes('ContributionCalendar-day')) continue
     const date = attribute(tag, 'data-date')
     const rawLevel = attribute(tag, 'data-level')
     const level = rawLevel === null ? Number.NaN : Number(rawLevel)
-    if (date && /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isInteger(level) && level >= 0 && level <= 4) {
+    if (date && isCalendarDate(date) && Number.isInteger(level) && level >= 0 && level <= 4) {
       days.set(date, level)
     }
   }
@@ -32,26 +38,42 @@ export function parseContributions(source: string) {
     summary: heading ? plainText(heading[1]) : '',
   }
 }
-export function parsePushes(payload: unknown) {
+export function parsePushes(payload: unknown): PushRecord[] {
   if (!Array.isArray(payload)) return []
-  return (payload as PushEvent[])
-    .filter(event => event?.type === 'PushEvent' && typeof event.id === 'string' &&
-      typeof event.created_at === 'string' && Number.isFinite(Date.parse(event.created_at)) &&
-      /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(event.repo?.name ?? ''))
-    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
-    .slice(0, 6)
-    .map(event => {
-      const repo = event.repo!.name!
-      const commit = event.payload?.commits?.at(-1)
-      const sha = commit?.sha ?? event.payload?.head ?? ''
-      const branch = event.payload?.ref?.replace(/^refs\/heads\//, '') ?? ''
-      const validSha = /^[a-f0-9]{7,40}$/i.test(sha)
-      return {
-        id: event.id, repo, createdAt: event.created_at, branch,
-        message: commit?.message?.split('\n')[0] ?? '',
-        url: validSha ? 'https://github.com/' + repo + '/commit/' + sha : null,
-      }
+  const pushes: PushRecord[] = []
+  for (const item of payload as unknown[]) {
+    if (!item || typeof item !== 'object') continue
+    const event = item as Record<string, unknown>
+    if (event.type !== 'PushEvent') continue
+    const id = typeof event.id === 'string' ? event.id : ''
+    const createdAt = typeof event.created_at === 'string' ? event.created_at : ''
+    const repoValue = event.repo && typeof event.repo === 'object'
+      ? (event.repo as Record<string, unknown>).name : undefined
+    const repo = typeof repoValue === 'string' ? repoValue : ''
+    if (!id || !Number.isFinite(Date.parse(createdAt)) || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) continue
+
+    const eventPayload = event.payload && typeof event.payload === 'object'
+      ? event.payload as Record<string, unknown> : {}
+    const commits = Array.isArray(eventPayload.commits) ? eventPayload.commits : []
+    const lastCommit = commits.at(-1)
+    const commit = lastCommit && typeof lastCommit === 'object'
+      ? lastCommit as Record<string, unknown> : {}
+    const rawSha = typeof commit.sha === 'string' ? commit.sha
+      : typeof eventPayload.head === 'string' ? eventPayload.head : ''
+    const branchRef = typeof eventPayload.ref === 'string' ? eventPayload.ref : ''
+    const branch = branchRef.replace(/^refs\/heads\//, '')
+    const message = typeof commit.message === 'string' ? commit.message.split('\n')[0] : ''
+    const validSha = /^[a-f0-9]{7,40}$/i.test(rawSha)
+    pushes.push({
+      id,
+      repo,
+      createdAt,
+      branch,
+      message,
+      url: validSha ? 'https://github.com/' + repo + '/commit/' + rawSha : null,
     })
+  }
+  return pushes.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).slice(0, 6)
 }
 async function githubActivity(request: Request): Promise<Response> {
   const url = new URL(request.url)
@@ -75,7 +97,7 @@ async function githubActivity(request: Request): Promise<Response> {
   ])
   let contributions: Array<{ date: string; level: number }> = []
   let summary = ''
-  let pushes: ReturnType<typeof parsePushes> = []
+  let pushes: PushRecord[] = []
   let hasError = false
   if (calendarResult.status === 'fulfilled' && calendarResult.value.ok) {
     try {

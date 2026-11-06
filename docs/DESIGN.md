@@ -13,7 +13,7 @@ Present Shreyash Satish Jagtap as an engineer focused on backend systems, progra
 5. Omni case study: specification governance, staged roadmap, engineering challenge, and qualification status.
 6. Technical focus: skills grouped by discipline; no invented proficiency ratings.
 7. Engineering approach: explicit rules, inspectable reasoning/evidence, and separation of capability from readiness.
-8. GitHub activity: GitHub's own contribution calendar image and a separate live list of recent public push events.
+8. GitHub activity: Worker-parsed dated contribution cells and a separate live list of recent public push events, with links to validated commits.
 9. Experience and education.
 10. Contact and résumé.
 
@@ -56,19 +56,20 @@ English, Hindi, Marathi, German, and French are manually maintained. Every user-
 
 ## GitHub activity and privacy
 
-- The contribution calendar image is served by GitHub's own profile contribution endpoint; GitHub profile visibility settings determine what appears.
-- The recent-activity list uses the unauthenticated GitHub public-events endpoint and shows only recent public PushEvents. It is not a complete contribution feed and does not include private repository events.
-- Cache recent activity locally for ten minutes; support explicit refresh and a graceful stale/error state.
-- No analytics, ad trackers, cookies, or third-party contribution-image services.
-- Do not use a personal GitHub token in client code.
+- The Cloudflare Worker fetches GitHub's contribution-calendar HTML and parses its dated contribution cells; profile visibility settings determine what appears.
+- The Worker reads the unauthenticated GitHub public-events endpoint and shows only recent public PushEvents. This is not a complete contribution feed and does not include private repository events.
+- Cache normalized activity at the Cloudflare edge for five minutes per data centre, and support explicit refresh plus graceful partial/error states.
+- No analytics, ad trackers, cookies, or third-party contribution-image widgets.
+- GitHub requests originate from the Worker; browser JavaScript calls only the same-origin `/api/github/activity` endpoint.
+- Do not use a personal GitHub token in client code or Worker settings.
 
 ## Privacy and security
 
-- Static deployment; no application backend, analytics, ad tracking, or cookies.
+- Static assets plus a stateless Cloudflare Worker endpoint; no persistent application database, user-account backend, analytics, ad tracking, or cookies.
 - Keep user preferences and the activity cache in local browser storage only.
 - Display Pune, Maharashtra, India; never a street address.
 - Fonts are bundled locally.
-- CSP allows only the GitHub contribution image and the GitHub public-events API as third-party runtime origins.
+- CSP keeps browser runtime connections same-origin; GitHub is contacted server-side by the Worker and is not allowed as a browser-side `connect-src` or `img-src` origin.
 - CSP does not permit inline scripts or inline styles.
 - Do not add runtime dependencies without a clear engineering need.
 

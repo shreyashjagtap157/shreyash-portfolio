@@ -13,26 +13,45 @@ describe('portfolio content integrity', () => {
     for (const locale of [de, fr, hi, mr]) expect(Object.keys(locale).sort()).toEqual(expected)
   })
 
-  it('uses unique project identifiers and repository slugs', () => {
-    expect(new Set(PROJECTS.map(project => project.id)).size).toBe(PROJECTS.length)
-    expect(new Set(PROJECTS.map(project => project.repo.toLowerCase())).size).toBe(PROJECTS.length)
+  it('has exactly 14 unique selected repositories and project identifiers', () => {
+    expect(PROJECTS).toHaveLength(14)
+    expect(new Set(PROJECTS.map(project => project.id)).size).toBe(14)
+    expect(new Set(PROJECTS.map(project => project.repo.toLowerCase())).size).toBe(14)
+    expect(PROJECTS.map(project => project.repo)).toEqual([
+      'Omni---New', 'Helios', 'nexus-agent', 'AetherOS', 'Mosaic', 'kilocode',
+      'Dynamic-Neural-Computing', 'tensor-ring-decomposition', 'UEP',
+      'decentralized-iot-network', 'ACTSConnect', 'OldAgeHome', 'MilkyWay', 'ai-os',
+    ])
   })
 
-  it('has a localized detail-note key for each selected project', () => {
+  it('keeps category totals aligned with the visible filters', () => {
+    const count = (category: string) => PROJECTS.filter(project => project.cat === category).length
+    expect({ systems: count('sys'), ai: count('ai'), platforms: count('plat') }).toEqual({
+      systems: 4, ai: 5, platforms: 5,
+    })
+  })
+
+  it('uses only active maturity labels and provides one localized detail per project', () => {
+    const allowed = new Set(['alpha', 'progress', 'spec', 'research', 'candidate', 'prototype'])
+    expect(PROJECTS.every(project => allowed.has(project.status))).toBe(true)
     expect(Object.keys(PROJECT_DETAIL_KEYS).sort()).toEqual(PROJECTS.map(project => project.id).sort())
     for (const key of Object.values(PROJECT_DETAIL_KEYS)) expect(en[key as keyof typeof en]).toBeTruthy()
+    expect(Object.keys(en)).not.toContain('st_active')
+    expect(Object.keys(en)).not.toContain('st_earlier')
+    expect(Object.keys(en)).not.toContain('st_built')
   })
 
-  it('does not list the duplicate legacy Omni entry or claim projects are built', () => {
-    expect(PROJECTS.some(project => project.id === 'omni0')).toBe(false)
-    expect(PROJECTS.every(project => project.status !== ('built' as never))).toBe(true)
-  })
-
-  it('keeps Helios a non-neural symbolic architecture with perception-only frozen models', () => {
+  it('records Helios perception-only model use and flags the canonical-spec contradiction', () => {
     expect(PROJECTS.find(project => project.id === 'helios')?.status).toBe('spec')
     expect(en.p_helios).toContain('entirely non-neural symbolic core')
     expect(en.p_helios).toContain('untrusted observations')
-    expect(en.detail_helios).toContain('Neural models do not perform core reasoning')
     expect(en.detail_helios).toContain('No runtime implementation exists')
+    expect(en.detail_helios).toContain('Specification conflict to resolve')
+  })
+
+  it('does not attribute upstream Kilo Code functionality to the personal fork', () => {
+    expect(PROJECTS.find(project => project.id === 'kilo')?.name).toBe('Kilo Code fork')
+    expect(en.detail_kilo).toContain('upstream README still describes the upstream product')
+    expect(en.detail_kilo).toContain('experimental fork')
   })
 })

@@ -22,11 +22,11 @@ You are maintaining the portfolio repository for **Shreyash Satish Jagtap**. Rea
 
 - React + TypeScript + Vite, strict TypeScript.
 - Static Cloudflare Workers Static Assets deployment on the existing free `workers.dev` hostname; no custom domain purchase is needed.
-- No application backend, database, analytics, advertising tracking, or cookies. The only third-party runtime requests are the GitHub-hosted contribution calendar image and a read-only unauthenticated GitHub public-events API request for recent public pushes. The event response is cached locally. Never expose private activity or a personal token.
+- Serve Vite static assets through Cloudflare Workers Static Assets; use a stateless Worker route at `/api/github/activity` to retrieve/parse GitHub contribution-calendar HTML and recent public PushEvents. Cache normalized activity using the Worker Cache API for five minutes per data centre; manual refresh bypasses cached data. No persistent application database, user-account backend, analytics, advertising trackers, or cookies. Browser code must call only same-origin APIs; GitHub is contacted server-side by the Worker. Never expose private activity or a personal token.
 - All user-facing strings are present in all five locale files.
 - Preserve the four themes and three density modes.
 - Use semantic HTML, keyboard-accessible controls, reduced-motion support, responsive grid/flex, rem units, and visible focus.
-- Keep the Content Security Policy restrictive. No inline scripts or inline styles. Allow GitHub only for its profile calendar image and public-events API.
+- Keep the Content Security Policy restrictive. No inline scripts or inline styles. Browser `connect-src` and `img-src` should remain same-origin; GitHub requests are server-side Worker fetches.
 - Generated Playwright/Lighthouse artifacts belong in ignored build output, not Git.
 
 ## Required verification
