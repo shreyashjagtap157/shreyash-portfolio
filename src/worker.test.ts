@@ -1,0 +1,102 @@
+import { describe, expect, it } from 'vitest'
+import { isCacheFresh, isRefreshThrottled, parseContributions, parsePushes } from './worker'
+
+describe('GitHub activity normalization', () => {
+  it('extracts valid dated contribution cells and the profile summary', () => {
+    const html = [
+      '<h2 id="js-contribution-activity-description">12 contributions in the last year</h2>',
+      '<td class="ContributionCalendar-day" data-date="2026-11-02" data-level="4"></td>',
+      '<td class="ContributionCalendar-day" data-date="2026-11-01" data-level="0"></td>',
+      '<td class="ContributionCalendar-day" data-date="2026-02-30" data-level="2"></td>',
+      '<td class="ContributionCalendar-day" data-date="invalid" data-level="2"></td>',
+      '<td class="ContributionCalendar-day" data-date="2026-11-03"></td>',
+      '<td class="not-a-calendar-day" data-date="2026-11-04" data-level="1"></td>',
+    ].join('')
+    expect(parseContributions(html)).toEqual({
+      summary: '12 contributions in the last year',
+      contributions: [
+        { date: '2026-11-01', level: 0 },
+        { date: '2026-11-02', level: 4 },
+      ],
+    })
+  })
+
+  it('deduplicates repeated dates and rejects levels outside GitHub calendar bounds', () => {
+    const html = [
+      '<td class="ContributionCalendar-day" data-date="2026-11-01" data-level="1"></td>',
+      '<td class="ContributionCalendar-day" data-date="2026-11-01" data-level="3"></td>',
+      '<td class="ContributionCalendar-day" data-date="2026-11-02" data-level="9"></td>',
+    ].join('')
+    expect(parseContributions(html).contributions).toEqual([{ date: '2026-11-01', level: 3 }])
+  })
+
+  it('keeps only safe public PushEvents and constructs validated commit links', () => {
+    const pushes = parsePushes([
+      {
+        id: '1',
+        type: 'PushEvent',
+        created_at: '2026-11-06T10:00:00Z',
+        repo: { name: 'owner/project' },
+        payload: {
+          ref: 'refs/heads/main',
+          head: '0123456789abcdef0123456789abcdef01234567',
+          commits: [{ sha: '0123456789abcdef0123456789abcdef01234567', message: 'A commit\nbody' }],
+        },
+      },
+      { id: '2', type: 'IssuesEvent', created_at: '2026-11-06T11:00:00Z', repo: { name: 'owner/project' } },
+      { id: '3', type: 'PushEvent', created_at: '2026-11-06T12:00:00Z', repo: { name: 'javascript:alert(1)' }, payload: {} },
+      { id: '4', type: 'PushEvent', created_at: 'not-a-date', repo: { name: 'owner/project' }, payload: {} },
+      null,
+      { type: 'PushEvent', created_at: '2026-11-06T13:00:00Z', repo: { name: 'owner/project' }, payload: { commits: [{ message: 4 }] } },
+    ])
+    expect(pushes).toHaveLength(1)
+    expect(pushes[0]).toMatchObject({
+      repo: 'owner/project',
+      branch: 'main',
+      message: 'A commit',
+      url: 'https://github.com/owner/project/commit/0123456789abcdef0123456789abcdef01234567',
+    })
+  })
+
+  it('returns newest valid push events first and limits the activity feed to six entries', () => {
+    const events = Array.from({ length: 8 }, (_, index) => ({
+      id: String(index),
+      type: 'PushEvent',
+      created_at: new Date(Date.UTC(2026, 10, 1, index)).toISOString(),
+      repo: { name: 'owner/project-' + index },
+      payload: { ref: 'refs/heads/main', head: '0123456789abcdef0123456789abcdef01234567' },
+    }))
+    const pushes = parsePushes(events)
+    expect(pushes).toHaveLength(6)
+    expect(pushes[0].id).toBe('7')
+    expect(pushes.at(-1)?.id).toBe('2')
+  })
+
+  it('returns an empty list for an invalid upstream event payload', () => {
+    expect(parsePushes(null)).toEqual([])
+    expect(parsePushes({ events: [] })).toEqual([])
+    expect(parsePushes([undefined, 3, 'not-an-event'])).toEqual([])
+  })
+})
+
+
+describe('GitHub activity cache policy', () => {
+  const now = Date.parse('2026-11-06T12:00:00Z')
+
+  it('serves fresh cache entries for five minutes', () => {
+    expect(isCacheFresh('2026-11-06T11:56:00Z', now)).toBe(true)
+    expect(isCacheFresh('2026-11-06T11:54:59Z', now)).toBe(false)
+  })
+
+  it('rejects malformed, future-dated, and stale cache timestamps', () => {
+    expect(isCacheFresh('not-a-date', now)).toBe(false)
+    expect(isCacheFresh('2026-11-06T12:01:00Z', now)).toBe(false)
+    expect(isCacheFresh('2026-11-06T11:00:00Z', now)).toBe(false)
+  })
+
+  it('limits manual upstream refreshes to one per minute', () => {
+    expect(isRefreshThrottled('2026-11-06T11:59:30Z', now)).toBe(true)
+    expect(isRefreshThrottled('2026-11-06T11:58:59Z', now)).toBe(false)
+    expect(isRefreshThrottled('not-a-date', now)).toBe(false)
+  })
+})

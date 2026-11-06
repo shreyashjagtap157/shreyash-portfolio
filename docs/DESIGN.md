@@ -1,49 +1,75 @@
-# Design specification
+# Portfolio design and engineering rules
 
-## Goal
-Futuristic, state-of-the-art, enterprise-grade single-page portfolio. Structure modelled on parthghayal.com: strong hero with an interactive-feeling technical visual, project cards, case study, skills, experience, contact. All content must be real and verifiable.
+## Product intent
 
-## Layout
-- Top block: logo + name in large type at the left (clamp 1.9rem to 3.4rem); right-aligned details (location, email, phone, LinkedIn, GitHub, résumé). Two-column grid, stacks on screens under 56rem.
-- Sticky toolbar under it: section navigation on the left, three dropdowns on the right (Theme, Language, Density). Each dropdown button shows its label plus the currently selected name.
-- Hero (two columns): headline, subtitle, two buttons; right side a themed visual panel.
-- Sections in order: Projects (filters + equal-height card grid), Case study (Omni pipeline + bullets), Skills (grouped tags), Experience and education, Contact.
-- Everything uses grid or flex, rem units and spacing tokens. Container is `min(100% - 2*gutter, 72rem)`.
+Present Shreyash Satish Jagtap as an engineer focused on backend systems, programming-language design, systems engineering, symbolic computing, and AI-agent platforms. The interface should be technically literate, restrained, responsive, and honest about project maturity.
 
-## Themes (color, type, shape; switched via `data-theme`)
-| Theme | Background | Accent / accent 2 | Font | Radius | Visual |
-|---|---|---|---|---|---|
-| Void | #070b10 | #22d3ee / #22d3ee | JetBrains Mono | small | terminal build log, grid background |
-| Orbital | #05030f | #8b7cff / #22d3ee | Sora (light) | large | pulsing agent-swarm node graph, starfield |
-| Blueprint | #f1f5fb | #0d2a57 / #c2272d | IBM Plex Sans + Mono | tiny | spec to self-host flow, drafting grid (the only light theme) |
-| Aurora | #0a0d14 | #14b8a6 / #a78bfa | Manrope (heavy) | xlarge | frosted glass cards over aurora gradients |
+## Information architecture
 
-## Theme-switch animations (View Transitions API, clip-path reveal on the new theme)
-- Void: top-to-bottom scan, 900 ms.
-- Orbital: circle expanding from the dropdown button, 1000 ms.
-- Blueprint: left-to-right wipe, 800 ms.
-- Aurora: circle rising from bottom centre, 1100 ms.
-Instant switch when `prefers-reduced-motion` is set or the API is unsupported.
+1. Name and city-level location.
+2. Sticky section navigation with horizontal scrolling and a visible scrollbar on narrow screens.
+3. Theme, language, and density controls.
+4. Hero with a concise engineering summary.
+5. Selected work with status, tags, hash-routed detail pages, and repository links.
+6. Omni case study, technical focus, and engineering approach.
+7. GitHub contribution calendar and latest public pushes.
+8. Experience, education, contact, and résumé.
 
-## Density (independent of theme, via `data-density`)
-| Mode | Root font | Spacing scale `--s` | Control height |
-|---|---|---|---|
-| Compact | 13.5px | 0.7 | 2rem |
-| Comfortable (default) | 15px | 1 | 2.4rem |
-| Spacious | 16.5px | 1.4 | 2.9rem |
-Tokens live in `src/styles/theme.css`; spacing derives from `--s`.
+The selected-work inventory must contain no duplicate project IDs or repository slugs. The filter buttons, project routes, theme/language/density controls, refresh action, and navigation links must all perform real actions.
 
-## Dropdowns
-Custom accessible listbox: button with `aria-haspopup`, popup `role=listbox`, arrow keys, Home/End, Enter, Escape, click-outside, scroll active option into view. The language dropdown is searchable and shows "Built-in" or "Browser translation" per language. Popup anchors to the inline end edge and flips start-aligned on mobile.
+## Themes and density
 
-## Languages
-- Built-in, hand-translated: English, Hindi, Marathi, German, French.
-- Any other language in the list (about 45 more) uses the browser's on-device Translator API (Chromium) and is cached in localStorage; if unavailable, show a notice and a link to a translated copy.
-- Default language: browser preference. Manual choice is remembered. RTL languages set `dir=rtl`.
-- Project names, tech tags and personal names carry `translate="no"`.
+- Void: dark terminal/grid, JetBrains Mono, cyan accent.
+- Orbital: dark celestial layout, Sora, violet/cyan accents.
+- Blueprint: light drafting surface, IBM Plex Sans/Mono, navy/red accents.
+- Aurora: dark layered surfaces, Manrope, teal/violet accents.
 
-## Quality bar
-- WCAG 2.2 AA: contrast in all themes, visible focus, keyboard access, skip link, reduced motion.
-- Security: strict CSP and headers in `public/_headers`, no inline scripts, no third-party requests, fonts self-hosted.
-- Performance: static output, system-friendly font subsets, no tracking.
-- Privacy: city only, phone and email assembled at runtime, no cookies.
+Density modes: compact, comfortable, spacious. Theme and density state are independent and persisted locally.
+
+## Interaction and accessibility
+
+- Semantic project articles with separate anchors and no nested interactive controls.
+- Category filters update the visible project list and counts.
+- Project detail uses real hash navigation so a project can be linked and browser Back/Forward works.
+- Dropdowns support arrows, Home, End, Enter, Escape, click-outside, searchable filtering, safe empty states, and focus restoration.
+- Horizontal navigation remains keyboard focusable, scrollable, and visibly styled.
+- RTL direction is enabled for Arabic, Hebrew, Persian, and Urdu.
+- Visible focus, skip link, sufficient touch targets, sensible focus order, and reduced-motion support.
+- Theme transitions degrade gracefully where View Transitions are unsupported.
+- No inline event handlers or dynamic HTML injection.
+
+## Localization
+
+English, Hindi, Marathi, German, and French are manually maintained. Every user-facing string must exist in all five locale JSON files, except personal/project names and technology labels. The locale key sets are verified by Vitest. Browser translation is optional and must degrade gracefully.
+
+## GitHub activity architecture
+
+The UI requests same-origin `/api/github/activity`. The Cloudflare Worker fetches GitHub's public profile contribution fragment and unauthenticated public PushEvents, extracts dated contribution levels and recent commit messages, validates/sanitizes the data, and returns normalized JSON. The public activity feed excludes private repositories.
+
+- Cache the last fully refreshed result in the Cloudflare Cache API for up to six hours.
+- Consider activity fresh for five minutes.
+- Use the last successful payload as a visibly marked stale fallback when an upstream source fails.
+- Use an eight-second timeout for GitHub requests.
+- Throttle manual upstream refresh to one request per minute.
+- Handle partial, empty, malformed, rate-limited, and unavailable upstream responses without fabricated data.
+- No client-side GitHub token or external contribution-image/chart service.
+
+## Security and privacy
+
+- Static assets plus a stateless Cloudflare Worker route; no persistent application database, user account backend, analytics, ad tracking, or cookies.
+- Browser JavaScript connects only to the portfolio's same origin. GitHub API and HTML requests originate from the Worker.
+- Keep user preferences in browser storage only.
+- Display Pune, Maharashtra, India; never a street address.
+- Fonts are bundled locally.
+- CSP, Referrer-Policy, X-Content-Type-Options, and Permissions-Policy are configured in `public/_headers`.
+- Keep CSP restrictive; avoid inline scripts/styles, dynamic HTML injection, and unnecessary external runtime dependencies.
+
+## Verification
+
+CI must run typecheck, unit tests, production build, and Playwright browser tests. Cover the complete 4 themes × 3 densities × 4 viewport matrix, dropdown keyboard behavior, language switching, RTL, navigation scrolling, project filtering/routing, GitHub activity success/partial/stale/failure/refresh states, duplicate IDs, and nested interactive elements.
+
+A Lighthouse report is evidence only for the exact deployed build, URL, device profile, and timestamp used to generate it. Do not preserve stale scores as current claims.
+
+## Hosting
+
+Production hosting is Cloudflare Workers Static Assets using the existing free `workers.dev` hostname. Custom domains are optional. Do not deploy this portfolio to another hosting provider.

@@ -1,42 +1,89 @@
 # Shreyash Satish Jagtap — Portfolio
 
-Single-page React + TypeScript + Vite site. Four themes, three density modes, five built-in languages plus on-device translation for others. Static output, no backend, no database.
+A static React 19 + TypeScript engineering portfolio focused on backend systems, programming-language and systems engineering, symbolic computing, AI-agent platforms, and research.
 
-## Setup
-Requires Node 20+ (see `.nvmrc`).
+The site distinguishes concepts, specifications, prototypes, alpha software, candidate releases, and production qualification. A project appearing here is not a claim that it is production-ready.
+
+## Live hosting
+
+The portfolio is deployed to **Cloudflare Workers Static Assets** on the existing free `workers.dev` hostname:
+
+**https://shreyash-portfolio.ssjagtap2016.workers.dev/**
+
+The connected Cloudflare account already has the `ssjagtap2016.workers.dev` account subdomain, and the `shreyash-portfolio` Worker has its `workers.dev` hostname enabled. No custom domain purchase is needed. A name such as `shreyashjagtap.com` is optional.
+
+Deployment is Cloudflare-only. The repository is connected to Cloudflare Workers Builds; builds for the production branch run the verification/build commands and deploy the same Worker. Do not configure an alternative hosting provider.
+
+## Local development
+
+Use Node.js 22 or newer (see `.nvmrc`):
 
 ```bash
-npm install
-npm run dev          # http://localhost:5173
+npm ci
+npm run dev
+```
+
+## Verification
+
+```bash
 npm run typecheck
-npm run build        # outputs dist/
-npm run preview      # serve dist/ locally
+npm run test:unit
+npm run build
+npx playwright install chromium
+npm run test:e2e
 ```
 
-## Deploy to Cloudflare (free)
+`npm run check` runs typecheck, unit tests, and the production build.
+
+The browser suite exercises all 4 themes × 3 density modes × 4 viewport widths (360, 768, 1024, 1440 CSS pixels), plus theme persistence, dropdown keyboard/focus behavior, language search, RTL, reduced motion, horizontal navigation scrolling, project routing/filtering, DOM duplicate/nested-interactive checks, and GitHub activity loading/partial/failure/refresh states. GitHub Actions verifies pull requests and pushes. Cloudflare Workers Builds is the production deployment path.
+
+## Cloudflare deployment
+
+The Worker entry point is `src/worker.ts`; Vite writes static assets to `dist/`. `wrangler.jsonc` configures the existing `shreyash-portfolio` Worker, static asset binding, SPA fallback, observation, and `workers_dev: true`.
+
+For an explicitly requested manual deployment from an authenticated local checkout:
+
 ```bash
-npx wrangler login
-npm run deploy       # builds, then deploys dist/ via wrangler.jsonc
-```
-Or connect the Git repo in the Cloudflare dashboard (Workers & Pages) with build command `npm run build` and output directory `dist`. Security headers come from `public/_headers`.
-
-## Layout
-```
-src/data/profile.ts      name, links, contact (email/phone assembled at runtime)
-src/data/projects.ts     the 14 projects and the skills groups
-src/i18n/locales/*.json  en, hi, mr, de, fr (all UI and project text)
-src/i18n/                provider, language list, on-device translator
-src/theme/               theme + density provider, animated theme switch
-src/components/          Header, Controls, Dropdown, Hero, Projects, Sections
-src/styles/theme.css     design tokens (themes and density)
-src/styles/app.css       layout and components
-public/                  _headers, résumé PDF, logos, robots.txt
-tools/                   resume.py and logo.py generators (python, run from root)
-docs/                    PROMPT.md, DETAILS.md, DESIGN.md
+npm run deploy
 ```
 
-## Common tasks
-- Add or edit a project: `src/data/projects.ts` plus a `p_<id>` key in every `locales/*.json`.
-- Add a built-in language: new `locales/xx.json` (copy `en.json`), register it in `src/i18n/languages.ts`.
-- Regenerate the résumé: `pip install reportlab pypdf && python tools/resume.py`.
-- Regenerate the logo PNG: `pip install pillow && python tools/logo.py`.
+Normal production deployment is managed through Cloudflare Workers Builds after the production branch is updated. Do not deploy this portfolio to Fly.io, Vercel, Netlify, GitHub Pages, or another hosting platform.
+
+## Architecture
+
+```
+src/
+  components/       Header, navigation controls, hero, project grid, activity view, sections
+  data/              Profile, project metadata, localized project-note mapping
+  i18n/              Five hand-maintained locales and optional browser translation
+  styles/            Theme tokens, density modes, responsive layout
+  theme/             Persisted theme and density preferences
+  worker.ts           Cloudflare Worker API + static-asset fallback
+public/               Security headers, résumé, logos, social preview, sitemap
+tests/                Playwright browser tests
+docs/                 Content source, engineering rules, audit and validation notes
+```
+
+## Content maintenance
+
+- Project metadata and repository links live in `src/data/projects.ts`.
+- Project-specific maturity notes live in `src/i18n/locales/*.json`, keyed through `src/data/projectDetails.ts`.
+- English, German, French, Hindi, and Marathi dictionaries must have identical key sets.
+- Skill proficiency levels are not shown because no verified proficiency scale has been supplied.
+- Public location is city-level only: Pune, Maharashtra, India. No street address is stored.
+- Fiction, unsupported impact metrics, private operational details, and unverified production claims are excluded.
+- The selected-work grid has 14 intentionally selected repositories. It is not presented as a complete GitHub-account inventory.
+
+## GitHub activity
+
+The browser calls only the same-origin `/api/github/activity` endpoint. The Cloudflare Worker fetches GitHub's public contribution-calendar HTML and unauthenticated public PushEvents server-side, parses contribution dates/levels, validates push records and commit SHAs, then returns normalized JSON.
+
+The Worker keeps the last fully successful response in the Cloudflare Cache API for up to six hours. Data is considered fresh for five minutes. If GitHub is temporarily unavailable, the Worker can use the last successful response and marks it as partial/stale in the UI. Upstream requests have an eight-second timeout. Manual refresh bypasses a fresh cache entry but is throttled to one upstream refresh per minute to avoid repeatedly consuming GitHub's unauthenticated rate limit.
+
+This is only public activity. It is not a complete private contribution record. No GitHub access token is sent to or embedded in browser code.
+
+## Privacy and security
+
+There is no persistent application database, user-account backend, analytics, advertising tracker, or tracking cookie. The Cloudflare Worker is stateless apart from its edge cache and serves the static site. The browser connects only to the portfolio's own origin; GitHub is contacted server-side by the Worker. Fonts and translations are bundled locally. Theme, language, and density preferences stay in browser storage.
+
+Security headers and the restrictive Content Security Policy are defined in `public/_headers`. Keep browser `connect-src` and `img-src` same-origin, avoid inline scripts/styles, and do not add unnecessary third-party runtime dependencies.
