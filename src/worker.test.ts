@@ -214,3 +214,126 @@ describe('GitHub activity cache policy', () => {
     )).toBe('2026-11-07T12:00:00.000Z')
   })
 })
+
+
+describe('GitHub activity KV persistence', () => {
+  const assetEnv = { fetch: async () => new Response('asset') }
+
+  it('serves a fresh KV snapshot without contacting GitHub', async () => {
+    const payload = {
+      contributions: [{ date: '2026-11-07', level: 3 }],
+      summary: 'Fresh contribution snapshot',
+      pushes: [],
+      updatedAt: new Date().toISOString(),
+      partial: false,
+      stale: false,
+    }
+    const values = new Map<string, string>([
+      ['github-activity:v1:last-successful', JSON.stringify(payload)],
+    ])
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put() { throw new Error('Fresh cache reads must not write') },
+    }
+    const originalFetch = globalThis.fetch
+    let upstreamRequests = 0
+    globalThis.fetch = (async () => {
+      upstreamRequests += 1
+      return new Response('', { status: 503 })
+    }) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: assetEnv, ACTIVITY_KV: kv },
+      )
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual(payload)
+      expect(upstreamRequests).toBe(0)
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('persists a fully refreshed payload with the configured retention', async () => {
+    const values = new Map<string, string>()
+    const writes: { key: string; value: string; expirationTtl?: number }[] = []
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put(key: string, value: string, options?: { expirationTtl?: number }) {
+        values.set(key, value)
+        writes.push({ key, value, expirationTtl: options?.expirationTtl })
+      },
+    }
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const target = String(input)
+      if (target.includes('/contributions')) {
+        return new Response(
+          '<h2 id="js-contribution-activity-description">3 contributions in the last year</h2>' +
+          '<td class="ContributionCalendar-day" data-date="2026-11-07" data-level="2"></td>',
+          { status: 200, headers: { 'Content-Type': 'text/html' } },
+        )
+      }
+      return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } })
+    }) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: assetEnv, ACTIVITY_KV: kv },
+      )
+      const body = await response.json() as {
+        contributions: { date: string; level: number }[]
+        partial: boolean
+        stale: boolean
+      }
+      expect(response.status).toBe(200)
+      expect(body.contributions).toEqual([{ date: '2026-11-07', level: 2 }])
+      expect(body.partial).toBe(false)
+      expect(body.stale).toBe(false)
+      expect(writes).toHaveLength(1)
+      expect(writes[0].key).toBe('github-activity:v1:last-successful')
+      expect(writes[0].expirationTtl).toBe(6 * 60 * 60)
+      expect(JSON.parse(writes[0].value).summary).toBe('3 contributions in the last year')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('preserves the previous KV snapshot when upstream refreshes fail', async () => {
+    const previous = {
+      contributions: [{ date: '2026-11-01', level: 2 }],
+      summary: 'Last successful snapshot',
+      pushes: [],
+      updatedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+      partial: false,
+      stale: false,
+    }
+    const values = new Map<string, string>([
+      ['github-activity:v1:last-successful', JSON.stringify(previous)],
+    ])
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put() { throw new Error('Partial or failed responses must not replace last-good data') },
+    }
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = (async () => new Response('', { status: 503 })) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: assetEnv, ACTIVITY_KV: kv },
+      )
+      const body = await response.json() as typeof previous
+      expect(response.status).toBe(200)
+      expect(body.updatedAt).toBe(previous.updatedAt)
+      expect(body.contributions).toEqual(previous.contributions)
+      expect(body.partial).toBe(true)
+      expect(body.stale).toBe(true)
+      expect(values.get('github-activity:v1:last-successful')).toBe(JSON.stringify(previous))
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+})
