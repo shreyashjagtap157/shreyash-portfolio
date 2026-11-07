@@ -109,3 +109,15 @@ After the checkpoint, the Worker gained stronger cache/stale handling and corres
 4. Review the final live site with the owner and resolve project inclusion decisions (Miner/PromptWars) and external documentation contradictions (Helios/Kilo).
 
 No final "fully complete" claim is made until the latest CI and deployed Cloudflare smoke tests are green.
+
+
+## 10. About navigation, case studies, project visuals, and local development (2026-11-07)
+
+- Added an **About** navigation anchor before Projects, targeting the hero/about statement.
+- Expanded the content container to 80rem. Desktop navigation uses a wider single-row layout and hides its scrollbar; narrower layouts retain a visible horizontal scrollbar.
+- Replaced project initials with conceptual SVG architecture illustrations rather than arbitrary monograms. These are explicitly conceptual visuals, not screenshots of deployed products.
+- Added a project selector with distinct case studies for Omni, Helios, NexusAgent, UEP, and the Kilo fork. Each case study distinguishes verified maturity from intended architecture and roadmap work.
+- Rewrote engineering approach around repository/spec inspection, explicit constraints, coherent milestones, complete verification, and evidence-based reporting.
+- Added explanatory labels to LinkedIn, GitHub, and telephone contact links.
+- Local development now runs the actual Cloudflare Worker with built assets (`npm run dev`), so `/api/github/activity` is served locally by Wrangler rather than failing against Vite's static dev server. `npm run dev:ui` remains available for UI-only work, with API proxying to a separately running Worker on port 8787.
+- Activity UI now surfaces stale-cache state distinctly and avoids showing an empty-feed message after a network error.
