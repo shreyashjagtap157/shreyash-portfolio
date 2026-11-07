@@ -20,6 +20,7 @@ export function GitHubActivity() {
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState(false)
   const [partial, setPartial] = useState(false)
+  const [stale, setStale] = useState(false)
   const dateFormat = useMemo(() => new Intl.DateTimeFormat(lang, { dateStyle: 'medium' }), [lang])
   const timeFormat = useMemo(() => new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeStyle: 'short' }), [lang])
 
@@ -44,6 +45,7 @@ export function GitHubActivity() {
         setActivity(value)
         setError(false)
         setPartial(Boolean(value.partial))
+        setStale(Boolean(value.stale))
       }
     } catch (cause) {
       if (cause instanceof Error && cause.name === 'AbortError') return
@@ -120,7 +122,8 @@ export function GitHubActivity() {
           {updated && <p className="activity-updated">{t('activity_updated')} {updated}</p>}
           {error && <p className="activity-state" role="status">{t('activity_error')}</p>}
           {partial && <p className="activity-state" role="status">{t('activity_partial')}</p>}
-          {!loading && pushes.length === 0 && <p className="activity-state" role="status">{t('activity_empty')}</p>}
+          {stale && <p className="activity-state" role="status">{t('activity_stale')}</p>}
+          {!loading && !error && pushes.length === 0 && <p className="activity-state" role="status">{t('activity_empty')}</p>}
           {pushes.length > 0 && (
             <ol className="push-list">
               {pushes.map(push => (
