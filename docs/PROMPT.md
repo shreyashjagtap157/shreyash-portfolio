@@ -20,10 +20,10 @@ Maintain the portfolio for **Shreyash Satish Jagtap**. Read `README.md`, `docs/D
 - React + TypeScript + Vite.
 - Cloudflare Workers Static Assets only, on the existing free `workers.dev` hostname. No custom domain purchase is required.
 - Never deploy this portfolio to Fly.io, Vercel, Netlify, GitHub Pages, or another provider.
-- Serve static output through the existing Cloudflare Worker and use a stateless `/api/github/activity` Worker endpoint for GitHub calendar/events.
-- Worker cache: five-minute freshness, up to six-hour retention, stale fallback for upstream failures, eight-second upstream timeout, one-minute manual refresh cooldown.
+- Serve static output through the existing Cloudflare Worker and expose `/api/github/activity` as a same-origin Worker endpoint for GitHub calendar/events.
+- Store only the last fully successful public-activity snapshot in Cloudflare KV for up to six hours; partial or failed responses must never overwrite it. Consider it fresh for five minutes and use visibly marked stale fallback data when one upstream source fails.
 - The browser must call only same-origin APIs; do not expose a GitHub token or fetch GitHub directly from the browser.
-- No persistent application database, user-account backend, analytics, ad trackers, or tracking cookies.
+- Store manual refresh attempts separately in KV for a one-minute cooldown. KV is eventually consistent, so this is best-effort throttling, not a globally atomic rate limiter. If KV is unavailable, degrade to live upstream fetching without claiming stale persistence.
 - All user-facing strings must exist in all five maintained locales.
 - Preserve four themes, three density modes, accessible interactions, responsive behavior, and reduced-motion support.
 - Keep CSP restrictive and avoid inline scripts/styles or dynamic HTML injection.
