@@ -46,7 +46,7 @@ English, Hindi, Marathi, German, and French are manually maintained. Every user-
 
 The UI requests same-origin `/api/github/activity`. The Cloudflare Worker fetches GitHub's public profile contribution fragment and unauthenticated public PushEvents, extracts dated contribution levels and recent commit messages, validates/sanitizes the data, and returns normalized JSON. The public activity feed excludes private repositories.
 
-- Cache the last fully refreshed result in the Cloudflare Cache API for up to six hours.
+- Store the last fully refreshed result in Cloudflare KV for up to six hours; partial or failed refreshes must never overwrite it.
 - Consider activity fresh for five minutes.
 - Use the last successful payload as a visibly marked stale fallback when an upstream source fails.
 - Use an eight-second timeout for GitHub requests.
@@ -56,7 +56,7 @@ The UI requests same-origin `/api/github/activity`. The Cloudflare Worker fetche
 
 ## Security and privacy
 
-- Static assets plus a stateless Cloudflare Worker route; no persistent application database, user account backend, analytics, ad tracking, or cookies.
+- Use a separate one-minute KV refresh-attempt marker so stale data cannot bypass manual-refresh throttling. KV is eventually consistent, so the cooldown is best-effort rather than a globally atomic lock.
 - Browser JavaScript connects only to the portfolio's same origin. GitHub API and HTML requests originate from the Worker.
 - Keep user preferences in browser storage only.
 - Display Pune, Maharashtra, India; never a street address.
