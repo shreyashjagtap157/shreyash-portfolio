@@ -198,5 +198,11 @@
   "case_kilo_2h": "Specialist contracts",
   "case_kilo_2": "Architect, implementer, tester, and reviewer roles need explicit scope, artifacts, and acceptance criteria.",
   "case_kilo_3h": "Evidence-based handoff",
-  "case_kilo_3": "Require changed-file summaries, test output, review findings, and verifier decisions—not an agent success message."
+  "case_kilo_3": "Require changed-file summaries, test output, review findings, and verifier decisions—not an agent success message.",
+  "contact_linkedin_label": "LinkedIn — professional profile",
+  "contact_linkedin_description": "Career background, professional connections, and direct messaging.",
+  "contact_github_label": "GitHub — shreyashjagtap157",
+  "contact_github_description": "Source repositories, project history, code, and public contributions.",
+  "contact_phone_label": "Phone",
+  "contact_phone_description": "Direct telephone contact for relevant professional conversations."
 }
