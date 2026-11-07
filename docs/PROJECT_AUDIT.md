@@ -170,7 +170,7 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - The detailed CI npm audit report identified a transitive `undici` vulnerability chain through `miniflare` and `wrangler`: locked versions were Wrangler `4.151.3`, Miniflare `5.20261019.1-beta`, and Undici `7.29.1`. npm reported compatible fixes available.
 - Applied npm's non-forced compatible lockfile remediation without changing `package.json` or introducing a major-version upgrade. The lockfile now resolves Wrangler `4.158.0`, Miniflare `5.20261104.0-beta`, and Undici `7.30.1`.
 - The subsequent clean CI `npm ci` audit reported **0 vulnerabilities** (0 moderate, 0 high, 0 critical).
-- Added a non-blocking CI summary step that prints package, severity, affected range, advisory links, and fix availability when future advisories are present. It reported an empty advisory list on the current lockfile.
+- Added a CI dependency-security gate that prints package, severity, affected range, advisory links, and fix availability. It fails closed if the audit report is unreadable or reports any unresolved npm advisory.
 - Current implementation verification on commit `5d5b2d314dd858baaef00aa683dfe675e754ee56`:
   - TypeScript typecheck: passed.
   - Vitest: 33 tests passed across 3 files.
