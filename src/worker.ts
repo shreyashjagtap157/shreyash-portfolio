@@ -54,7 +54,7 @@ function isCalendarDate(value: string): boolean {
 }
 
 export function parseContributions(source: string) {
-  const tags = source.match(/<td\b[^>]*>/gi) ?? []
+  const tags = source.match(/<[^>]+>/gi) ?? []
   const days = new Map<string, number>()
 
   for (const tag of tags) {
@@ -146,6 +146,14 @@ export function isRefreshThrottled(updatedAt: string, now = Date.now()): boolean
   return Number.isFinite(timestamp) &&
     timestamp <= now &&
     now - timestamp < REFRESH_COOLDOWN_MS
+}
+
+export function resolveActivityUpdatedAt(
+  requestTime: string,
+  cachedUpdatedAt: string | null,
+  usedStaleData: boolean,
+): string {
+  return usedStaleData && cachedUpdatedAt ? cachedUpdatedAt : requestTime
 }
 
 function isActivityPayload(value: unknown): value is ActivityPayload {
@@ -251,7 +259,7 @@ async function githubActivity(request: Request): Promise<Response> {
     contributions,
     summary,
     pushes,
-    updatedAt: new Date().toISOString(),
+    updatedAt: resolveActivityUpdatedAt(new Date().toISOString(), cachedPayload?.updatedAt ?? null, usedStaleData),
     partial,
     stale: usedStaleData,
   }

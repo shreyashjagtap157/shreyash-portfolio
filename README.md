@@ -12,16 +12,18 @@ The portfolio is deployed to **Cloudflare Workers Static Assets** on the existin
 
 The connected Cloudflare account already has the `ssjagtap2016.workers.dev` account subdomain, and the `shreyash-portfolio` Worker has its `workers.dev` hostname enabled. No custom domain purchase is needed. A name such as `shreyashjagtap.com` is optional.
 
-Deployment is Cloudflare-only. The repository is connected to Cloudflare Workers Builds; builds for the production branch run the verification/build commands and deploy the same Worker. Do not configure an alternative hosting provider.
+Deployment is Cloudflare-only. The repository is connected to Cloudflare Workers Builds; builds for the production branch run the verification/build commands and deploy the same Worker. The current Workers Builds API token has been reported as deleted/rolled, so production deployment is blocked until a valid token is selected under the Worker’s Settings → Builds → API token. Do not configure an alternative hosting provider.
 
 ## Local development
 
-Use Node.js 22 or newer (see `.nvmrc`):
+Use Node.js 22 or newer (see `.nvmrc`). The default development command builds the assets and starts the actual Cloudflare Worker locally, so the GitHub activity endpoint works through the same Worker route used in production:
 
 ```bash
 npm ci
 npm run dev
 ```
+
+Open the Wrangler URL printed in the terminal (normally `http://localhost:8787`). For UI-only Vite hot reload, use `npm run dev:ui` in one terminal and `npx wrangler dev --port 8787` in another; the Vite `/api` proxy forwards activity requests to that Worker.
 
 ## Verification
 
@@ -35,7 +37,7 @@ npm run test:e2e
 
 `npm run check` runs typecheck, unit tests, and the production build.
 
-The browser suite exercises all 4 themes × 3 density modes × 4 viewport widths (360, 768, 1024, 1440 CSS pixels), plus theme persistence, dropdown keyboard/focus behavior, language search, RTL, reduced motion, horizontal navigation scrolling, project routing/filtering, DOM duplicate/nested-interactive checks, and GitHub activity loading/partial/failure/refresh states. GitHub Actions verifies pull requests and pushes. Cloudflare Workers Builds is the production deployment path.
+The browser suite exercises all 4 themes × 3 density modes × 4 viewport widths (360, 768, 1024, 1440 CSS pixels), plus theme persistence, dropdown keyboard/focus behavior, language search, RTL, reduced motion, horizontal navigation scrolling, About navigation, project routing/filtering, project-specific case-study switching, conceptual project diagrams, DOM duplicate/nested-interactive checks, and GitHub activity loading/partial/failure/refresh states. GitHub Actions verifies pull requests and pushes. Cloudflare Workers Builds is the production deployment path.
 
 ## Cloudflare deployment
 
@@ -68,6 +70,8 @@ docs/                 Content source, engineering rules, audit and validation no
 
 - Project metadata and repository links live in `src/data/projects.ts`.
 - Project-specific maturity notes live in `src/i18n/locales/*.json`, keyed through `src/data/projectDetails.ts`.
+- Project case studies are selected in the Case study section; each narrative distinguishes verified repository state from architecture intent and roadmap targets.
+- Project-card SVGs are conceptual diagrams, not product screenshots or claims of deployed functionality.
 - English, German, French, Hindi, and Marathi dictionaries must have identical key sets.
 - Skill proficiency levels are not shown because no verified proficiency scale has been supplied.
 - Public location is city-level only: Pune, Maharashtra, India. No street address is stored.

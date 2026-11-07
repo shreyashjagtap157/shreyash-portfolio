@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isCacheFresh, isRefreshThrottled, parseContributions, parsePushes } from './worker'
+import { isCacheFresh, isRefreshThrottled, parseContributions, parsePushes, resolveActivityUpdatedAt } from './worker'
 
 describe('GitHub activity normalization', () => {
   it('extracts valid dated contribution cells and the profile summary', () => {
@@ -19,6 +19,18 @@ describe('GitHub activity normalization', () => {
         { date: '2026-11-02', level: 4 },
       ],
     })
+  })
+
+  it('extracts calendar days from non-table HTML elements as well as table cells', () => {
+    const html = [
+      '<rect class="ContributionCalendar-day" data-date="2026-11-05" data-level="2"></rect>',
+      '<tool-tip class="ContributionCalendar-day" data-date="2026-11-06" data-level="4"></tool-tip>',
+      '<span class="not-a-calendar-day" data-date="2026-11-07" data-level="3"></span>',
+    ].join('')
+    expect(parseContributions(html).contributions).toEqual([
+      { date: '2026-11-05', level: 2 },
+      { date: '2026-11-06', level: 4 },
+    ])
   })
 
   it('deduplicates repeated dates and rejects levels outside GitHub calendar bounds', () => {
@@ -98,5 +110,26 @@ describe('GitHub activity cache policy', () => {
     expect(isRefreshThrottled('2026-11-06T11:59:30Z', now)).toBe(true)
     expect(isRefreshThrottled('2026-11-06T11:58:59Z', now)).toBe(false)
     expect(isRefreshThrottled('not-a-date', now)).toBe(false)
+  })
+
+  it('preserves the last successful timestamp when stale cached data is reused', () => {
+    expect(resolveActivityUpdatedAt(
+      '2026-11-07T12:00:00.000Z',
+      '2026-11-06T08:30:00.000Z',
+      true,
+    )).toBe('2026-11-06T08:30:00.000Z')
+  })
+
+  it('uses the current request timestamp when no stale fallback was used', () => {
+    expect(resolveActivityUpdatedAt(
+      '2026-11-07T12:00:00.000Z',
+      '2026-11-06T08:30:00.000Z',
+      false,
+    )).toBe('2026-11-07T12:00:00.000Z')
+    expect(resolveActivityUpdatedAt(
+      '2026-11-07T12:00:00.000Z',
+      null,
+      true,
+    )).toBe('2026-11-07T12:00:00.000Z')
   })
 })

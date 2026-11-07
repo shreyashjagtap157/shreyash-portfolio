@@ -3,7 +3,7 @@ import { useI18n } from '../i18n/I18nProvider'
 export function Hero() {
   const { t } = useI18n()
   return (
-    <div className="hero">
+    <div className="hero" id="about">
       <div className="hero-copy">
         <h1>{t('h1')}</h1>
         <p className="sub">{t('sub')}</p>
