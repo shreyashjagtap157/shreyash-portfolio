@@ -184,11 +184,11 @@ test.describe('localized project case studies', () => {
 
 test.describe('localized contact links', () => {
   const locales = [
-    { locale:'en', linkedin:'LinkedIn — professional profile', linkedinDescription:'Career background, professional connections, and direct messaging.', githubDescription:'Source repositories, project history, code, and public contributions.', phone:'Phone', phoneDescription:'Direct telephone contact for relevant professional conversations.' },
-    { locale:'de', linkedin:'LinkedIn — berufliches Profil', linkedinDescription:'Beruflicher Werdegang, professionelle Kontakte und direkte Nachrichten.', githubDescription:'Quellcode-Repositories, Projektverlauf, Code und öffentliche Beiträge.', phone:'Telefon', phoneDescription:'Direkter telefonischer Kontakt für relevante berufliche Gespräche.' },
-    { locale:'fr', linkedin:'LinkedIn — profil professionnel', linkedinDescription:'Parcours professionnel, relations professionnelles et messages directs.', githubDescription:'Dépôts de code source, historique des projets, code et contributions publiques.', phone:'Téléphone', phoneDescription:'Contact téléphonique direct pour les échanges professionnels pertinents.' },
-    { locale:'hi', linkedin:'LinkedIn — पेशेवर प्रोफ़ाइल', linkedinDescription:'करियर की जानकारी, पेशेवर संपर्क और सीधे संदेश।', githubDescription:'सोर्स रिपॉज़िटरी, प्रोजेक्ट इतिहास, कोड और सार्वजनिक योगदान।', phone:'फ़ोन', phoneDescription:'प्रासंगिक पेशेवर बातचीत के लिए सीधे टेलीफ़ोन पर संपर्क करें।' },
-    { locale:'mr', linkedin:'LinkedIn — व्यावसायिक प्रोफाइल', linkedinDescription:'कारकिर्दीची माहिती, व्यावसायिक संपर्क आणि थेट संदेश.', githubDescription:'सोर्स रिपॉझिटरी, प्रकल्पाचा इतिहास, कोड आणि सार्वजनिक योगदान.', phone:'फोन', phoneDescription:'संबंधित व्यावसायिक चर्चांसाठी थेट दूरध्वनी संपर्क.' },
+    { locale:'en', linkedin:'LinkedIn — professional profile', linkedinDescription:'Career background, professional connections, and direct messaging.', github:'GitHub — shreyashjagtap157', githubDescription:'Source repositories, project history, code, and public contributions.', phone:'Phone', phoneDescription:'Direct telephone contact for relevant professional conversations.' },
+    { locale:'de', linkedin:'LinkedIn — berufliches Profil', linkedinDescription:'Beruflicher Werdegang, professionelle Kontakte und direkte Nachrichten.', github:'GitHub — shreyashjagtap157', githubDescription:'Quellcode-Repositories, Projektverlauf, Code und öffentliche Beiträge.', phone:'Telefon', phoneDescription:'Direkter telefonischer Kontakt für relevante berufliche Gespräche.' },
+    { locale:'fr', linkedin:'LinkedIn — profil professionnel', linkedinDescription:'Parcours professionnel, relations professionnelles et messages directs.', github:'GitHub — shreyashjagtap157', githubDescription:'Dépôts de code source, historique des projets, code et contributions publiques.', phone:'Téléphone', phoneDescription:'Contact téléphonique direct pour les échanges professionnels pertinents.' },
+    { locale:'hi', linkedin:'LinkedIn — पेशेवर प्रोफ़ाइल', linkedinDescription:'करियर की जानकारी, पेशेवर संपर्क और सीधे संदेश।', github:'GitHub — shreyashjagtap157', githubDescription:'सोर्स रिपॉज़िटरी, प्रोजेक्ट इतिहास, कोड और सार्वजनिक योगदान।', phone:'फ़ोन', phoneDescription:'प्रासंगिक पेशेवर बातचीत के लिए सीधे टेलीफ़ोन पर संपर्क करें।' },
+    { locale:'mr', linkedin:'LinkedIn — व्यावसायिक प्रोफाइल', linkedinDescription:'कारकिर्दीची माहिती, व्यावसायिक संपर्क आणि थेट संदेश.', github:'GitHub — shreyashjagtap157', githubDescription:'सोर्स रिपॉझिटरी, प्रकल्पाचा इतिहास, कोड आणि सार्वजनिक योगदान.', phone:'फोन', phoneDescription:'संबंधित व्यावसायिक चर्चांसाठी थेट दूरध्वनी संपर्क.' },
   ] as const
   for (const item of locales) {
     test(`contact-link copy uses the ${item.locale} dictionary`, async ({ page }) => {
@@ -197,6 +197,7 @@ test.describe('localized contact links', () => {
       const links = page.locator('.contact-link-group')
       await expect(links.nth(0).getByRole('link')).toHaveText(item.linkedin)
       await expect(links.nth(0).locator('small')).toHaveText(item.linkedinDescription)
+      await expect(links.nth(1).getByRole('link')).toHaveText(item.github)
       await expect(links.nth(1).locator('small')).toHaveText(item.githubDescription)
       await expect(links.nth(2).getByRole('link')).toContainText(item.phone)
       await expect(links.nth(2).locator('small')).toHaveText(item.phoneDescription)
