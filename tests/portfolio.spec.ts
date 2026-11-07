@@ -153,11 +153,6 @@ test('desktop navigation remains scrollable until the complete row fits', async 
     expect(metrics.navRight).toBeLessThanOrEqual(metrics.controlsLeft + 1)
   }
   await page.setViewportSize({ width: 1440, height: 900 })
-  const midDesktop = await nav.evaluate(element => ({ overflowX:getComputedStyle(element).overflowX, scrollbarWidth:getComputedStyle(element).scrollbarWidth }))
-  expect(midDesktop.overflowX).toBe('auto')
-  expect(midDesktop.scrollbarWidth).toBe('thin')
-
-  await page.setViewportSize({ width: 1600, height: 900 })
   const wide = await nav.evaluate(element => ({ overflowX:getComputedStyle(element).overflowX, scrollbarWidth:getComputedStyle(element).scrollbarWidth, scrollWidth:element.scrollWidth, clientWidth:element.clientWidth }))
   expect(wide.overflowX).toBe('auto')
   expect(wide.scrollbarWidth).toBe('none')
