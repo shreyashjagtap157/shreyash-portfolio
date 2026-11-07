@@ -1,8 +1,8 @@
 # Portfolio project audit and issue ledger
 
-**Audit date:** 2026-11-06  
+**Audit date:** 2026-11-07  
 **Repository:** `shreyashjagtap157/shreyash-portfolio`  
-**Review branch:** `work/portfolio-quality-refresh`  
+**Review branch:** `work/portfolio-about-case-studies`  
 **Production target:** Cloudflare Worker `shreyash-portfolio`  
 **Public hostname:** https://shreyash-portfolio.ssjagtap2016.workers.dev/
 
@@ -123,16 +123,30 @@ No final "fully complete" claim is made until the latest CI and deployed Cloudfl
 - Activity UI now surfaces stale-cache state distinctly and avoids showing an empty-feed message after a network error.
 
 
-## 11. Latest verification and production deployment gate (2026-11-07)
+## 11. Current review, verification, and Cloudflare deployment gate (2026-11-07)
 
-- Review PR: [#2](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/2), currently open against `main`; 19 files changed, 146 additions, 38 deletions.
-- Latest branch head: `a9afcd4bf975360e0e7d51c34cae2fd9c13420f0`.
-- GitHub Actions run [42368331577](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42368331577): **success**.
+- Review PR: [#2](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/2), open against `main` from `work/portfolio-about-case-studies`. The branch is not merged, and no production deployment is claimed.
+- Latest branch head: `d702a2a77678ab68952de3e3795285226628ba5e`.
+- GitHub Actions run [42373223412](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42373223412) passed on this exact revision:
   - TypeScript typecheck: passed.
   - Vitest: 24 tests passed across 3 files.
   - Production build: passed, 63 modules transformed.
-  - Playwright Chromium: 66 tests passed.
-- Cloudflare Workers Builds is still blocked before dependency installation. Its selected build token was reported by Cloudflare as deleted/rolled. The most recent deployment record remains 2026-10-23; no claim is made that PR #2 is live.
-- Required deployment unblock: in Cloudflare Dashboard, open Workers & Pages → `shreyash-portfolio` → Settings → Builds → API token. Select or create a valid build token, then ensure the production build configuration references its current UUID. Do not expose the token secret in chat or commit it to Git.
-- After the token is repaired: run a Cloudflare production build for `main`, verify successful deployment, then smoke-test the live home page and `/api/github/activity` endpoint and inspect browser console/network failures.
-- PR #2 remains unmerged until the Cloudflare production deployment gate can be completed; this avoids representing an un-deployed code change as a live-site fix.
+  - Playwright Chromium: 72 tests passed, including navigation at 1,100px, 1,200px, 1,360px, and 1,440px, plus case-study content checks in English, German, French, Hindi, and Marathi.
+- All five built-in locale dictionaries contain 200 keys each with matching key sets, including the full case-study content.
+- Automated review findings on desktop navigation overflow and untranslated case-study content were addressed with higher-specificity toolbar rules, a desktop-only wider toolbar container, localized dictionary entries, and regression tests. A fresh review of the final revision remains advisable before merging.
+- Cloudflare Worker: `shreyash-portfolio`, script tag `a934c1d629784998983f15b258830b5f`; repository connection: `shreyashjagtap157/shreyash-portfolio`, production branch: `main`.
+- Production build command: `npm ci && npm run check`; deploy command: `npx wrangler deploy`.
+- Latest inspected Cloudflare build `2bb5f642-3352-4acc-8990-64adeade14eb` stopped before dependency installation. Its log explicitly reports that the selected Build token was deleted or rolled.
+- Production settings and trigger still reference Build token UUID `8c144870-c82c-428f-8a7a-40c180d4294c`. Cloudflare lists two Build-token records, but both reference the same underlying Cloudflare token ID; switching between those records does not establish a valid independent credential.
+- Workers Builds remains connected to the expected GitHub repository and `main` branch. No token secret was exposed, regenerated, or changed in this workflow.
+- The latest live Worker deployment record is `2026-10-23T15:21:08.788883Z`. The PR has not been deployed. Its code cannot be represented as live until the token is repaired and a successful Cloudflare build/deploy is observed.
+- Required owner action: in Cloudflare Dashboard, open Workers & Pages → `shreyash-portfolio` → Settings → Builds → API token. Select/create a valid API token and refresh the associated Build token. Do not paste the secret into chat or commit it to Git.
+- After credential repair: trigger a Cloudflare production build from `main`; verify successful build and deployment; smoke-test the live page and `/api/github/activity`; inspect response headers, browser console, and network failures.
+
+## 12. Review follow-up: responsive navigation and localization
+
+- The primary navigation remains horizontally scrollable with a visible scrollbar throughout the 1,100–1,360px intermediate desktop range. The toolbar container expands to 84rem at desktop widths, making the full row fit at 1,440px; the scrollbar is hidden only at that tested width, with overflow still configured as a safety fallback.
+- Omni, Helios, NexusAgent, UEP, and Kilo Code fork case-study names, introductions, headings, and narrative text are stored in all five built-in dictionaries: English, German, French, Hindi, and Marathi.
+- Playwright coverage verifies the desktop navigation/control boundary at intermediate widths and confirms that the full navigation row fits before hiding the scrollbar at 1,440px. Locale tests verify Omni and Helios case-study names and introductions in all five built-in languages.
+- The 80rem main content container remains unchanged; only the desktop toolbar is allowed a slightly wider 84rem container to provide sufficient room for navigation and controls.
+- Project maturity, external documentation conflicts, public-only GitHub activity, and the Cloudflare deployment gate remain explicit; no production-readiness or live-deployment claim is introduced.
