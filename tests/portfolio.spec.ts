@@ -125,6 +125,31 @@ test.describe('navigation and project behavior', () => {
     expect(await nav.evaluate(element => element.scrollLeft)).toBeGreaterThan(0)
   })
 
+  test('About is the first primary navigation item and targets the hero statement', async ({ page }) => {
+    await page.goto('/')
+    const nav = page.getByRole('navigation', { name: 'Primary navigation' })
+    await expect(nav.getByRole('link').first()).toHaveText('About')
+    await expect(nav.getByRole('link').first()).toHaveAttribute('href', '#about')
+    await expect(page.locator('#about h1')).toBeVisible()
+  })
+
+  test('project case study selector switches between evidence-bounded project narratives', async ({ page }) => {
+    await page.goto('/')
+    const selector = page.getByLabel('Choose a project case study')
+    await expect(page.getByRole('heading', { name: 'Omni — language and compiler engineering' })).toBeVisible()
+    await selector.selectOption('helios')
+    await expect(page.getByRole('heading', { name: 'Helios — symbolic cognitive architecture' })).toBeVisible()
+    await expect(page.getByText(/Frozen models may produce candidate observations/)).toBeVisible()
+    await selector.selectOption('uep')
+    await expect(page.getByRole('heading', { name: 'UEP — multi-tenant education platform' })).toBeVisible()
+  })
+
+  test('project visuals are diagrams rather than initial-based placeholders', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('.project-card .project-diagram')).toHaveCount(14)
+    await expect(page.locator('.project-card .visual-symbol')).toHaveCount(0)
+  })
+
   test('project detail and repository links remain independent', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('link', { name: 'Omni', exact: true }).click()
