@@ -90,6 +90,6 @@ This is only public activity. It is not a complete private contribution record. 
 
 ## Privacy and security
 
-There is no persistent application database, user-account backend, analytics, advertising tracker, or tracking cookie. The Cloudflare Worker is stateless apart from its edge cache and serves the static site. The browser connects only to the portfolio's own origin; GitHub is contacted server-side by the Worker. Fonts and translations are bundled locally. Theme, language, and density preferences stay in browser storage.
+There is no user-account backend, application profile database, analytics, advertising tracker, or tracking cookie. The Worker serves static assets and uses Cloudflare KV only for the last successful public GitHub-activity snapshot (up to six hours) and a separate manual-refresh cooldown marker (one minute). This cache contains public activity data only; it is not a user database and does not include private-repository activity. The browser connects only to the portfolio's own origin; GitHub is contacted server-side by the Worker. Fonts and translations are bundled locally. Theme, language, and density preferences stay in browser storage.
 
 Security headers and the restrictive Content Security Policy are defined in `public/_headers`. Keep browser `connect-src` and `img-src` same-origin, avoid inline scripts/styles, and do not add unnecessary third-party runtime dependencies.
