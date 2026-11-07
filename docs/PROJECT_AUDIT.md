@@ -179,3 +179,16 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
   - GitHub Actions push run [42387174246](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42387174246): passed.
   - GitHub Actions PR run [42387179600](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42387179600): passed.
 - PR #2 remains open and is not deployed. The production deployment gate is still the expired/deleted Cloudflare Workers Builds token recorded in section 11; the lockfile security remediation does not change production deployment state.
+
+## 15. Live revalidation after dependency-security remediation (2026-11-07)
+
+- Revalidated the active review branch and PR #2 against the live repository. The PR remains open and unmerged; its exact head at this checkpoint is `09a61d3249d230ab62f4aa94669be280f5bea94a`.
+- Both GitHub Actions runs for that exact head completed successfully: push run [42387713021](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42387713021) and pull-request run [42387716952](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42387716952).
+- The verified checks on this revision are TypeScript typecheck, 33 Vitest tests across 3 files, Vite production build (63 modules transformed), 77 Playwright Chromium tests, and npm audit with zero reported vulnerabilities. CI now fails closed when the audit report cannot be parsed or when any advisory remains.
+- Re-read the Cloudflare account's Worker, Workers Builds settings, build-token metadata, build history, and deployment history. The production Worker remains connected to `shreyashjagtap157/shreyash-portfolio` on `main`; build command is `npm ci && npm run check`, deploy command is `npx wrangler deploy`, and the production trigger still references Build-token UUID `8c144870-c82c-428f-8a7a-40c180d4294c`.
+- Latest recorded Workers Build is `2bb5f642-3352-4acc-8990-64adeade14eb`, stopped with outcome `fail` on 2026-11-06. Its log explicitly states: the selected build token was deleted or rolled and cannot be used. The failure occurred before dependency installation; it is not evidence of a failing application build.
+- Cloudflare lists two Build-token metadata records, but both reference the same underlying Cloudflare API-token identifier. Selecting the other record therefore does not establish an independent valid credential. Token secrets are not readable from the metadata endpoint.
+- Latest production deployment remains Worker version 19, deployed at `2026-10-23T15:21:08.788883Z`. The November source changes remain undeployed; no production smoke-test pass is claimed.
+- No Cloudflare token was created, rotated, deleted, or exposed during this inspection. The required owner action remains to create/select a valid, appropriately scoped Cloudflare API token in Cloudflare's dashboard and refresh the Workers Build-token association without sharing the secret in chat or Git.
+- After the credential repair, run the existing production build trigger and verify the new deployment version, live page, `/api/github/activity` response, cache/refresh behavior, security headers, and browser console/network errors. Keep PR #2 open until the chosen merge and deployment sequence is explicitly completed.
+
