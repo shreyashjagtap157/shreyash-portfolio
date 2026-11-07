@@ -21,6 +21,18 @@ describe('GitHub activity normalization', () => {
     })
   })
 
+  it('extracts calendar days from non-table HTML elements as well as table cells', () => {
+    const html = [
+      '<rect class="ContributionCalendar-day" data-date="2026-11-05" data-level="2"></rect>',
+      '<tool-tip class="ContributionCalendar-day" data-date="2026-11-06" data-level="4"></tool-tip>',
+      '<span class="not-a-calendar-day" data-date="2026-11-07" data-level="3"></span>',
+    ].join('')
+    expect(parseContributions(html).contributions).toEqual([
+      { date: '2026-11-05', level: 2 },
+      { date: '2026-11-06', level: 4 },
+    ])
+  })
+
   it('deduplicates repeated dates and rejects levels outside GitHub calendar bounds', () => {
     const html = [
       '<td class="ContributionCalendar-day" data-date="2026-11-01" data-level="1"></td>',
