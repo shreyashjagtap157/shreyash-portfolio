@@ -148,6 +148,14 @@ export function isRefreshThrottled(updatedAt: string, now = Date.now()): boolean
     now - timestamp < REFRESH_COOLDOWN_MS
 }
 
+export function resolveActivityUpdatedAt(
+  requestTime: string,
+  cachedUpdatedAt: string | null,
+  usedStaleData: boolean,
+): string {
+  return usedStaleData && cachedUpdatedAt ? cachedUpdatedAt : requestTime
+}
+
 function isActivityPayload(value: unknown): value is ActivityPayload {
   if (!value || typeof value !== 'object') return false
   const payload = value as Partial<ActivityPayload>
@@ -251,7 +259,7 @@ async function githubActivity(request: Request): Promise<Response> {
     contributions,
     summary,
     pushes,
-    updatedAt: new Date().toISOString(),
+    updatedAt: resolveActivityUpdatedAt(new Date().toISOString(), cachedPayload?.updatedAt ?? null, usedStaleData),
     partial,
     stale: usedStaleData,
   }
