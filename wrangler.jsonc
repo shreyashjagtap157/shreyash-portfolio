@@ -14,6 +14,12 @@
       "head_sampling_rate": 0.05
     }
   },
+  "kv_namespaces": [
+    {
+      "binding": "ACTIVITY_KV",
+      "id": "f5b00902986840448a64aa9a7bb05ab5"
+    }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

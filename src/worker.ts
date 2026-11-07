@@ -1,10 +1,12 @@
 interface AssetFetcher { fetch(request: Request): Promise<Response> }
-interface Env { ASSETS: AssetFetcher }
-interface EdgeCache {
-  match(request: Request): Promise<Response | undefined>
-  put(request: Request, response: Response): Promise<void>
+interface ActivityKV {
+  get(key: string, options?: { type: 'text'; cacheTtl?: number }): Promise<string | null>
+  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>
 }
-interface RuntimeCaches { default: EdgeCache }
+interface Env {
+  ASSETS: AssetFetcher
+  ACTIVITY_KV?: ActivityKV
+}
 
 type Contribution = { date: string; level: number }
 type PushRecord = {
@@ -28,6 +30,10 @@ const USERNAME = 'shreyashjagtap157'
 const FRESH_CACHE_MS = 5 * 60 * 1000
 const REFRESH_COOLDOWN_MS = 60 * 1000
 const CACHE_RETENTION_SECONDS = 6 * 60 * 60
+const REFRESH_STATE_RETENTION_SECONDS = 60
+const KV_READ_CACHE_SECONDS = 30
+const ACTIVITY_PAYLOAD_KEY = 'github-activity:v1:last-successful'
+const REFRESH_ATTEMPT_KEY = 'github-activity:v1:last-refresh-attempt'
 const UPSTREAM_TIMEOUT_MS = 8 * 1000
 
 function plainText(value: string): string {
@@ -148,6 +154,13 @@ export function isRefreshThrottled(updatedAt: string, now = Date.now()): boolean
     now - timestamp < REFRESH_COOLDOWN_MS
 }
 
+export function refreshRetryAfterSeconds(attemptedAt: string, now = Date.now()): number {
+  const timestamp = Date.parse(attemptedAt)
+  if (!Number.isFinite(timestamp) || timestamp > now) return 0
+  const remaining = REFRESH_COOLDOWN_MS - (now - timestamp)
+  return remaining > 0 ? Math.ceil(remaining / 1000) : 0
+}
+
 export function resolveActivityUpdatedAt(
   requestTime: string,
   cachedUpdatedAt: string | null,
@@ -170,28 +183,74 @@ function jsonResponse(payload: ActivityPayload, cacheControl = 'no-store'): Resp
   return Response.json(payload, { headers: { 'Cache-Control': cacheControl } })
 }
 
-async function githubActivity(request: Request): Promise<Response> {
+async function githubActivity(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url)
   const forceRefresh = url.searchParams.get('refresh') === '1'
-  const cacheKey = new Request(url.origin + '/api/github/activity', { method: 'GET' })
-  const edgeCache = (globalThis as unknown as { caches?: RuntimeCaches }).caches?.default
+  const kv = env.ACTIVITY_KV
   let cachedPayload: ActivityPayload | null = null
+  let lastRefreshAttemptAt: string | null = null
 
-  if (edgeCache) {
+  // KV is the persistent store for the last successful public activity
+  // snapshot. Reads use a short edge cache; remote locations can observe
+  // recent writes up to 60 seconds later because KV is eventually consistent.
+  if (kv) {
     try {
-      const cachedResponse = await edgeCache.match(cacheKey)
-      if (cachedResponse) {
-        const candidate: unknown = await cachedResponse.json()
-        if (isActivityPayload(candidate)) {
-          cachedPayload = candidate
-          if ((!forceRefresh && isCacheFresh(candidate.updatedAt)) ||
-            (forceRefresh && isRefreshThrottled(candidate.updatedAt))) {
-            return jsonResponse(candidate)
-          }
-        }
+      const cachedText = await kv.get(ACTIVITY_PAYLOAD_KEY, {
+        type: 'text',
+        cacheTtl: KV_READ_CACHE_SECONDS,
+      })
+      if (cachedText) {
+        const candidate: unknown = JSON.parse(cachedText)
+        if (isActivityPayload(candidate)) cachedPayload = candidate
       }
     } catch {
-      // An unavailable cache must not prevent live upstream requests.
+      // A KV read failure must not prevent a live upstream request.
+    }
+
+    if (forceRefresh) {
+      try {
+        lastRefreshAttemptAt = await kv.get(REFRESH_ATTEMPT_KEY, {
+          type: 'text',
+          cacheTtl: KV_READ_CACHE_SECONDS,
+        })
+      } catch {
+        // An unavailable cooldown marker must not block a refresh.
+      }
+    }
+  }
+
+  if (cachedPayload && !forceRefresh && isCacheFresh(cachedPayload.updatedAt)) {
+    return jsonResponse(cachedPayload)
+  }
+
+  if (forceRefresh && lastRefreshAttemptAt) {
+    const retryAfter = refreshRetryAfterSeconds(lastRefreshAttemptAt)
+    if (retryAfter > 0) {
+      if (cachedPayload) {
+        const cacheStillFresh = isCacheFresh(cachedPayload.updatedAt)
+        return jsonResponse(cacheStillFresh
+          ? cachedPayload
+          : { ...cachedPayload, partial: true, stale: true })
+      }
+      return Response.json({ error: 'Manual refresh is temporarily rate-limited.' }, {
+        status: 429,
+        headers: {
+          'Cache-Control': 'no-store',
+          'Retry-After': String(retryAfter),
+        },
+      })
+    }
+  }
+
+  // Track refresh attempts independently of updatedAt. updatedAt must mean
+  // "last successful data", even when an upstream request fails.
+  if (forceRefresh && kv) {
+    try {
+      await kv.put(REFRESH_ATTEMPT_KEY, new Date().toISOString(), {
+        expirationTtl: REFRESH_STATE_RETENTION_SECONDS,
+      })
+    } catch {
+      // Cooldown persistence is best-effort; do not fail otherwise valid data.
     }
   }
 
@@ -264,14 +323,15 @@ async function githubActivity(request: Request): Promise<Response> {
     stale: usedStaleData,
   }
 
-  // Cache only fully refreshed results; retain the last good result through
-  // upstream outages so it can be used as a visibly marked stale fallback.
-  if (edgeCache && !partial) {
+  // Store only fully refreshed results. Partial responses never overwrite the
+  // last known-good snapshot.
+  if (kv && !partial) {
     try {
-      const cacheResponse = jsonResponse(payload, 'public, max-age=' + CACHE_RETENTION_SECONDS)
-      await edgeCache.put(cacheKey, cacheResponse)
+      await kv.put(ACTIVITY_PAYLOAD_KEY, JSON.stringify(payload), {
+        expirationTtl: CACHE_RETENTION_SECONDS,
+      })
     } catch {
-      // Cache storage is an optimization; the successful live response remains valid.
+      // A valid live response remains usable if persistence is unavailable.
     }
   }
 
@@ -289,7 +349,7 @@ export default {
           headers: { Allow: 'GET', 'Cache-Control': 'no-store' },
         })
       }
-      return githubActivity(request)
+      return githubActivity(request, env)
     }
 
     return env.ASSETS.fetch(request)

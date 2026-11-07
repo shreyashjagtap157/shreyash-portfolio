@@ -82,7 +82,9 @@ docs/                 Content source, engineering rules, audit and validation no
 
 The browser calls only the same-origin `/api/github/activity` endpoint. The Cloudflare Worker fetches GitHub's public contribution-calendar HTML and unauthenticated public PushEvents server-side, parses contribution dates/levels, validates push records and commit SHAs, then returns normalized JSON.
 
-The Worker keeps the last fully successful response in the Cloudflare Cache API for up to six hours. Data is considered fresh for five minutes. If GitHub is temporarily unavailable, the Worker can use the last successful response and marks it as partial/stale in the UI. Upstream requests have an eight-second timeout. Manual refresh bypasses a fresh cache entry but is throttled to one upstream refresh per minute to avoid repeatedly consuming GitHub's unauthenticated rate limit.
+The Worker stores the last fully successful response in the bound Cloudflare KV namespace for up to six hours. Data is considered fresh for five minutes. If GitHub is temporarily unavailable, the Worker can reuse the last successful response and marks it as partial/stale in the UI. Upstream requests have an eight-second timeout. Manual refresh attempts have a separate one-minute cooldown marker, so failed refreshes do not reset the last-successful-data timestamp or bypass the cooldown. KV is eventually consistent: a recent write can take up to 60 seconds to become visible in another location, so the cooldown is best-effort rather than a globally atomic rate limiter.
+
+The namespace is included in the Workers Free plan, subject to its published daily quotas (currently 100,000 reads and 1,000 writes per day, with 1 GB of storage). Normal portfolio traffic should be small, but usage must remain within the account's limits; a KV quota failure degrades to live upstream fetching without falsely claiming stale-data persistence.
 
 This is only public activity. It is not a complete private contribution record. No GitHub access token is sent to or embedded in browser code.
 
