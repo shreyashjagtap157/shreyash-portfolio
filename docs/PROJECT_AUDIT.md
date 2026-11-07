@@ -192,3 +192,15 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - No Cloudflare token was created, rotated, deleted, or exposed during this inspection. The required owner action remains to create/select a valid, appropriately scoped Cloudflare API token in Cloudflare's dashboard and refresh the Workers Build-token association without sharing the secret in chat or Git.
 - After the credential repair, run the existing production build trigger and verify the new deployment version, live page, `/api/github/activity` response, cache/refresh behavior, security headers, and browser console/network errors. Keep PR #2 open until the chosen merge and deployment sequence is explicitly completed.
 
+
+
+## 16. Documentation architecture reconciliation (2026-11-07)
+
+- Rechecked the current README, design rules, local-agent handoff, locale tests, project metadata, and activity Worker after the KV migration.
+- Corrected README privacy language: the Worker is not described as stateless or as using only an edge cache. It serves static assets and uses Cloudflare KV solely for the last successful **public** GitHub-activity snapshot (up to six hours) and a separate one-minute manual-refresh marker. The KV contents are not user profiles and do not include private-repository activity.
+- Corrected `docs/DESIGN.md`: removed the obsolete Cache API requirement and specified Cloudflare KV, five-minute freshness, six-hour last-good retention, partial/stale fallback, separate one-minute cooldown state, and eventual-consistency limits.
+- Corrected `docs/PROMPT.md`: removed the obsolete stateless-Worker description and aligned the implementation constraints with the actual KV behavior and graceful fallback when KV is unavailable.
+- Corrected the changelog's cache description and added the November 7 About/case-study, activity persistence, security-gate, documentation, and deployment status update.
+- Locale regression coverage already enforces identical key sets across all five maintained dictionaries. The content tests also assert the exact 14-project inventory, category totals, allowed maturity labels, per-project detail mapping, the Helios perception-only/specification caveat, and the Kilo fork/upstream distinction.
+- Verification baseline immediately before the documentation reconciliation: both GitHub Actions runs for `e58b0a272c4e573940126278bd8203abc55e145e` passed (push run [42390253333](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42390253333); PR run [42390256087](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42390256087)). These documentation changes do not modify runtime code; final CI is required for the resulting branch head.
+- PR #2 remains open and unmerged. The production Worker remains on the October 23 deployment; deployment is waiting for an owner-repaired Workers Builds credential. No credential was created, changed, or exposed in this work.
