@@ -67,16 +67,17 @@ No domain purchase is required. A custom domain is optional. The production targ
 
 ## 6. CI and regression verification
 
-The latest previously verified checkpoint is GitHub Actions run [42258764088](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42258764088), commit `4210968c2d9ff3e4554b5fa425834fbbe72464c2`:
+The latest verified checkpoint is GitHub Actions run [42374769142](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42374769142), commit `4a3d972bb854f8879d2c02c2fa96df5d7d4679fa`:
 
 - TypeScript typecheck: passed.
-- Vitest: 19 tests passed in 3 files.
+- Vitest: 25 tests passed in 3 files, including contribution-calendar parsing from non-table HTML elements.
 - Vite production build: passed (63 modules transformed).
-- Chromium browser suite: 62 tests passed.
-- Responsive test matrix: all 48 combinations passed.
+- Chromium browser suite: 77 tests passed.
+- Responsive coverage includes the four theme × three density × four base-viewport matrix plus desktop nav geometry checks at 1,100px, 1,200px, 1,360px and 1,440px.
+- Locale-specific browser coverage checks all five supported dictionaries for project case-study content and contact-link labels/descriptions.
 - Browser checks include no duplicate DOM IDs and no nested interactive anchors/buttons.
 
-After the checkpoint, the Worker gained stronger cache/stale handling and corresponding tests. The next CI result must supersede this checkpoint before production publication.
+The audit-only follow-up is tracked separately from that application-code checkpoint.
 
 ## 7. Known cross-repository contradictions
 
@@ -126,8 +127,8 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 ## 11. Current review, verification, and Cloudflare deployment gate (2026-11-07)
 
 - Review PR: [#2](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/2), open against `main` from `work/portfolio-about-case-studies`. The branch is not merged, and no production deployment is claimed.
-- Latest implementation revision: `4a3d972bb854f8879d2c02c2fa96df5d7d4679fa`. This revision includes localized LinkedIn, GitHub, and telephone contact copy, explicit browser assertions for contact labels, and a parser regression for non-table contribution-day elements.
-- GitHub Actions run [42374769142](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42374769142) passed on this exact revision:
+- Latest application-code revision: `4a3d972bb854f8879d2c02c2fa96df5d7d4679fa`. It includes localized LinkedIn, GitHub, and telephone contact copy, explicit browser assertions for contact labels, and a parser regression for non-table contribution-day elements. The current PR head also includes the audit-only follow-up commit `0c3b351a44b3cdf9ba550a642148dd42752469cc`.
+- GitHub Actions run [42374769142](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42374769142) passed on the application-code revision:
   - TypeScript typecheck: passed.
   - Vitest: 25 tests passed across 3 files.
   - Production build: passed, 63 modules transformed.
