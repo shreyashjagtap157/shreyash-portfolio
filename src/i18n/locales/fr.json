@@ -198,5 +198,11 @@
   "case_kilo_2h": "Contrats des spécialistes",
   "case_kilo_2": "Les rôles d’architecte, d’implémenteur, de testeur et de réviseur nécessitent un périmètre, des livrables et des critères d’acceptation explicites.",
   "case_kilo_3h": "Passation fondée sur des preuves",
-  "case_kilo_3": "Exiger un résumé des fichiers modifiés, les résultats des tests, les constats de revue et les décisions du vérificateur — pas un simple message de réussite de l’agent."
+  "case_kilo_3": "Exiger un résumé des fichiers modifiés, les résultats des tests, les constats de revue et les décisions du vérificateur — pas un simple message de réussite de l’agent.",
+  "contact_linkedin_label": "LinkedIn — profil professionnel",
+  "contact_linkedin_description": "Parcours professionnel, relations professionnelles et messages directs.",
+  "contact_github_label": "GitHub — shreyashjagtap157",
+  "contact_github_description": "Dépôts de code source, historique des projets, code et contributions publiques.",
+  "contact_phone_label": "Téléphone",
+  "contact_phone_description": "Contact téléphonique direct pour les échanges professionnels pertinents."
 }
