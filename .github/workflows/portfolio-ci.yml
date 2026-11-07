@@ -27,6 +27,40 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Report dependency advisories
+        continue-on-error: true
+        run: |
+          npm audit --json > "$RUNNER_TEMP/npm-audit.json" || true
+          node <<'NODE'
+          const fs = require('node:fs')
+          let report
+          try {
+            report = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/npm-audit.json', 'utf8'))
+          } catch {
+            console.log('npm audit did not return a readable JSON report.')
+            process.exit(0)
+          }
+          const advisories = Object.entries(report.vulnerabilities || {}).map(([name, item]) => ({
+            package: name,
+            severity: item.severity,
+            direct: item.isDirect,
+            affectedRange: item.range,
+            fixAvailable: item.fixAvailable,
+            advisories: (item.via || []).map(advisory => typeof advisory === 'string'
+              ? advisory
+              : {
+                  title: advisory.title,
+                  url: advisory.url,
+                  range: advisory.range,
+                  cwe: advisory.cwe,
+                  cvss: advisory.cvss && advisory.cvss.score,
+                }),
+          }))
+          console.log(JSON.stringify({
+            counts: report.metadata && report.metadata.vulnerabilities,
+            advisories,
+          }, null, 2))
+          NODE
       - name: Type check
         run: npm run typecheck
       - name: Unit tests
