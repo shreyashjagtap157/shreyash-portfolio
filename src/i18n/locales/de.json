@@ -152,5 +152,11 @@
   "activity_level_3": "Hohe Aktivität",
   "activity_level_4": "Sehr hohe Aktivität",
   "activity_public_only": "Aktuelle Pushes stammen nur aus öffentlichen Repositories. Private Repository-Ereignisse sind nicht enthalten.",
-  "activity_partial": "Einige Aktivitätsdaten sind vorübergehend veraltet, da GitHub nicht alle Datenquellen zurückgegeben hat."
+  "activity_partial": "Einige Aktivitätsdaten sind vorübergehend veraltet, da GitHub nicht alle Datenquellen zurückgegeben hat.",
+  "n_about": "Über mich",
+  "case_select_label": "Projekt-Fallstudie auswählen",
+  "a_4h": "Gesamtes Verhalten verifizieren",
+  "a_4": "Führe Typprüfungen, Unit- und Integrationstests, Browser-Tests, Builds sowie Sicherheits- und Deployment-Prüfungen aus. Prüfe auch Fehlerpfade.",
+  "a_5h": "Nachweise und offene Arbeit berichten",
+  "a_5": "Halte Dokumentation und Fehlerregister aktuell. Berichte genau, was geändert wurde, was bestanden hat, was blockiert ist und welche Entscheidungen ausstehen."
 }
