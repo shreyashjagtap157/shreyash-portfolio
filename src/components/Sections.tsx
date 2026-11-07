@@ -110,9 +110,9 @@ export function Contact() {
         </div>
         <div className="contact-card">
           <p>{t('contact_intro')}</p>
-          <div className="contact-link-group"><a className="contact-external" href={LINKEDIN} target="_blank" rel="noopener noreferrer">LinkedIn — professional profile</a><small>Career background, professional connections, and direct messaging.</small></div>
-          <div className="contact-link-group"><a className="contact-external" href={GITHUB} target="_blank" rel="noopener noreferrer">GitHub — shreyashjagtap157</a><small>Source repositories, project history, code, and public contributions.</small></div>
-          <div className="contact-link-group"><a href={PHONE_HREF}>Phone — {PHONE_DISPLAY}</a><small>Direct telephone contact for relevant professional conversations.</small></div>
+          <div className="contact-link-group"><a className="contact-external" href={LINKEDIN} target="_blank" rel="noopener noreferrer">{t('contact_linkedin_label')}</a><small>{t('contact_linkedin_description')}</small></div>
+          <div className="contact-link-group"><a className="contact-external" href={GITHUB} target="_blank" rel="noopener noreferrer">{t('contact_github_label')}</a><small>{t('contact_github_description')}</small></div>
+          <div className="contact-link-group"><a href={PHONE_HREF}>{t('contact_phone_label')} — {PHONE_DISPLAY}</a><small>{t('contact_phone_description')}</small></div>
         </div>
       </div>
     </Section>
