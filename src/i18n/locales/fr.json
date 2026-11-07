@@ -152,5 +152,11 @@
   "activity_level_3": "Activité élevée",
   "activity_level_4": "Très forte activité",
   "activity_public_only": "Les push récents proviennent uniquement de dépôts publics. Les événements des dépôts privés ne sont pas inclus.",
-  "activity_partial": "Certaines données d’activité sont temporairement anciennes, car GitHub n’a pas renvoyé toutes les sources."
+  "activity_partial": "Certaines données d’activité sont temporairement anciennes, car GitHub n’a pas renvoyé toutes les sources.",
+  "n_about": "À propos",
+  "case_select_label": "Choisir une étude de cas",
+  "a_4h": "Vérifier le comportement complet",
+  "a_4": "Exécuter les vérifications de types, tests unitaires et d’intégration, tests navigateur, builds et contrôles de sécurité/déploiement. Tester aussi les chemins d’échec.",
+  "a_5h": "Rendre compte des preuves et du travail restant",
+  "a_5": "Tenir la documentation et le registre des problèmes à jour. Indiquer précisément les changements, réussites, blocages et décisions en attente."
 }
