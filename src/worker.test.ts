@@ -121,7 +121,7 @@ describe('GitHub activity cache policy', () => {
 
   it('calculates a bounded Retry-After value from the last refresh attempt', () => {
     expect(refreshRetryAfterSeconds('2026-11-06T11:59:30Z', now)).toBe(30)
-    expect(refreshRetryAfterSeconds('2026-11-06T11:59:59.500Z', now)).toBe(1)
+    expect(refreshRetryAfterSeconds('2026-11-06T11:59:00.500Z', now)).toBe(1)
     expect(refreshRetryAfterSeconds('2026-11-06T11:59:00Z', now)).toBe(0)
     expect(refreshRetryAfterSeconds('2026-11-06T12:01:00Z', now)).toBe(0)
     expect(refreshRetryAfterSeconds('not-a-date', now)).toBe(0)
