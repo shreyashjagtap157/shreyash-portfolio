@@ -105,7 +105,7 @@ The audit-only follow-up is tracked separately from that application-code checkp
 
 ## 9. Remaining work before closure
 
-1. **Completed:** GitHub Actions is green for the latest implementation revision. TypeScript typecheck, 25 Vitest tests, the production build, and 77 Playwright Chromium tests passed.
+1. **Completed:** GitHub Actions is green for the current implementation revision. TypeScript typecheck, 33 Vitest tests, the production build, and 77 Playwright Chromium tests passed. The latest CI npm audit report contains zero advisories.
 2. **Blocked by Cloudflare credentials:** repair the deleted/rolled Workers Builds API token, then confirm Cloudflare can build and deploy this repository using the existing free Worker hostname.
 3. **After deployment:** verify the live page, API response, cache/refresh behavior, response headers, and browser console/network errors.
 4. **Owner review:** decide project inclusion (Miner/PromptWars) and reconcile the remaining external documentation contradictions (Helios/Kilo).
@@ -163,3 +163,19 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - Added unit coverage for Retry-After calculation, stale payload preservation during a throttled refresh, and the no-cache 429 path.
 - KV is available on Workers Free but has finite quotas (currently 100,000 reads/day, 1,000 writes/day, 1 GB storage). Its eventual consistency means remote locations may not see a recent write for up to 60 seconds; this design improves availability but is not a strict globally synchronized lock. A KV quota or binding failure falls back to live upstream fetches, not fabricated/stale data.
 - The code change is on PR #2 and is not deployed to production. The Workers Builds token blocker and live smoke-test requirement remain open.
+
+
+## 14. Dependency security remediation and current verification (2026-11-07)
+
+- The detailed CI npm audit report identified a transitive `undici` vulnerability chain through `miniflare` and `wrangler`: locked versions were Wrangler `4.151.3`, Miniflare `5.20261019.1-beta`, and Undici `7.29.1`. npm reported compatible fixes available.
+- Applied npm's non-forced compatible lockfile remediation without changing `package.json` or introducing a major-version upgrade. The lockfile now resolves Wrangler `4.158.0`, Miniflare `5.20261104.0-beta`, and Undici `7.30.1`.
+- The subsequent clean CI `npm ci` audit reported **0 vulnerabilities** (0 moderate, 0 high, 0 critical).
+- Added a non-blocking CI summary step that prints package, severity, affected range, advisory links, and fix availability when future advisories are present. It reported an empty advisory list on the current lockfile.
+- Current implementation verification on commit `5d5b2d314dd858baaef00aa683dfe675e754ee56`:
+  - TypeScript typecheck: passed.
+  - Vitest: 33 tests passed across 3 files.
+  - Vite production build: passed (63 modules transformed).
+  - Playwright Chromium: 77 tests passed.
+  - GitHub Actions push run [42387174246](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42387174246): passed.
+  - GitHub Actions PR run [42387179600](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42387179600): passed.
+- PR #2 remains open and is not deployed. The production deployment gate is still the expired/deleted Cloudflare Workers Builds token recorded in section 11; the lockfile security remediation does not change production deployment state.
