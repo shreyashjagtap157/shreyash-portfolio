@@ -27,8 +27,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Report dependency advisories
-        continue-on-error: true
+      - name: Enforce dependency security audit
         run: |
           npm audit --json > "$RUNNER_TEMP/npm-audit.json" || true
           node <<'NODE'
@@ -37,8 +36,8 @@ jobs:
           try {
             report = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/npm-audit.json', 'utf8'))
           } catch {
-            console.log('npm audit did not return a readable JSON report.')
-            process.exit(0)
+            console.error('npm audit did not return a readable JSON report; failing closed.')
+            process.exit(1)
           }
           const advisories = Object.entries(report.vulnerabilities || {}).map(([name, item]) => ({
             package: name,
@@ -56,10 +55,12 @@ jobs:
                   cvss: advisory.cvss && advisory.cvss.score,
                 }),
           }))
-          console.log(JSON.stringify({
-            counts: report.metadata && report.metadata.vulnerabilities,
-            advisories,
-          }, null, 2))
+          const counts = report.metadata && report.metadata.vulnerabilities
+          console.log(JSON.stringify({ counts, advisories }, null, 2))
+          if (!counts || counts.total > 0) {
+            console.error('Dependency audit failed: unresolved npm advisories remain.')
+            process.exit(1)
+          }
           NODE
       - name: Type check
         run: npm run typecheck
