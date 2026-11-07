@@ -103,7 +103,7 @@ After the checkpoint, the Worker gained stronger cache/stale handling and corres
 
 ## 9. Remaining work before closure
 
-1. **Completed:** GitHub Actions is green for the latest implementation revision. TypeScript typecheck, 24 Vitest tests, the production build, and 72 Playwright Chromium tests passed. The current documentation revision has also passed the same CI workflow.
+1. **Completed:** GitHub Actions is green for the latest implementation revision. TypeScript typecheck, 24 Vitest tests, the production build, and 77 Playwright Chromium tests passed.
 2. **Blocked by Cloudflare credentials:** repair the deleted/rolled Workers Builds API token, then confirm Cloudflare can build and deploy this repository using the existing free Worker hostname.
 3. **After deployment:** verify the live page, API response, cache/refresh behavior, response headers, and browser console/network errors.
 4. **Owner review:** decide project inclusion (Miner/PromptWars) and reconcile the remaining external documentation contradictions (Helios/Kilo).
@@ -118,7 +118,7 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - Replaced project initials with conceptual SVG architecture illustrations rather than arbitrary monograms. These are explicitly conceptual visuals, not screenshots of deployed products.
 - Added a project selector with distinct case studies for Omni, Helios, NexusAgent, UEP, and the Kilo fork. Each case study distinguishes verified maturity from intended architecture and roadmap work.
 - Rewrote engineering approach around repository/spec inspection, explicit constraints, coherent milestones, complete verification, and evidence-based reporting.
-- Added explanatory labels to LinkedIn, GitHub, and telephone contact links.
+- Added explanatory labels to LinkedIn, GitHub, and telephone contact links; their labels and descriptions are localized in all five built-in languages.
 - Local development now runs the actual Cloudflare Worker with built assets (`npm run dev`), so `/api/github/activity` is served locally by Wrangler rather than failing against Vite's static dev server. `npm run dev:ui` remains available for UI-only work, with API proxying to a separately running Worker on port 8787.
 - Activity UI now surfaces stale-cache state distinctly and avoids showing an empty-feed message after a network error.
 
@@ -126,19 +126,19 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 ## 11. Current review, verification, and Cloudflare deployment gate (2026-11-07)
 
 - Review PR: [#2](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/2), open against `main` from `work/portfolio-about-case-studies`. The branch is not merged, and no production deployment is claimed.
-- Latest implementation revision: `d702a2a77678ab68952de3e3795285226628ba5e`. A subsequent audit-only commit updated this issue ledger without changing application code.
-- GitHub Actions run [42373223412](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42373223412) passed on this exact revision:
+- Latest implementation revision: `5b5d82dc8c968e24b37a7615101ed477f37092cc`. This revision includes localized LinkedIn, GitHub, and telephone contact copy plus explicit browser assertions for the GitHub link label.
+- GitHub Actions run [42374434373](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42374434373) passed on this exact revision:
   - TypeScript typecheck: passed.
   - Vitest: 24 tests passed across 3 files.
   - Production build: passed, 63 modules transformed.
-  - Playwright Chromium: 72 tests passed, including navigation at 1,100px, 1,200px, 1,360px, and 1,440px, plus case-study content checks in English, German, French, Hindi, and Marathi.
-- All five built-in locale dictionaries contain 200 keys each with matching key sets, including the full case-study content.
-- Automated review findings on desktop navigation overflow and untranslated case-study content were addressed with higher-specificity toolbar rules, a desktop-only wider toolbar container, localized dictionary entries, and regression tests. Both original inline threads are resolved. A fresh Codex review was requested against the audit revision and was still running at the time of this update.
+  - Playwright Chromium: 77 tests passed, including navigation at 1,100px, 1,200px, 1,360px, and 1,440px; case-study content in English, German, French, Hindi, and Marathi; and localized contact links in all five built-in languages.
+- All five built-in locale dictionaries contain 206 keys each with matching key sets, including project case studies and contact-link labels/descriptions.
+- Automated review findings on desktop navigation overflow, untranslated project case studies, and untranslated contact-link copy were addressed with higher-specificity toolbar rules, a desktop-only wider toolbar container, localized dictionary entries, and regression tests. All three corresponding inline threads are resolved. The latest review finding on contact-link localization was verified by CI run #74.
 - Cloudflare Worker: `shreyash-portfolio`, script tag `a934c1d629784998983f15b258830b5f`; repository connection: `shreyashjagtap157/shreyash-portfolio`, production branch: `main`.
 - Production build command: `npm ci && npm run check`; deploy command: `npx wrangler deploy`.
 - Latest inspected Cloudflare build `2bb5f642-3352-4acc-8990-64adeade14eb` stopped before dependency installation. Its log explicitly reports that the selected Build token was deleted or rolled.
 - Production settings and trigger still reference Build token UUID `8c144870-c82c-428f-8a7a-40c180d4294c`. Cloudflare lists two Build-token records, but both reference the same underlying Cloudflare token ID; switching between those records does not establish a valid independent credential.
-- Workers Builds remains connected to the expected GitHub repository and `main` branch. No token secret was exposed, regenerated, or changed in this workflow.
+- Workers Builds remains connected to the expected GitHub repository and `main` branch. The Cloudflare API's Build-token creation endpoint requires a valid `build_token_secret` and `cloudflare_token_id`; the connected session cannot mint or recover those credentials from the expired token ID. No token secret was exposed, regenerated, or changed in this workflow.
 - The latest live Worker deployment record is `2026-10-23T15:21:08.788883Z`. The PR has not been deployed. Its code cannot be represented as live until the token is repaired and a successful Cloudflare build/deploy is observed.
 - Required owner action: in Cloudflare Dashboard, open Workers & Pages → `shreyash-portfolio` → Settings → Builds → API token. Select/create a valid API token and refresh the associated Build token. Do not paste the secret into chat or commit it to Git.
 - After credential repair: trigger a Cloudflare production build from `main`; verify successful build and deployment; smoke-test the live page and `/api/github/activity`; inspect response headers, browser console, and network failures.
@@ -146,7 +146,7 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 ## 12. Review follow-up: responsive navigation and localization
 
 - The primary navigation remains horizontally scrollable with a visible scrollbar throughout the 1,100–1,360px intermediate desktop range. The toolbar container expands to 84rem at desktop widths, making the full row fit at 1,440px; the scrollbar is hidden only at that tested width, with overflow still configured as a safety fallback.
-- Omni, Helios, NexusAgent, UEP, and Kilo Code fork case-study names, introductions, headings, and narrative text are stored in all five built-in dictionaries: English, German, French, Hindi, and Marathi.
-- Playwright coverage verifies the desktop navigation/control boundary at intermediate widths and confirms that the full navigation row fits before hiding the scrollbar at 1,440px. Locale tests verify Omni and Helios case-study names and introductions in all five built-in languages.
+- Omni, Helios, NexusAgent, UEP, and Kilo Code fork case-study names, introductions, headings, and narrative text, plus LinkedIn/GitHub/telephone contact labels and descriptions, are stored in all five built-in dictionaries: English, German, French, Hindi, and Marathi.
+- Playwright coverage verifies the desktop navigation/control boundary at intermediate widths and confirms that the full navigation row fits before hiding the scrollbar at 1,440px. Locale tests verify Omni and Helios case-study names and introductions and all contact-link labels/descriptions in the five built-in languages.
 - The 80rem main content container remains unchanged; only the desktop toolbar is allowed a slightly wider 84rem container to provide sufficient room for navigation and controls.
 - Project maturity, external documentation conflicts, public-only GitHub activity, and the Cloudflare deployment gate remain explicit; no production-readiness or live-deployment claim is introduced.
