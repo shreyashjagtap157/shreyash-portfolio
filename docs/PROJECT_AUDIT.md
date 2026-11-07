@@ -67,10 +67,10 @@ No domain purchase is required. A custom domain is optional. The production targ
 
 ## 6. CI and regression verification
 
-The latest verified checkpoint is GitHub Actions run [42374769142](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42374769142), commit `4a3d972bb854f8879d2c02c2fa96df5d7d4679fa`:
+The latest verified checkpoint is GitHub Actions run [42375334373](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42375334373), commit `56ac50d2ea1a9bb4e85c36c2a00361140c1a4c5a`:
 
 - TypeScript typecheck: passed.
-- Vitest: 25 tests passed in 3 files, including contribution-calendar parsing from non-table HTML elements.
+- Vitest: 27 tests passed in 3 files, including contribution-calendar parsing from non-table HTML elements and stale-cache timestamp preservation.
 - Vite production build: passed (63 modules transformed).
 - Chromium browser suite: 77 tests passed.
 - Responsive coverage includes the four theme × three density × four base-viewport matrix plus desktop nav geometry checks at 1,100px, 1,200px, 1,360px and 1,440px.
@@ -127,14 +127,14 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 ## 11. Current review, verification, and Cloudflare deployment gate (2026-11-07)
 
 - Review PR: [#2](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/2), open against `main` from `work/portfolio-about-case-studies`. The branch is not merged, and no production deployment is claimed.
-- Latest application-code revision: `4a3d972bb854f8879d2c02c2fa96df5d7d4679fa`. It includes localized LinkedIn, GitHub, and telephone contact copy, explicit browser assertions for contact labels, and a parser regression for non-table contribution-day elements. The current PR head also includes the audit-only follow-up commit `0c3b351a44b3cdf9ba550a642148dd42752469cc`.
-- GitHub Actions run [42374769142](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42374769142) passed on the application-code revision:
+- Latest application-code revision: `56ac50d2ea1a9bb4e85c36c2a00361140c1a4c5a`. It includes localized LinkedIn, GitHub, and telephone contact copy, explicit browser assertions for contact labels, a parser regression for non-table contribution-day elements, and truthful timestamps when stale cached data is reused. The current PR head also includes the audit-only follow-up commit `0c3b351a44b3cdf9ba550a642148dd42752469cc`.
+- GitHub Actions run [42375334373](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42375334373) passed on the application-code revision:
   - TypeScript typecheck: passed.
-  - Vitest: 25 tests passed across 3 files.
+  - Vitest: 27 tests passed across 3 files.
   - Production build: passed, 63 modules transformed.
   - Playwright Chromium: 77 tests passed, including navigation at 1,100px, 1,200px, 1,360px, and 1,440px; case-study content in English, German, French, Hindi, and Marathi; and localized contact links in all five built-in languages.
 - All five built-in locale dictionaries contain 206 keys each with matching key sets, including project case studies and contact-link labels/descriptions.
-- Automated review findings on desktop navigation overflow, untranslated project case studies, and untranslated contact-link copy were addressed with higher-specificity toolbar rules, a desktop-only wider toolbar container, localized dictionary entries, and regression tests. All three corresponding inline threads are resolved. The contact-link localization finding was verified by CI run #74; parser element-type coverage was added and passed in run #79.
+- Automated review findings on desktop navigation overflow, untranslated project case studies, and untranslated contact-link copy were addressed with higher-specificity toolbar rules, a desktop-only wider toolbar container, localized dictionary entries, and regression tests. All three corresponding inline threads are resolved. The contact-link localization finding was verified by CI run #74; parser element-type coverage passed in run #79; preserving the last successful timestamp in stale-data responses passed in run #86.
 - Cloudflare Worker: `shreyash-portfolio`, script tag `a934c1d629784998983f15b258830b5f`; repository connection: `shreyashjagtap157/shreyash-portfolio`, production branch: `main`.
 - Production build command: `npm ci && npm run check`; deploy command: `npx wrangler deploy`.
 - Latest inspected Cloudflare build `2bb5f642-3352-4acc-8990-64adeade14eb` stopped before dependency installation. Its log explicitly reports that the selected Build token was deleted or rolled.
@@ -148,6 +148,7 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 
 - The primary navigation remains horizontally scrollable with a visible scrollbar throughout the 1,100–1,360px intermediate desktop range. The toolbar container expands to 84rem at desktop widths, making the full row fit at 1,440px; the scrollbar is hidden only at that tested width, with overflow still configured as a safety fallback.
 - Omni, Helios, NexusAgent, UEP, and Kilo Code fork case-study names, introductions, headings, and narrative text, plus LinkedIn/GitHub/telephone contact labels and descriptions, are stored in all five built-in dictionaries: English, German, French, Hindi, and Marathi.
-- Worker parser unit tests cover contribution-day metadata on non-table elements as well as table cells. Playwright coverage verifies the desktop navigation/control boundary at intermediate widths and confirms that the full navigation row fits before hiding the scrollbar at 1,440px. Locale tests verify Omni and Helios case-study names and introductions and all contact-link labels/descriptions in the five built-in languages.
+- Worker parser unit tests cover contribution-day metadata on non-table elements as well as table cells.
+- Worker stale-cache fallback retains the timestamp of the last successful cached payload rather than stamping stale content with the time of the failed request. Playwright coverage verifies the desktop navigation/control boundary at intermediate widths and confirms that the full navigation row fits before hiding the scrollbar at 1,440px. Locale tests verify Omni and Helios case-study names and introductions and all contact-link labels/descriptions in the five built-in languages.
 - The 80rem main content container remains unchanged; only the desktop toolbar is allowed a slightly wider 84rem container to provide sufficient room for navigation and controls.
 - Project maturity, external documentation conflicts, public-only GitHub activity, and the Cloudflare deployment gate remain explicit; no production-readiness or live-deployment claim is introduced.
