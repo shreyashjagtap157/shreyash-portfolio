@@ -121,3 +121,18 @@ No final "fully complete" claim is made until the latest CI and deployed Cloudfl
 - Added explanatory labels to LinkedIn, GitHub, and telephone contact links.
 - Local development now runs the actual Cloudflare Worker with built assets (`npm run dev`), so `/api/github/activity` is served locally by Wrangler rather than failing against Vite's static dev server. `npm run dev:ui` remains available for UI-only work, with API proxying to a separately running Worker on port 8787.
 - Activity UI now surfaces stale-cache state distinctly and avoids showing an empty-feed message after a network error.
+
+
+## 11. Latest verification and production deployment gate (2026-11-07)
+
+- Review PR: [#2](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/2), currently open against `main`; 19 files changed, 146 additions, 38 deletions.
+- Latest branch head: `a9afcd4bf975360e0e7d51c34cae2fd9c13420f0`.
+- GitHub Actions run [42368331577](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42368331577): **success**.
+  - TypeScript typecheck: passed.
+  - Vitest: 24 tests passed across 3 files.
+  - Production build: passed, 63 modules transformed.
+  - Playwright Chromium: 66 tests passed.
+- Cloudflare Workers Builds is still blocked before dependency installation. Its selected build token was reported by Cloudflare as deleted/rolled. The most recent deployment record remains 2026-10-23; no claim is made that PR #2 is live.
+- Required deployment unblock: in Cloudflare Dashboard, open Workers & Pages → `shreyash-portfolio` → Settings → Builds → API token. Select or create a valid build token, then ensure the production build configuration references its current UUID. Do not expose the token secret in chat or commit it to Git.
+- After the token is repaired: run a Cloudflare production build for `main`, verify successful deployment, then smoke-test the live home page and `/api/github/activity` endpoint and inspect browser console/network failures.
+- PR #2 remains unmerged until the Cloudflare production deployment gate can be completed; this avoids representing an un-deployed code change as a live-site fix.
