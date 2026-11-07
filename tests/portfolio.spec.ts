@@ -133,7 +133,55 @@ test.describe('navigation and project behavior', () => {
     await expect(page.locator('#about h1')).toBeVisible()
   })
 
-  test('project case study selector switches between evidence-bounded project narratives', async ({ page }) => {
+  
+test('desktop navigation remains scrollable until the complete row fits', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => document.fonts.ready)
+  const nav = page.getByRole('navigation', { name: 'Primary navigation' })
+  const controls = page.locator('.toolbar-in .controls')
+  for (const width of [1100, 1200, 1360]) {
+    await page.setViewportSize({ width, height: 900 })
+    const metrics = await page.evaluate(() => {
+      const navElement = document.querySelector<HTMLElement>('.toolbar-in .primary-nav')!
+      const controlsElement = document.querySelector<HTMLElement>('.toolbar-in .controls')!
+      const navRect = navElement.getBoundingClientRect()
+      const controlsRect = controlsElement.getBoundingClientRect()
+      return { overflowX:getComputedStyle(navElement).overflowX, scrollbarWidth:getComputedStyle(navElement).scrollbarWidth, navRight:navRect.right, controlsLeft:controlsRect.left }
+    })
+    expect(metrics.overflowX).toBe('auto')
+    expect(metrics.scrollbarWidth).toBe('thin')
+    expect(metrics.navRight).toBeLessThanOrEqual(metrics.controlsLeft + 1)
+  }
+  await page.setViewportSize({ width: 1440, height: 900 })
+  const wide = await nav.evaluate(element => ({ overflowX:getComputedStyle(element).overflowX, scrollbarWidth:getComputedStyle(element).scrollbarWidth, scrollWidth:element.scrollWidth, clientWidth:element.clientWidth }))
+  expect(wide.overflowX).toBe('auto')
+  expect(wide.scrollbarWidth).toBe('none')
+  expect(wide.scrollWidth).toBeLessThanOrEqual(wide.clientWidth + 1)
+  await expect(controls).toBeVisible()
+})
+
+test.describe('localized project case studies', () => {
+  const locales = [
+    { locale:'en', omni:'Omni — language and compiler engineering', intro:'Specification-governed language design', helios:'Helios — symbolic cognitive architecture', heliosIntro:'A research architecture for a trusted non-neural symbolic core' },
+    { locale:'de', omni:'Omni — Sprach- und Compilerentwicklung', intro:'Normativ spezifiziertes Sprachdesign', helios:'Helios — symbolische kognitive Architektur', heliosIntro:'Eine Forschungsarchitektur mit einem vertrauenswürdigen' },
+    { locale:'fr', omni:'Omni — conception de langage et de compilateur', intro:'Conception de langage régie par une spécification', helios:'Helios — architecture cognitive symbolique', heliosIntro:'Une architecture de recherche fondée sur un noyau symbolique' },
+    { locale:'hi', omni:'Omni — भाषा और कंपाइलर इंजीनियरिंग', intro:'विनिर्देश-आधारित भाषा डिज़ाइन', helios:'Helios — प्रतीकात्मक संज्ञानात्मक आर्किटेक्चर', heliosIntro:'विश्वसनीय गैर-न्यूरल प्रतीकात्मक कोर' },
+    { locale:'mr', omni:'Omni — भाषा आणि कंपायलर अभियांत्रिकी', intro:'विनिर्देश-नियंत्रित भाषा रचना', helios:'Helios — प्रतीकात्मक संज्ञानात्मक रचना', heliosIntro:'विश्वासार्ह, गैर-न्यूरल प्रतीकात्मक कोर' },
+  ] as const
+  for (const item of locales) {
+    test(`Omni and Helios case studies use the ${item.locale} dictionary`, async ({ page }) => {
+      await page.addInitScript(locale => localStorage.setItem('lang', locale), item.locale)
+      await page.goto('/')
+      await expect(page.locator('.case-study-active h3')).toHaveText(item.omni)
+      await expect(page.locator('.case-study-intro')).toContainText(item.intro)
+      await page.locator('#case-study-project').selectOption('helios')
+      await expect(page.locator('.case-study-active h3')).toHaveText(item.helios)
+      await expect(page.locator('.case-study-intro')).toContainText(item.heliosIntro)
+    })
+  }
+})
+
+test('project case study selector switches between evidence-bounded project narratives', async ({ page }) => {
     await page.goto('/')
     const selector = page.getByLabel('Choose a project case study')
     await expect(page.getByRole('heading', { name: 'Omni — language and compiler engineering' })).toBeVisible()
