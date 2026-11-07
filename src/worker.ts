@@ -54,7 +54,7 @@ function isCalendarDate(value: string): boolean {
 }
 
 export function parseContributions(source: string) {
-  const tags = source.match(/<td\b[^>]*>/gi) ?? []
+  const tags = source.match(/<[^>]+>/gi) ?? []
   const days = new Map<string, number>()
 
   for (const tag of tags) {
