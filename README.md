@@ -12,7 +12,7 @@ The portfolio is deployed to **Cloudflare Workers Static Assets** on the existin
 
 The connected Cloudflare account already has the `ssjagtap2016.workers.dev` account subdomain, and the `shreyash-portfolio` Worker has its `workers.dev` hostname enabled. No custom domain purchase is needed. A name such as `shreyashjagtap.com` is optional.
 
-Deployment is Cloudflare-only. The repository is connected to Cloudflare Workers Builds; builds for the production branch run the verification/build commands and deploy the same Worker. Do not configure an alternative hosting provider.
+Deployment is Cloudflare-only. The repository is connected to Cloudflare Workers Builds; builds for the production branch run the verification/build commands and deploy the same Worker. The current Workers Builds API token has been reported as deleted/rolled, so production deployment is blocked until a valid token is selected under the Worker’s Settings → Builds → API token. Do not configure an alternative hosting provider.
 
 ## Local development
 
