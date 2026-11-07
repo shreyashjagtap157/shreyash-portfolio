@@ -103,18 +103,18 @@ After the checkpoint, the Worker gained stronger cache/stale handling and corres
 
 ## 9. Remaining work before closure
 
-1. Obtain a green GitHub Actions run for the latest Worker/cache hardening commit.
-2. Confirm Cloudflare Workers Builds can build and deploy this repository using the existing free Worker hostname.
-3. Verify the live page, API response, cache/refresh behavior, headers, and browser console after Cloudflare deployment.
-4. Review the final live site with the owner and resolve project inclusion decisions (Miner/PromptWars) and external documentation contradictions (Helios/Kilo).
+1. **Completed:** GitHub Actions is green for the latest implementation revision. TypeScript typecheck, 24 Vitest tests, the production build, and 72 Playwright Chromium tests passed. The current documentation revision has also passed the same CI workflow.
+2. **Blocked by Cloudflare credentials:** repair the deleted/rolled Workers Builds API token, then confirm Cloudflare can build and deploy this repository using the existing free Worker hostname.
+3. **After deployment:** verify the live page, API response, cache/refresh behavior, response headers, and browser console/network errors.
+4. **Owner review:** decide project inclusion (Miner/PromptWars) and reconcile the remaining external documentation contradictions (Helios/Kilo).
 
-No final "fully complete" claim is made until the latest CI and deployed Cloudflare smoke tests are green.
+No final "fully complete" claim is made until Cloudflare deployment and live smoke tests are green, and the remaining owner review decisions are closed.
 
 
 ## 10. About navigation, case studies, project visuals, and local development (2026-11-07)
 
 - Added an **About** navigation anchor before Projects, targeting the hero/about statement.
-- Expanded the content container to 80rem. Desktop navigation uses a wider single-row layout and hides its scrollbar; narrower layouts retain a visible horizontal scrollbar.
+- Expanded the main content container to 80rem. The desktop toolbar uses an 84rem maximum width so the navigation and controls fit together at 1,440px; intermediate widths retain a visible, keyboard-accessible horizontal scrollbar.
 - Replaced project initials with conceptual SVG architecture illustrations rather than arbitrary monograms. These are explicitly conceptual visuals, not screenshots of deployed products.
 - Added a project selector with distinct case studies for Omni, Helios, NexusAgent, UEP, and the Kilo fork. Each case study distinguishes verified maturity from intended architecture and roadmap work.
 - Rewrote engineering approach around repository/spec inspection, explicit constraints, coherent milestones, complete verification, and evidence-based reporting.
@@ -126,14 +126,14 @@ No final "fully complete" claim is made until the latest CI and deployed Cloudfl
 ## 11. Current review, verification, and Cloudflare deployment gate (2026-11-07)
 
 - Review PR: [#2](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/2), open against `main` from `work/portfolio-about-case-studies`. The branch is not merged, and no production deployment is claimed.
-- Latest branch head: `d702a2a77678ab68952de3e3795285226628ba5e`.
+- Latest implementation revision: `d702a2a77678ab68952de3e3795285226628ba5e`. A subsequent audit-only commit updated this issue ledger without changing application code.
 - GitHub Actions run [42373223412](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42373223412) passed on this exact revision:
   - TypeScript typecheck: passed.
   - Vitest: 24 tests passed across 3 files.
   - Production build: passed, 63 modules transformed.
   - Playwright Chromium: 72 tests passed, including navigation at 1,100px, 1,200px, 1,360px, and 1,440px, plus case-study content checks in English, German, French, Hindi, and Marathi.
 - All five built-in locale dictionaries contain 200 keys each with matching key sets, including the full case-study content.
-- Automated review findings on desktop navigation overflow and untranslated case-study content were addressed with higher-specificity toolbar rules, a desktop-only wider toolbar container, localized dictionary entries, and regression tests. A fresh review of the final revision remains advisable before merging.
+- Automated review findings on desktop navigation overflow and untranslated case-study content were addressed with higher-specificity toolbar rules, a desktop-only wider toolbar container, localized dictionary entries, and regression tests. Both original inline threads are resolved. A fresh Codex review was requested against the audit revision and was still running at the time of this update.
 - Cloudflare Worker: `shreyash-portfolio`, script tag `a934c1d629784998983f15b258830b5f`; repository connection: `shreyashjagtap157/shreyash-portfolio`, production branch: `main`.
 - Production build command: `npm ci && npm run check`; deploy command: `npx wrangler deploy`.
 - Latest inspected Cloudflare build `2bb5f642-3352-4acc-8990-64adeade14eb` stopped before dependency installation. Its log explicitly reports that the selected Build token was deleted or rolled.
