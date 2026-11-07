@@ -97,11 +97,24 @@ function ProjectVisual({ project }: { project: Project }) {
   const { t } = useI18n()
   const categoryNumber = project.cat === 'sys' ? '01' : project.cat === 'ai' ? '02' : '03'
   const categoryLabel = t('visual_' + project.cat)
-  const mark = project.name.replace(/[^a-z0-9]/gi, '').slice(0, 2).toUpperCase()
+  const nodes: number[][] = project.id === 'omni' ? [[35,72],[105,72],[175,72],[245,72]] :
+    project.id === 'helios' ? [[140,42],[75,105],[140,105],[205,105],[140,168]] :
+    project.id === 'nexus' || project.id === 'kilo' ? [[140,95],[45,45],[45,145],[235,45],[235,145]] :
+    project.id === 'uep' ? [[45,45],[140,45],[235,45],[45,145],[140,145],[235,145]] :
+    project.id === 'tensor' ? [[55,95],[105,55],[175,55],[225,95],[175,135],[105,135]] :
+    project.id === 'iot' || project.id === 'acts' ? [[55,45],[140,35],[225,45],[75,145],[205,145]] :
+    [[45,55],[140,35],[235,55],[75,145],[205,145]]
+  const edges: number[][] = project.id === 'omni' ? [[0,1],[1,2],[2,3]] :
+    project.id === 'tensor' ? [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[1,4],[2,5]] :
+    nodes.slice(1).map((_, index) => [0,index+1])
   return (
-    <div className={`project-visual visual-${project.cat}`} aria-hidden="true">
+    <div className={`project-visual visual-${project.cat} visual-${project.id}`} role="img" aria-label={project.name + ' conceptual architecture illustration'}>
       <span className="visual-label">{categoryNumber} / {categoryLabel}</span>
-      <span className="visual-symbol">{mark}</span>
+      <svg className="project-diagram" viewBox="0 0 280 190" aria-hidden="true">
+        <g className="diagram-lines">{edges.map(([from,to], index) => <line key={index} x1={nodes[from][0]} y1={nodes[from][1]} x2={nodes[to][0]} y2={nodes[to][1]} />)}</g>
+        {nodes.map(([x,y], index) => <g key={index} className={index === 0 ? 'diagram-node primary' : 'diagram-node'}><circle cx={x} cy={y} r={index === 0 ? 17 : 11} /><circle cx={x} cy={y} r="3" className="diagram-core" /></g>)}
+        {project.id === 'omni' && <g className="diagram-captions"><text x="35" y="108">lex</text><text x="105" y="108">parse</text><text x="175" y="108">IR</text><text x="245" y="108">code</text></g>}
+      </svg>
       <small>{project.tags.slice(0, 3).join(' · ')}</small>
     </div>
   )
