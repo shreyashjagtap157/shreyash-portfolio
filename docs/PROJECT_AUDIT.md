@@ -1,6 +1,6 @@
 # Portfolio project audit and issue ledger
 
-**Audit date:** 2026-11-07  
+**Audit date:** 2026-11-08  
 **Repository:** `shreyashjagtap157/shreyash-portfolio`  
 **Review branch:** `work/portfolio-about-case-studies`  
 **Production target:** Cloudflare Worker `shreyash-portfolio`  
@@ -204,3 +204,25 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - Locale regression coverage already enforces identical key sets across all five maintained dictionaries. The content tests also assert the exact 14-project inventory, category totals, allowed maturity labels, per-project detail mapping, the Helios perception-only/specification caveat, and the Kilo fork/upstream distinction.
 - Verification baseline immediately before the documentation reconciliation: both GitHub Actions runs for `e58b0a272c4e573940126278bd8203abc55e145e` passed (push run [42390253333](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42390253333); PR run [42390256087](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42390256087)). These documentation changes do not modify runtime code; final CI is required for the resulting branch head.
 - PR #2 remains open and unmerged. The production Worker remains on the October 23 deployment; deployment is waiting for an owner-repaired Workers Builds credential. No credential was created, changed, or exposed in this work.
+
+
+## 17. Live public deployment smoke test — 2026-11-08
+
+### Production observations
+
+- Fetched the public site at `https://shreyash-portfolio.ssjagtap2016.workers.dev/` using a JavaScript-capable public-page fetch. The page returned content, but it is a legacy snapshot rather than the current review-branch implementation.
+- The served project grid contains both `Omni` and `Omni (earlier)`, despite the current source having exactly 14 unique repository slugs and no duplicate Omni entry.
+- The served project list still uses legacy `Built` labels for Tensor Ring Decomposition, ACTSConnect, OldAgeHome, and MilkyWay. The current source deliberately permits only `alpha`, `progress`, `spec`, `research`, `candidate`, and `prototype` maturity states.
+- The fetched page still exposes the older single Omni case study and legacy section structure; it does not show the current About-first navigation and selectable Omni/Helios/NexusAgent/UEP/Kilo case studies from PR #2.
+- The live page metadata reports canonical and Open Graph URLs under `https://www.shreyashjagtap.com/`, while current branch `index.html` correctly sets the canonical and Open Graph URLs to the configured `workers.dev` hostname.
+- The live same-origin endpoint `/api/github/activity` returned **HTTP 404** (`page_not_found`). The current source routes this path in `src/worker.ts`; therefore the currently deployed activity panel cannot obtain its intended Worker response.
+- Cloudflare's deployment API still reports production Worker version 19, last deployed at `2026-10-23T15:21:08.788883Z`. The failed Workers Build from 2026-11-06 remains the only recorded build and was rejected before dependency installation because its selected Build token had been deleted or rolled.
+- A read-only Cloudflare token-verification request from the connected API context also returned HTTP 401 `Invalid API Token`. The token-details endpoint could not be inspected through the current OAuth connection (HTTP 403; no matching OAuth scope). This is an additional Cloudflare-connection reauthentication limitation; it does not establish or repair the separate Workers Builds credential.
+ 
+### Source-versus-production conclusion
+
+- The branch source is not the cause of the observed public mismatch: current `index.html` uses the correct `workers.dev` canonical metadata, current `src/worker.ts` handles `/api/github/activity`, the selected-project tests prohibit duplicate repository slugs and unsupported maturity states, and both GitHub Actions workflows passed on commit `e49ed5b7e53f82cb49525bd1640b315fed17aba9`.
+- PR #2 remains open and unmerged. The production Worker is not being represented as updated by this PR.
+- Do not change DNS, switch providers, deploy from an unverified source, or bypass Cloudflare's existing deployment flow to work around the expired token.
+- Required recovery sequence: reauthenticate the Cloudflare connection if API operations are needed; in Cloudflare Dashboard refresh/select a valid Workers Builds API token; run the production build from the intended production branch after the merge decision; verify a new deployed Worker version; then retest the page, canonical metadata, project grid, `/api/github/activity`, KV freshness/refresh behavior, headers, and browser console.
+- No credential was generated, changed, or exposed. No production deployment, DNS change, PR merge, or custom-domain change was performed during this smoke test.

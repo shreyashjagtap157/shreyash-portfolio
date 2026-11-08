@@ -12,7 +12,9 @@ The portfolio is deployed to **Cloudflare Workers Static Assets** on the existin
 
 The connected Cloudflare account already has the `ssjagtap2016.workers.dev` account subdomain, and the `shreyash-portfolio` Worker has its `workers.dev` hostname enabled. No custom domain purchase is needed. A name such as `shreyashjagtap.com` is optional.
 
-Deployment is Cloudflare-only. The repository is connected to Cloudflare Workers Builds; builds for the production branch run the verification/build commands and deploy the same Worker. The current Workers Builds API token has been reported as deleted/rolled, so production deployment is blocked until a valid token is selected under the Worker’s Settings → Builds → API token. Do not configure an alternative hosting provider.
+Deployment is Cloudflare-only. The repository is connected to Cloudflare Workers Builds; builds for the production branch run the verification/build commands and deploy the same Worker. The selected Workers Builds credential was reported by Cloudflare as deleted/rolled, so current-source deployment remains blocked until a valid token is selected under the Worker’s Settings → Builds → API token. Do not configure an alternative hosting provider.
+
+**Important: the public hostname currently serves a legacy deployment, not this repository's current source.** A live check on 8 November 2026 found the old duplicate Omni entry, legacy maturity labels, and legacy canonical metadata pointing at `www.shreyashjagtap.com`. The live `/api/github/activity` endpoint returned HTTP 404. Cloudflare's latest deployment record still identifies Worker version 19 from 23 October 2026. Treat the hostname as reachable but stale; do not claim the current case studies, project inventory, or activity endpoint are live until a new deployment and live smoke test succeed.
 
 ## Local development
 
