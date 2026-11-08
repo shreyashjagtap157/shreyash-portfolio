@@ -6,7 +6,7 @@ The site distinguishes concepts, specifications, prototypes, alpha software, can
 
 ## Live hosting
 
-The portfolio is deployed to **Cloudflare Workers Static Assets** on the existing free `workers.dev` hostname:
+The configured production hosting target is **Cloudflare Workers Static Assets** on the existing free `workers.dev` hostname:
 
 **https://shreyash-portfolio.ssjagtap2016.workers.dev/**
 

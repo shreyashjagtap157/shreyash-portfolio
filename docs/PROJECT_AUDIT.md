@@ -226,3 +226,15 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - Do not change DNS, switch providers, deploy from an unverified source, or bypass Cloudflare's existing deployment flow to work around the expired token.
 - Required recovery sequence: reauthenticate the Cloudflare connection if API operations are needed; in Cloudflare Dashboard refresh/select a valid Workers Builds API token; run the production build from the intended production branch after the merge decision; verify a new deployed Worker version; then retest the page, canonical metadata, project grid, `/api/github/activity`, KV freshness/refresh behavior, headers, and browser console.
 - No credential was generated, changed, or exposed. No production deployment, DNS change, PR merge, or custom-domain change was performed during this smoke test.
+
+
+## 18. Latest exact-head CI verification — 2026-11-08
+
+- Exact branch head: `55cecf853e3d1686930150e923a7c5427cf9c054`.
+- GitHub Actions push run [42472120080](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42472120080): **success**.
+- GitHub Actions pull-request run [42472124575](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42472124575): **success**.
+- Raw job logs confirm for the push run: `npm ci` installed 173 packages and audited 174 packages; npm reported **0 vulnerabilities**; the fail-closed dependency audit step passed; TypeScript typecheck passed; Vitest reported **33 tests passed across 3 files**; Vite production build transformed **63 modules**; Playwright reported **77 passed**.
+- The PR run independently repeated the same full pipeline and reported **77 passed** in Chromium.
+- The commit under test contains only README and audit-ledger documentation changes; no application runtime code changed from the previously green application-code checkpoint.
+- PR #2 remains open and unmerged. These CI results qualify the branch source, not the currently deployed Worker. The live smoke-test findings in section 17 remain unresolved: the public page is stale and `/api/github/activity` returns 404.
+- The latest attempted fresh code/security reviews against this documentation-only head were rejected by the review service because its usage limit had been reached. The last completed code review on commit `e49ed5b7e5` reported no major issues; it is not a review of the new `55cecf8` head.
