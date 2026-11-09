@@ -44,7 +44,7 @@ English, Hindi, Marathi, German, and French are manually maintained. Every user-
 
 ## GitHub activity architecture
 
-The UI requests same-origin `/api/github/activity`. The Cloudflare Worker fetches GitHub's public profile contribution fragment and unauthenticated public PushEvents, extracts dated contribution levels and recent commit messages, validates/sanitizes the data, and returns normalized JSON. The public activity feed excludes private repositories.
+The UI requests same-origin `/api/github/activity`. The Cloudflare Worker fetches GitHub's publicly rendered profile contribution fragment and unauthenticated `public` PushEvents, extracts dated contribution levels and the calendar summary, validates/sanitizes the data, and returns normalized JSON. Important privacy distinction: if the profile owner's **Private contributions** setting is enabled, GitHub's public calendar includes anonymized daily counts from private/internal repositories. The Worker stores only the calendar's dates, intensity levels, and summary; it does not fetch private repository names or private event details. The recent-push feed remains restricted to public events. Do not describe the combined feed as strictly public-repository-only unless the profile setting is disabled. See [GitHub's profile contributions reference](https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference).
 
 - Store the last fully refreshed result in Cloudflare KV for up to six hours; partial or failed refreshes must never overwrite it.
 - Consider activity fresh for five minutes.

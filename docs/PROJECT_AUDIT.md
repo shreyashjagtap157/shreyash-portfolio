@@ -44,7 +44,7 @@ The final total is recorded from the CI test output after the latest change, not
 
 The browser talks only to same-origin `/api/github/activity`. The Cloudflare Worker fetches GitHub's public contribution HTML and unauthenticated public PushEvents, then returns normalized data.
 
-The Worker validates calendar dates and activity levels, rejects malformed events/repository names, validates commit SHAs before producing commit links, and never exposes a personal GitHub token. Private-repository activity is not included.
+The Worker validates calendar dates and activity levels, rejects malformed events/repository names, validates commit SHAs before producing commit links, and never exposes a personal GitHub token. The contribution calendar is publicly rendered by GitHub but can include anonymized daily counts from private/internal repositories when the profile owner's **Private contributions** setting is enabled. The Worker stores those dates, intensity levels, and the calendar summary; it does not fetch private repository names or private event details. The separate unauthenticated `public` PushEvents source remains public-event-only.
 
 Reliability controls:
 
@@ -56,7 +56,7 @@ Reliability controls:
 - No fabricated contributions or commits if GitHub is unavailable.
 - KV is eventually consistent: writes are immediately visible in the serving location but may take up to 60 seconds to appear elsewhere. The cooldown is therefore best-effort, not a globally atomic rate limit.
 
-The feed remains limited to GitHub's public data and recent public events; it is not a full private contribution record.
+The combined feed is sourced from a public profile surface, but is not guaranteed to be public-repository-only while **Private contributions** is enabled. The recent PushEvents component is restricted to public events. Disabling the profile setting is required to exclude anonymized private/internal contribution counts from the calendar. See [GitHub's profile contributions reference](https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference).
 
 ## 5. Cloudflare hosting and cost model
 
@@ -197,7 +197,7 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 ## 16. Documentation architecture reconciliation (2026-11-07)
 
 - Rechecked the current README, design rules, local-agent handoff, locale tests, project metadata, and activity Worker after the KV migration.
-- Corrected README privacy language: the Worker is not described as stateless or as using only an edge cache. It serves static assets and uses Cloudflare KV solely for the last successful **public** GitHub-activity snapshot (up to six hours) and a separate one-minute manual-refresh marker. The KV contents are not user profiles and do not include private-repository activity.
+- Corrected README privacy language: the Worker is not described as stateless or as using only an edge cache. It serves static assets and uses Cloudflare KV for the last successful normalized GitHub-activity snapshot (up to six hours) and a separate one-minute manual-refresh marker. The snapshot is not a user profile; the contribution calendar may include anonymized private/internal daily counts if the profile owner enables that GitHub visibility setting. This qualifies the earlier overly broad statement that the cache excludes all private-repository-derived activity.
 - Corrected `docs/DESIGN.md`: removed the obsolete Cache API requirement and specified Cloudflare KV, five-minute freshness, six-hour last-good retention, partial/stale fallback, separate one-minute cooldown state, and eventual-consistency limits.
 - Corrected `docs/PROMPT.md`: removed the obsolete stateless-Worker description and aligned the implementation constraints with the actual KV behavior and graceful fallback when KV is unavailable.
 - Corrected the changelog's cache description and added the November 7 About/case-study, activity persistence, security-gate, documentation, and deployment status update.
@@ -238,3 +238,13 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - The commit under test contains only README and audit-ledger documentation changes; no application runtime code changed from the previously green application-code checkpoint.
 - PR #2 remains open and unmerged. These CI results qualify the branch source, not the currently deployed Worker. The live smoke-test findings in section 17 remain unresolved: the public page is stale and `/api/github/activity` returns 404.
 - The latest attempted fresh code/security reviews against this documentation-only head were rejected by the review service because its usage limit had been reached. The last completed code review on commit `e49ed5b7e5` reported no major issues; it is not a review of the new `55cecf8` head.
+
+
+## 19. GitHub contribution-calendar privacy qualification — 2026-11-09
+
+- Revisited the existing Codex P2 review finding on PR #2 (review comment `4502715661`), which correctly noted that GitHub's public contribution calendar can contain anonymized counts from private repositories when the profile owner enables **Private contributions**.
+- Verified the current `src/worker.ts`: it fetches `https://github.com/users/<username>/contributions`, parses each calendar day's `data-date` and `data-level`, and stores the calendar summary. Separately, it fetches `/users/<username>/events/public`, which is explicitly the public-events feed.
+- GitHub's [profile contributions reference](https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference) states that when private contributions are publicized, people without access to those repositories can see the number of contributions made each day, but not specific details.
+- Corrected README, design rules, local-agent handoff, changelog, and this audit: the calendar's daily intensity levels and summary may reflect anonymized private/internal activity; no private repository names or private event details are fetched. The recent-push feed remains based on unauthenticated public PushEvents.
+- The GitHub profile's **Private contributions** visibility setting has not been inspected or changed. If strict public-repository-only output is required, the owner must disable it under GitHub profile → Contribution settings. This owner setting is not something the Worker can infer or enforce reliably.
+- No application runtime code changed. CI must be rerun on the resulting documentation-only commit. No GitHub profile setting, Cloudflare credential, production deployment, DNS record, or merge state was changed.

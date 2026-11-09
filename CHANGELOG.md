@@ -53,7 +53,7 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 
 ### GitHub activity and local development
 - Replaced the initial Cache API persistence approach with Cloudflare KV, appropriate to the configured `workers.dev` target.
-- Store only the last fully successful public activity snapshot for up to six hours; use a five-minute freshness window, stale fallback on partial upstream failure, and a separate one-minute refresh-attempt marker.
+- Store only the last fully successful normalized activity snapshot for up to six hours; use a five-minute freshness window, stale fallback on partial upstream failure, and a separate one-minute refresh-attempt marker. The profile calendar may include anonymized private/internal counts when GitHub's **Private contributions** setting is enabled; the separate PushEvents source is public-only.
 - Document KV's eventual-consistency boundary and avoid claiming it is a globally atomic rate limiter.
 - Make `npm run dev` build the static assets and run the actual Worker locally; retain `npm run dev:ui` for UI-only Vite hot reload with a Worker proxy.
 
@@ -66,3 +66,10 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 - The latest CI baseline before these final documentation-only reconciliations was commit `e58b0a272c4e573940126278bd8203abc55e145e`: push run [42390253333](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42390253333) and pull-request run [42390256087](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42390256087) both passed, including 33 unit tests, 77 Chromium browser tests, typecheck, production build, and the zero-advisory npm audit.
 - PR #2 remains open against `main`; no merge or production deployment is claimed.
 - Cloudflare production deployment remains blocked by the selected Workers Builds token whose underlying API token Cloudflare reports as deleted or rolled. The separate project audit records the exact build failure and required owner action.
+
+
+## 2026-11-09 — GitHub contribution-calendar privacy qualification
+
+- Clarified the difference between a publicly rendered GitHub profile contribution calendar and the unauthenticated public PushEvents endpoint.
+- Documented that the profile calendar may expose anonymized daily counts from private/internal repositories when the owner's GitHub **Private contributions** setting is enabled; the Worker stores calendar dates, levels, and summary but does not fetch private repository names or private event details.
+- Recorded the owner action required for strict public-repository-only output: disable **Private contributions** under GitHub profile → Contribution settings. The setting was not inspected or changed.
