@@ -108,3 +108,21 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 - Cloudflare Workers Build `2dc004d3-3ff5-4e4e-9f93-caa9cef70c70` succeeded against the exact merge commit and deployed Worker version 24 (`733aa39d-24c4-4379-9138-025266652a0a`) to 100% production traffic.
 - The first post-deployment activity refresh returned HTTP 200, `partial: false`, `stale: false`, 366 contribution days, 8,086 contributions in the last year, and six public push entries with all six commit summaries populated. Snapshot timestamp: `2026-11-09T09:02:34.220Z`.
 - A second distinct refresh after the five-minute freshness interval also returned HTTP 200, `partial: false`, `stale: false`, 366 contribution days, 8,093 contributions in the last year, and six of six populated public push summaries. Snapshot timestamp: `2026-11-09T09:07:49.149Z`. Two consecutive complete snapshots were therefore verified; the temporary daily recovery monitor was disabled after reaching its stopping condition.
+
+
+## 2026-11-09 — Research-led professional narrative and Omni evidence refresh
+
+- Reworked the English, German, French, Hindi, and Marathi hero copy to communicate the engineering method: investigate first, define assumptions and boundaries, specify intended behavior, implement in controlled milestones, and verify with reproducible evidence.
+- Updated the role label to **Systems & Software Engineer**, a descriptive portfolio positioning rather than an asserted employment title.
+- Expanded the Omni project summary and case study to cover research-led specification work, testing the specification through prototypes and implementation, and the distinction between component checks and language-wide qualification.
+- Reconciled the Omni description to the latest inspected main head `27c55651d8d20c4d46d1fb28a3c440770b9d4363`: Rust, Clippy, security audit, and CodeQL passed, while the aggregate Omni CI pipeline and a fuzz-dependency workflow failed. Formal foundation sign-off, complete-language conformance, production readiness, and self-hosting remain open.
+- Kept AstraVCS out of the selected work because its public repository is currently a documentation/handoff shell with its executable source and test suites not imported.
+- Preserved the 14-project curated inventory and the five-locale identical-key-set requirement.
+- Review branch: `content/engineering-profile-omni-refresh`. Production deployment is not claimed by this changelog entry; it is contingent on review, CI, merge, and Cloudflare Workers Builds verification.
+
+
+### PR #11 validation follow-up
+
+- The first PR CI run passed dependency audit (zero npm advisories), TypeScript, unit tests, and the production build, then reported 72 passing and five failing Chromium tests.
+- All five failures were stale expected text in the existing localized Omni case-study browser-test fixtures (one per locale), not a mismatch between the rendered page and locale dictionaries.
+- Updated the five fixture expectations. A full rerun is required before the change is accepted or deployed.

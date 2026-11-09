@@ -335,3 +335,21 @@ No known production deployment gate remains open. The portfolio application and 
 - The contribution summary advanced from `8,086 contributions in the last year` to `8,093 contributions in the last year`, corroborating that the second response was a distinct successful refresh rather than another read of the first cached payload.
 - This satisfies the previously defined two-consecutive-fresh-complete-snapshots recovery criterion. The Atom commit-message normalization fix and the automatic/manual refresh cooldown are verified in production at this checkpoint. This does not guarantee that future GitHub requests cannot time out; the stale fallback and cooldown remain the outage behavior.
 - The temporary daily recovery automation was disabled after the stopping condition was met. No recurring monitoring remains enabled.
+
+
+## 9. Professional narrative and current project-evidence refresh — 2026-11-09
+
+- Refined the first-person introduction to emphasize the user's demonstrated method: research the problem, state assumptions and constraints, specify expected behavior, build an implementation, and verify it with evidence.
+- The professional positioning now spans programming languages and compilers, systems architecture, symbolic cognitive computing, agent platforms, and backend products. It does not invent a formal architect title, proficiency rankings, impact metrics, or production achievements.
+- Updated Omni's card and localized case study using the latest inspected `main` head `27c55651d8d20c4d46d1fb28a3c440770b9d4363`. At that head, Rust, Clippy, security-audit, and CodeQL workflows passed; the aggregate Omni CI pipeline and fuzz-dependency workflow failed. The compiler remains early-stage, with formal foundation sign-off, complete-language conformance, production readiness, and self-hosting unresolved.
+- Identified a stale evidence statement in Omni's own README: it refers to earlier head `3902f6d...` as the full-pipeline success checkpoint, which must not be carried forward to the newer `27c5565...` head without fresh matching workflow evidence.
+- AstraVCS is not included in the public project grid yet. Its live public repo says it is a handoff/documentation shell missing the Rust workspace, Python reference implementation, tests, conformance programs, normative source files, and original Git history. Its historical requirement-status figures are explicitly not independently revalidated.
+- The selected-work inventory remains 14 unique projects; no placeholder or incomplete handoff repository was added just to increase the count.
+
+
+## 10. PR #11 browser-suite fixture correction — 2026-11-09
+
+- The first CI run for PR #11 passed dependency audit, TypeScript, unit tests, and production build.
+- Chromium browser tests reported 72 passed and five failed. All five failures were the expected Omni case-study introduction strings in the existing locale test fixture; the rendered copy matched the updated dictionaries. No application runtime or layout regression was indicated by those failures.
+- Updated the expected introduction prefixes in `tests/portfolio.spec.ts` for English, German, French, Hindi, and Marathi to match the revised localized case-study copy. The test still asserts the rendered case-study content in every supported locale.
+- The browser suite must be rerun before merge; this fixture correction is not itself a passing result.

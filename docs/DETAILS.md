@@ -84,3 +84,24 @@ The selected-work list contains exactly **14 repositories**: 4 languages/systems
 - Keep the résumé single-column and ATS-friendly.
 - Do not mention CDAC ACTS in Java-targeted resumes or introductions.
 - A professional email, optional headshot, skill proficiency levels, project inclusion choices, and custom-domain configuration are owner decisions; current deployment uses the free Cloudflare Worker hostname.
+
+
+## Professional positioning and current engineering narrative — 2026-11-09
+
+The portfolio describes Shreyash as a systems and software engineer whose work is research-led and evidence-driven. The intended sequence is to investigate a problem and relevant alternatives, make assumptions and constraints explicit, establish testable specifications, build an implementation that exercises those specifications, and qualify the resulting behavior with reproducible evidence. This is a description of the engineering approach, not a claim of a formal systems-architect job title.
+
+The strongest recurring areas are programming-language and compiler engineering, systems architecture, symbolic cognitive computing, multi-agent platforms, and backend products. The public introduction should communicate the method as well as the technologies: research before commitment, explicit semantics and boundaries, implementation through controlled milestones, and verification against actual behavior.
+
+### Omni — latest inspected repository evidence
+
+- Latest inspected `main` commit: `27c55651d8d20c4d46d1fb28a3c440770b9d4363` (9 November 2026).
+- The Rust, Clippy, security-audit, and CodeQL workflows for this head passed.
+- The aggregate `Omni CI Pipeline` and a fuzz-dependency workflow failed on the same head. The current state is therefore mixed, not fully green.
+- The repository README still names an earlier exact head (`3902f6d...`) as having passed a broader pipeline. That statement is not evidence for the newer `27c5565...` head; use live workflow runs for current claims.
+- Formal foundation sign-off, complete-language conformance, production readiness, and self-hosting remain unresolved. The portfolio must not imply that green component checks qualify the full compiler.
+
+### Project-inclusion boundary
+
+AstraVCS is deliberately not added to the selected-work grid at this point. Its current public repository explicitly identifies itself as a documentation and project-handoff shell: the Rust workspace, Python reference implementation, tests, conformance programs, and original source history have not yet been imported. Historical audit figures are not fresh implementation evidence. Revisit portfolio inclusion only after the executable source is imported and independently revalidated.
+
+The selected-work grid remains a curated 14-project list, not a claim that it contains every project or research workspace.

@@ -162,11 +162,11 @@ test('desktop navigation remains scrollable until the complete row fits', async 
 
 test.describe('localized project case studies', () => {
   const locales = [
-    { locale:'en', omni:'Omni — language and compiler engineering', intro:'Specification-governed language design', helios:'Helios — symbolic cognitive architecture', heliosIntro:'A research architecture for a trusted non-neural symbolic core' },
-    { locale:'de', omni:'Omni — Sprach- und Compilerentwicklung', intro:'Normativ spezifiziertes Sprachdesign', helios:'Helios — symbolische kognitive Architektur', heliosIntro:'Eine Forschungsarchitektur mit einem vertrauenswürdigen' },
-    { locale:'fr', omni:'Omni — conception de langage et de compilateur', intro:'Conception de langage régie par une spécification', helios:'Helios — architecture cognitive symbolique', heliosIntro:'Une architecture de recherche fondée sur un noyau symbolique' },
-    { locale:'hi', omni:'Omni — भाषा और कंपाइलर इंजीनियरिंग', intro:'विनिर्देश-आधारित भाषा डिज़ाइन', helios:'Helios — प्रतीकात्मक संज्ञानात्मक आर्किटेक्चर', heliosIntro:'विश्वसनीय गैर-न्यूरल प्रतीकात्मक कोर' },
-    { locale:'mr', omni:'Omni — भाषा आणि कंपायलर अभियांत्रिकी', intro:'विनिर्देश-नियंत्रित भाषा रचना', helios:'Helios — प्रतीकात्मक संज्ञानात्मक रचना', heliosIntro:'विश्वासार्ह, गैर-न्यूरल प्रतीकात्मक कोर' },
+    { locale:'en', omni:'Omni — language and compiler engineering', intro:'Research-led, specification-governed language engineering', helios:'Helios — symbolic cognitive architecture', heliosIntro:'A research architecture for a trusted non-neural symbolic core' },
+    { locale:'de', omni:'Omni — Sprach- und Compilerentwicklung', intro:'Forschungsgeleitete, spezifikationsgebundene Sprachentwicklung', helios:'Helios — symbolische kognitive Architektur', heliosIntro:'Eine Forschungsarchitektur mit einem vertrauenswürdigen' },
+    { locale:'fr', omni:'Omni — conception de langage et de compilateur', intro:'Ingénierie des langages guidée par la recherche et gouvernée par une spécification', helios:'Helios — architecture cognitive symbolique', heliosIntro:'Une architecture de recherche fondée sur un noyau symbolique' },
+    { locale:'hi', omni:'Omni — भाषा और कंपाइलर इंजीनियरिंग', intro:'शोध-आधारित और विनिर्देश-नियंत्रित भाषा अभियांत्रिकी', helios:'Helios — प्रतीकात्मक संज्ञानात्मक आर्किटेक्चर', heliosIntro:'विश्वसनीय गैर-न्यूरल प्रतीकात्मक कोर' },
+    { locale:'mr', omni:'Omni — भाषा आणि कंपायलर अभियांत्रिकी', intro:'संशोधनाधारित आणि स्पेसिफिकेशन-नियंत्रित भाषा अभियांत्रिकी', helios:'Helios — प्रतीकात्मक संज्ञानात्मक रचना', heliosIntro:'विश्वासार्ह, गैर-न्यूरल प्रतीकात्मक कोर' },
   ] as const
   for (const item of locales) {
     test(`Omni and Helios case studies use the ${item.locale} dictionary`, async ({ page }) => {
