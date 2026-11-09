@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-11-09 — First-viewport layout correction
+
+- Rebalanced the opening hero so the text column has more usable width and the explanatory copy uses a 64-character measure rather than the previous narrow 52-character limit.
+- Reduced header and hero vertical spacing and adjusted the heading scale so the opening copy and the start of the Selected work section fit within the tested desktop first viewport.
+- Stack the hero at tablet widths and tune mobile typography while preserving the terminal visual panel.
+- Preserve the existing compact, comfortable, and spacious density scale by keeping new spacing values tied to `--s`.
+- Added a Playwright first-viewport regression test at 1648×785. The test checks hero-copy width, hero bounds, and that the Selected work heading is visible without scrolling.
+- PRs [#13](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/13) and [#14](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/14) were merged through normal history-preserving merges. Exact PR-head CI runs [42620200953](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42620200953) and [42620814027](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42620814027) passed.
+- Final main-merge CI [42621135194](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42621135194) passed: dependency audit reported zero vulnerabilities, TypeScript and production build passed, 42 unit tests passed across three files, and all 78 Chromium browser tests passed.
+- Cloudflare Workers Build `705fac1e-e312-4557-ba7f-70d30f66b215` built exact main commit `c22ccd609e6e9bcb13efb420115bac8a0f6af4d8` successfully. Worker version 27 (`858aa47b-2154-4533-b0be-a8eed9aa31d8`) was deployed at 100% traffic.
+- A live Cloudflare Browser Rendering screenshot at 1648×785 verified the intended opening composition: three-line headline, wider readable paragraph, aligned terminal panel, and the Selected work heading visible in the first viewport.
+- The change is CSS and test-only. It does not alter project maturity claims, content facts, the Worker activity endpoint, or Cloudflare configuration.
+
+---
+
 ## 2026-11-06 — Portfolio engineering and content refresh
 
 ### Implemented in the review branch
