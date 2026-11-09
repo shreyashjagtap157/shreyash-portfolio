@@ -311,15 +311,13 @@ async function githubActivity(request: Request, env: Env): Promise<Response> {
       // A KV read failure must not prevent a live upstream request.
     }
 
-    if (forceRefresh) {
-      try {
-        lastRefreshAttemptAt = await kv.get(REFRESH_ATTEMPT_KEY, {
-          type: 'text',
-          cacheTtl: KV_READ_CACHE_SECONDS,
-        })
-      } catch {
-        // An unavailable cooldown marker must not block a refresh.
-      }
+    try {
+      lastRefreshAttemptAt = await kv.get(REFRESH_ATTEMPT_KEY, {
+        type: 'text',
+        cacheTtl: KV_READ_CACHE_SECONDS,
+      })
+    } catch {
+      // An unavailable cooldown marker must not block a refresh.
     }
   }
 
@@ -327,7 +325,7 @@ async function githubActivity(request: Request, env: Env): Promise<Response> {
     return jsonResponse(cachedPayload)
   }
 
-  if (forceRefresh && lastRefreshAttemptAt) {
+  if (lastRefreshAttemptAt) {
     const retryAfter = refreshRetryAfterSeconds(lastRefreshAttemptAt)
     if (retryAfter > 0) {
       if (cachedPayload) {
@@ -336,8 +334,12 @@ async function githubActivity(request: Request, env: Env): Promise<Response> {
           ? cachedPayload
           : { ...cachedPayload, partial: true, stale: true })
       }
-      return Response.json({ error: 'Manual refresh is temporarily rate-limited.' }, {
-        status: 429,
+      return Response.json({
+        error: forceRefresh
+          ? 'Manual refresh is temporarily rate-limited.'
+          : 'GitHub activity is temporarily unavailable.',
+      }, {
+        status: forceRefresh ? 429 : 502,
         headers: {
           'Cache-Control': 'no-store',
           'Retry-After': String(retryAfter),
@@ -346,9 +348,9 @@ async function githubActivity(request: Request, env: Env): Promise<Response> {
     }
   }
 
-  // Track refresh attempts independently of updatedAt. updatedAt must mean
-  // "last successful data", even when an upstream request fails.
-  if (forceRefresh && kv) {
+  // Track every upstream attempt independently of updatedAt. This bounds
+  // automatic and manual retries while keeping updatedAt tied to successful data.
+  if (kv) {
     try {
       await kv.put(REFRESH_ATTEMPT_KEY, new Date().toISOString(), {
         expirationTtl: REFRESH_STATE_RETENTION_SECONDS,
