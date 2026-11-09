@@ -140,7 +140,7 @@
   "visual_plat": "PLATEFORMES",
   "activity_contributions": "Calendrier des contributions",
   "activity_graph_alt": "Calendrier officiel des contributions GitHub de shreyashjagtap157.",
-  "activity_graph_scope": "Le calendrier provient du profil public GitHub. Les contributions privées peuvent être masquées selon les paramètres du profil.",
+  "activity_graph_scope": "Le calendrier public du profil GitHub peut inclure des contributions anonymisées provenant de dépôts privés lorsque cette option est activée ; les noms et les détails des dépôts ne sont pas affichés.",
   "activity_graph_unavailable": "Le calendrier des contributions est temporairement indisponible.",
   "activity_chart_alt": "Activité de contribution GitHub sur la dernière année.",
   "activity_live_label": "EN DIRECT · ÉVÉNEMENTS PUBLICS",

@@ -73,3 +73,4 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 - Clarified the difference between a publicly rendered GitHub profile contribution calendar and the unauthenticated public PushEvents endpoint.
 - Documented that the profile calendar may expose anonymized daily counts from private/internal repositories when the owner's GitHub **Private contributions** setting is enabled; the Worker stores calendar dates, levels, and summary but does not fetch private repository names or private event details.
 - Recorded the owner action required for strict public-repository-only output: disable **Private contributions** under GitHub profile → Contribution settings. The setting was not inspected or changed.
+- Updated the visible contribution-calendar footnote in all five locales to explain anonymized private contributions, and added a locale regression test.

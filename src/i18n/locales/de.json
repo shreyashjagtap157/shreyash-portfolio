@@ -140,7 +140,7 @@
   "visual_plat": "PLATTFORMEN",
   "activity_contributions": "Beitragskalender",
   "activity_graph_alt": "Offizieller GitHub-Beitragskalender für shreyashjagtap157.",
-  "activity_graph_scope": "Der Kalender stammt aus dem öffentlichen GitHub-Profil. Private Beiträge können durch Profileinstellungen ausgeblendet sein.",
+  "activity_graph_scope": "Der öffentliche Profilkalender von GitHub kann anonymisierte Beiträge aus privaten Repositories enthalten, wenn diese Einstellung aktiviert ist; Repository-Namen und Details werden nicht angezeigt.",
   "activity_graph_unavailable": "Der Beitragskalender ist vorübergehend nicht verfügbar.",
   "activity_chart_alt": "GitHub-Beitragsaktivität des letzten Jahres.",
   "activity_live_label": "LIVE · ÖFFENTLICHE EREIGNISSE",

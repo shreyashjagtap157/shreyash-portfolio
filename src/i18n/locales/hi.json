@@ -140,7 +140,7 @@
   "visual_plat": "प्लेटफ़ॉर्म",
   "activity_contributions": "योगदान कैलेंडर",
   "activity_graph_alt": "shreyashjagtap157 का आधिकारिक GitHub योगदान कैलेंडर।",
-  "activity_graph_scope": "कैलेंडर GitHub की सार्वजनिक प्रोफ़ाइल से आता है। प्रोफ़ाइल सेटिंग के अनुसार निजी योगदान छिपे हो सकते हैं।",
+  "activity_graph_scope": "GitHub के सार्वजनिक प्रोफ़ाइल कैलेंडर में, यह सेटिंग चालू होने पर, निजी रिपॉज़िटरी के अनाम योगदान शामिल हो सकते हैं; रिपॉज़िटरी के नाम और विवरण नहीं दिखाए जाते।",
   "activity_graph_unavailable": "योगदान कैलेंडर अभी उपलब्ध नहीं है।",
   "activity_chart_alt": "पिछले वर्ष की GitHub योगदान गतिविधि।",
   "activity_live_label": "लाइव · सार्वजनिक घटनाएँ",

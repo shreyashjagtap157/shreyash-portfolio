@@ -140,7 +140,7 @@
   "visual_plat": "प्लॅटफॉर्म",
   "activity_contributions": "Contribution calendar",
   "activity_graph_alt": "shreyashjagtap157 चे अधिकृत GitHub contribution calendar.",
-  "activity_graph_scope": "Calendar GitHub च्या सार्वजनिक प्रोफाइलमधून घेतला जातो. प्रोफाइल सेटिंगनुसार खाजगी योगदान लपवले जाऊ शकतात.",
+  "activity_graph_scope": "GitHub च्या सार्वजनिक प्रोफाइल कॅलेंडरमध्ये, ही सेटिंग सुरू असल्यास, खाजगी रिपॉझिटरीमधील अनामिक योगदानांचा समावेश होऊ शकतो; रिपॉझिटरीची नावे आणि तपशील दाखवले जात नाहीत.",
   "activity_graph_unavailable": "Contribution calendar सध्या उपलब्ध नाही.",
   "activity_chart_alt": "मागील वर्षातील GitHub योगदान ॲक्टिव्हिटी।",
   "activity_live_label": "थेट · सार्वजनिक घटना",
