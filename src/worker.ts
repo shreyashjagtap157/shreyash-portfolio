@@ -142,8 +142,8 @@ export function parsePushes(payload: unknown): PushRecord[] {
 
 function decodeXmlEntities(value: string): string {
   return value
-    .replace(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/g, '$1')
-    .replace(/&#(\\d+);/g, (_match, digits: string) => String.fromCodePoint(Number(digits)))
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+    .replace(/&#(\d+);/g, (_match, digits: string) => String.fromCodePoint(Number(digits)))
     .replace(/&#x([0-9a-f]+);/gi, (_match, digits: string) => String.fromCodePoint(Number.parseInt(digits, 16)))
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -159,17 +159,17 @@ function atomElement(source: string, name: string): string {
 }
 
 function isAtomFeed(source: string): boolean {
-  return /<feed\\b[^>]*xmlns=["']http:\/\/www\\.w3\\.org\/2005\/Atom["'][^>]*>/i.test(source) &&
-    /<\/feed\\s*>/i.test(source)
+  return /<feed\b[^>]*xmlns=["']http:\/\/www\.w3\.org\/2005\/Atom["'][^>]*>/i.test(source) &&
+    /<\/feed\s*>/i.test(source)
 }
 
 export function parseAtomPushes(source: string): PushRecord[] {
   const pushes: PushRecord[] = []
-  const entries = source.match(/<entry\\b[^>]*>[\\s\\S]*?<\\/entry\\s*>/gi) ?? []
+  const entries = source.match(/<entry\b[^>]*>[\s\S]*?<\/entry\s*>/gi) ?? []
 
   for (const entry of entries) {
     const eventId = atomElement(entry, 'id')
-    const pushId = eventId.match(/^tag:github\\.com,2008:push\\/([A-Za-z0-9_-]+)$/)?.[1]
+    const pushId = eventId.match(/^tag:github\.com,2008:push\/([A-Za-z0-9_-]+)$/)?.[1]
     if (!pushId) continue
 
     const createdAt = atomElement(entry, 'published') || atomElement(entry, 'updated')
@@ -177,29 +177,29 @@ export function parseAtomPushes(source: string): PushRecord[] {
 
     const content = atomElement(entry, 'content')
     const branchLink = content.match(
-      /<a\\b[^>]*\\bhref=["'](?:https?:\\/\\/github\\.com)?\\/([A-Za-z0-9_.-]+)\\/([A-Za-z0-9_.-]+)\\/tree\\/([^"'?#]+)["'][^>]*>/i,
+      /<a\b[^>]*\bhref=["'](?:https?:\/\/github\.com)?\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/tree\/([^"'?#]+)["'][^>]*>/i,
     )
     if (!branchLink) continue
 
     const repo = branchLink[1] + '/' + branchLink[2]
-    if (!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(repo)) continue
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) continue
 
     let branch: string
     try {
-      branch = decodeURIComponent(branchLink[3]).replace(/^refs\\/heads\\//, '')
+      branch = decodeURIComponent(branchLink[3]).replace(/^refs\/heads\//, '')
     } catch {
       continue
     }
-    if (!branch || /[\\u0000-\\u001f]/.test(branch)) continue
+    if (!branch || /[\u0000-\u001f]/.test(branch)) continue
 
-    const commitPattern = /<a\\b[^>]*\\bhref=["'](?:https?:\\/\\/github\\.com)?\\/([A-Za-z0-9_.-]+)\\/([A-Za-z0-9_.-]+)\\/commit\\/([a-f0-9]{7,40})["'][^>]*>/gi
+    const commitPattern = /<a\b[^>]*\bhref=["'](?:https?:\/\/github\.com)?\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/commit\/([a-f0-9]{7,40})["'][^>]*>/gi
     let rawSha = ''
     for (const match of content.matchAll(commitPattern)) {
       if ((match[1] + '/' + match[2]).toLowerCase() === repo.toLowerCase()) rawSha = match[3]
     }
 
-    const messageMatch = content.match(/<blockquote\\b[^>]*>([\\s\\S]*?)<\\/blockquote\\s*>/i)
-    const message = messageMatch ? plainText(decodeXmlEntities(messageMatch[1])).split('\\n')[0] : ''
+    const messageMatch = content.match(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote\s*>/i)
+    const message = messageMatch ? plainText(decodeXmlEntities(messageMatch[1])).split('\n')[0] : ''
 
     pushes.push({
       id: pushId,
