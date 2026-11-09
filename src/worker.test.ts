@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import activityWorker, {
   isCacheFresh,
   isRefreshThrottled,
@@ -252,6 +252,136 @@ describe('GitHub activity KV persistence', () => {
       expect(upstreamRequests).toBe(0)
     } finally {
       globalThis.fetch = originalFetch
+    }
+  })
+
+  it('logs sanitized GitHub public-events HTTP failures and rate-limit metadata', async () => {
+    const originalFetch = globalThis.fetch
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const target = String(input)
+      if (target.includes('/contributions')) {
+        return new Response(
+          '<h2 id="js-contribution-activity-description">3 contributions in the last year</h2>' +
+          '<td class="ContributionCalendar-day" data-date="2026-11-09" data-level="2"></td>',
+          { status: 200, headers: { 'Content-Type': 'text/html' } },
+        )
+      }
+      return new Response('private upstream response detail', {
+        status: 403,
+        headers: {
+          'Retry-After': '60',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': '1794207000',
+        },
+      })
+    }) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: assetEnv },
+      )
+      const body = await response.json() as { partial: boolean; stale: boolean; pushes: unknown[] }
+      expect(response.status).toBe(200)
+      expect(body.partial).toBe(true)
+      expect(body.stale).toBe(false)
+      expect(body.pushes).toEqual([])
+      expect(warning).toHaveBeenCalledWith(
+        '[portfolio-activity] GitHub upstream failure',
+        expect.objectContaining({
+          source: 'public-events',
+          stage: 'response',
+          status: 403,
+          retryAfter: '60',
+          rateLimitRemaining: '0',
+          rateLimitReset: '1794207000',
+        }),
+      )
+      expect(JSON.stringify(warning.mock.calls)).not.toContain('private upstream response detail')
+    } finally {
+      globalThis.fetch = originalFetch
+      warning.mockRestore()
+    }
+  })
+
+  it('logs public-events JSON parse failures without exposing the response body', async () => {
+    const originalFetch = globalThis.fetch
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const target = String(input)
+      if (target.includes('/contributions')) {
+        return new Response(
+          '<h2 id="js-contribution-activity-description">3 contributions in the last year</h2>' +
+          '<td class="ContributionCalendar-day" data-date="2026-11-09" data-level="2"></td>',
+          { status: 200, headers: { 'Content-Type': 'text/html' } },
+        )
+      }
+      return new Response('not-json private body', {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: assetEnv },
+      )
+      const body = await response.json() as { partial: boolean; pushes: unknown[] }
+      expect(response.status).toBe(200)
+      expect(body.partial).toBe(true)
+      expect(body.pushes).toEqual([])
+      expect(warning).toHaveBeenCalledWith(
+        '[portfolio-activity] GitHub upstream failure',
+        expect.objectContaining({
+          source: 'public-events',
+          stage: 'parse',
+          errorName: 'SyntaxError',
+        }),
+      )
+      expect(JSON.stringify(warning.mock.calls)).not.toContain('not-json private body')
+    } finally {
+      globalThis.fetch = originalFetch
+      warning.mockRestore()
+    }
+  })
+
+  it('logs rejected public-events fetches and identifies the failure stage', async () => {
+    const originalFetch = globalThis.fetch
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const target = String(input)
+      if (target.includes('/contributions')) {
+        return new Response(
+          '<h2 id="js-contribution-activity-description">3 contributions in the last year</h2>' +
+          '<td class="ContributionCalendar-day" data-date="2026-11-09" data-level="2"></td>',
+          { status: 200, headers: { 'Content-Type': 'text/html' } },
+        )
+      }
+      throw new TypeError('upstream connection failed')
+    }) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: assetEnv },
+      )
+      const body = await response.json() as { partial: boolean; pushes: unknown[] }
+      expect(response.status).toBe(200)
+      expect(body.partial).toBe(true)
+      expect(warning).toHaveBeenCalledWith(
+        '[portfolio-activity] GitHub upstream failure',
+        expect.objectContaining({
+          source: 'public-events',
+          stage: 'request',
+          errorName: 'TypeError',
+          errorMessage: 'upstream connection failed',
+        }),
+      )
+    } finally {
+      globalThis.fetch = originalFetch
+      warning.mockRestore()
     }
   })
 
