@@ -140,6 +140,82 @@ export function parsePushes(payload: unknown): PushRecord[] {
     .slice(0, 6)
 }
 
+function decodeXmlEntities(value: string): string {
+  return value
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+    .replace(/&#(\d+);/g, (_match, digits: string) => String.fromCodePoint(Number(digits)))
+    .replace(/&#x([0-9a-f]+);/gi, (_match, digits: string) => String.fromCodePoint(Number.parseInt(digits, 16)))
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+}
+
+function atomElement(source: string, name: string): string {
+  const match = source.match(new RegExp('<' + name + '\\b[^>]*>([\\s\\S]*?)</' + name + '\\s*>', 'i'))
+  return match ? decodeXmlEntities(match[1]).trim() : ''
+}
+
+function isAtomFeed(source: string): boolean {
+  return /<feed\b[^>]*xmlns=["']http:\/\/www\.w3\.org\/2005\/Atom["'][^>]*>/i.test(source) &&
+    /<\/feed\s*>/i.test(source)
+}
+
+export function parseAtomPushes(source: string): PushRecord[] {
+  const pushes: PushRecord[] = []
+  const entries = source.match(/<entry\b[^>]*>[\s\S]*?<\/entry\s*>/gi) ?? []
+
+  for (const entry of entries) {
+    const eventId = atomElement(entry, 'id')
+    const pushId = eventId.match(/^tag:github\.com,2008:push\/([A-Za-z0-9_-]+)$/)?.[1]
+    if (!pushId) continue
+
+    const createdAt = atomElement(entry, 'published') || atomElement(entry, 'updated')
+    if (!Number.isFinite(Date.parse(createdAt))) continue
+
+    const content = atomElement(entry, 'content')
+    const branchLink = content.match(
+      /<a\b[^>]*\bhref=["'](?:https?:\/\/github\.com)?\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/tree\/([^"'?#]+)["'][^>]*>/i,
+    )
+    if (!branchLink) continue
+
+    const repo = branchLink[1] + '/' + branchLink[2]
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) continue
+
+    let branch: string
+    try {
+      branch = decodeURIComponent(branchLink[3]).replace(/^refs\/heads\//, '')
+    } catch {
+      continue
+    }
+    if (!branch || /[\u0000-\u001f]/.test(branch)) continue
+
+    const commitPattern = /<a\b[^>]*\bhref=["'](?:https?:\/\/github\.com)?\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/commit\/([a-f0-9]{7,40})["'][^>]*>/gi
+    let rawSha = ''
+    for (const match of content.matchAll(commitPattern)) {
+      if ((match[1] + '/' + match[2]).toLowerCase() === repo.toLowerCase()) rawSha = match[3]
+    }
+
+    const messageMatch = content.match(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote\s*>/i)
+    const message = messageMatch ? plainText(decodeXmlEntities(messageMatch[1]).split(/<br\b|[\r\n]/i)[0]) : ''
+
+    pushes.push({
+      id: pushId,
+      repo,
+      createdAt,
+      branch,
+      message,
+      url: rawSha ? 'https://github.com/' + repo + '/commit/' + rawSha : null,
+    })
+  }
+
+  return pushes
+    .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))
+    .slice(0, 6)
+}
+
 export function isCacheFresh(updatedAt: string, now = Date.now()): boolean {
   const timestamp = Date.parse(updatedAt)
   return Number.isFinite(timestamp) &&
@@ -282,8 +358,8 @@ async function githubActivity(request: Request, env: Env): Promise<Response> {
       headers: { 'User-Agent': agent, Accept: 'text/html' },
       signal,
     }),
-    fetch('https://api.github.com/users/' + USERNAME + '/events/public?per_page=100', {
-      headers: { 'User-Agent': agent, Accept: 'application/vnd.github+json' },
+    fetch('https://github.com/' + USERNAME + '.atom', {
+      headers: { 'User-Agent': agent, Accept: 'application/atom+xml' },
       signal,
     }),
   ])
@@ -322,8 +398,15 @@ async function githubActivity(request: Request, env: Env): Promise<Response> {
     logUpstreamFailure('public-events', 'response', { response: eventsResult.value })
   } else {
     try {
-      pushes = parsePushes(await eventsResult.value.json())
-      eventsOk = true
+      const atomFeed = await eventsResult.value.text()
+      if (!isAtomFeed(atomFeed)) {
+        logUpstreamFailure('public-events', 'content', {
+          error: new Error('Expected a GitHub Atom feed response'),
+        })
+      } else {
+        pushes = parseAtomPushes(atomFeed)
+        eventsOk = true
+      }
     } catch (error) {
       logUpstreamFailure('public-events', 'parse', { error })
       // Fall back to the last successful cached event list, if one exists.

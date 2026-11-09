@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import activityWorker, {
   isCacheFresh,
   isRefreshThrottled,
+  parseAtomPushes,
   parseContributions,
   parsePushes,
   refreshRetryAfterSeconds,
@@ -89,6 +90,38 @@ describe('GitHub activity normalization', () => {
     expect(pushes).toHaveLength(6)
     expect(pushes[0].id).toBe('7')
     expect(pushes.at(-1)?.id).toBe('2')
+  })
+
+  it('parses only public push entries from the GitHub user Atom timeline', () => {
+    const feed = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>tag:github.com,2008:/shreyashjagtap157</id>
+  <entry>
+    <id>tag:github.com,2008:push/26621893235</id>
+    <published>2026-11-09T05:24:27Z</published>
+    <content type="html"><![CDATA[
+      <div class="repo-push">
+        <a class="branch-name" href="/owner/project/tree/feature/atom-feed">feature/atom-feed</a>
+        <a href="/owner/project/commit/0123456789abcdef0123456789abcdef01234567">0123456</a>
+        <blockquote>Improve public activity feed<br>More details</blockquote>
+      </div>
+    ]]></content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:pr_merged/19527366640</id>
+    <published>2026-11-09T06:00:00Z</published>
+    <content type="html">&lt;blockquote&gt;Merged a pull request&lt;/blockquote&gt;</content>
+  </entry>
+</feed>`
+    expect(parseAtomPushes(feed)).toEqual([{
+      id: '26621893235',
+      repo: 'owner/project',
+      createdAt: '2026-11-09T05:24:27Z',
+      branch: 'feature/atom-feed',
+      message: 'Improve public activity feed',
+      url: 'https://github.com/owner/project/commit/0123456789abcdef0123456789abcdef01234567',
+    }])
+    expect(parseAtomPushes('<html>not an Atom feed</html>')).toEqual([])
   })
 
   it('returns an empty list for an invalid upstream event payload', () => {
@@ -305,7 +338,7 @@ describe('GitHub activity KV persistence', () => {
     }
   })
 
-  it('logs public-events JSON parse failures without exposing the response body', async () => {
+  it('logs invalid public Atom content without exposing the response body', async () => {
     const originalFetch = globalThis.fetch
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
     globalThis.fetch = (async (input: RequestInfo | URL) => {
@@ -317,9 +350,9 @@ describe('GitHub activity KV persistence', () => {
           { status: 200, headers: { 'Content-Type': 'text/html' } },
         )
       }
-      return new Response('not-json private body', {
+      return new Response('not-an-Atom-feed private body', {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/atom+xml' },
       })
     }) as typeof fetch
 
@@ -336,11 +369,11 @@ describe('GitHub activity KV persistence', () => {
         '[portfolio-activity] GitHub upstream failure',
         expect.objectContaining({
           source: 'public-events',
-          stage: 'parse',
-          errorName: 'SyntaxError',
+          stage: 'content',
+          errorMessage: 'Expected a GitHub Atom feed response',
         }),
       )
-      expect(JSON.stringify(warning.mock.calls)).not.toContain('not-json private body')
+      expect(JSON.stringify(warning.mock.calls)).not.toContain('not-an-Atom-feed private body')
     } finally {
       globalThis.fetch = originalFetch
       warning.mockRestore()
@@ -385,6 +418,69 @@ describe('GitHub activity KV persistence', () => {
     }
   })
 
+  it('uses the public user Atom feed for recent pushes and stores a complete snapshot', async () => {
+    const atomFeed = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <id>tag:github.com,2008:push/26621893235</id>
+    <published>2026-11-09T05:24:27Z</published>
+    <content type="html"><![CDATA[
+      <a class="branch-name" href="/owner/project/tree/main">main</a>
+      <a href="/owner/project/commit/0123456789abcdef0123456789abcdef01234567">0123456</a>
+      <blockquote>Atom-backed public push</blockquote>
+    ]]></content>
+  </entry>
+</feed>`
+    const values = new Map<string, string>()
+    const requests: string[] = []
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put(key: string, value: string) { values.set(key, value) },
+    }
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const target = String(input)
+      requests.push(target)
+      if (target.includes('/contributions')) {
+        return new Response(
+          '<h2 id="js-contribution-activity-description">3 contributions in the last year</h2>' +
+          '<td class="ContributionCalendar-day" data-date="2026-11-09" data-level="2"></td>',
+          { status: 200, headers: { 'Content-Type': 'text/html' } },
+        )
+      }
+      if (target === 'https://github.com/shreyashjagtap157.atom') {
+        return new Response(atomFeed, { status: 200, headers: { 'Content-Type': 'application/atom+xml' } })
+      }
+      throw new Error('Unexpected upstream request: ' + target)
+    }) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: assetEnv, ACTIVITY_KV: kv },
+      )
+      const body = await response.json() as {
+        partial: boolean
+        pushes: { repo: string; branch: string; message: string; url: string | null }[]
+      }
+      expect(response.status).toBe(200)
+      expect(body.partial).toBe(false)
+      expect(body.pushes).toEqual([{
+        id: '26621893235',
+        repo: 'owner/project',
+        createdAt: '2026-11-09T05:24:27Z',
+        branch: 'main',
+        message: 'Atom-backed public push',
+        url: 'https://github.com/owner/project/commit/0123456789abcdef0123456789abcdef01234567',
+      }])
+      expect(requests).toContain('https://github.com/shreyashjagtap157.atom')
+      expect(requests.some(request => request.includes('/events/public'))).toBe(false)
+      expect(values.has('github-activity:v1:last-successful')).toBe(true)
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
   it('persists a fully refreshed payload with the configured retention', async () => {
     const values = new Map<string, string>()
     const writes: { key: string; value: string; expirationTtl?: number }[] = []
@@ -405,7 +501,10 @@ describe('GitHub activity KV persistence', () => {
           { status: 200, headers: { 'Content-Type': 'text/html' } },
         )
       }
-      return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } })
+      return new Response(
+        '<feed xmlns="http://www.w3.org/2005/Atom"><id>tag:github.com,2008:/shreyashjagtap157</id></feed>',
+        { status: 200, headers: { 'Content-Type': 'application/atom+xml' } },
+      )
     }) as typeof fetch
 
     try {
