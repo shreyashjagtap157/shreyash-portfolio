@@ -9,10 +9,12 @@ export function CaseStudy() {
   const [selected, setSelected] = useState('omni')
   const cases = [
     { id: 'omni' },
-    { id: 'helios' },
     { id: 'nexus' },
-    { id: 'uep' },
     { id: 'kilo' },
+    { id: 'uep' },
+    { id: 'mosaic' },
+    { id: 'dnc' },
+    { id: 'tensor' },
   ] as const
   const active = cases.find(item => item.id === selected) ?? cases[0]
   const casePoints = [1, 2, 3] as const
