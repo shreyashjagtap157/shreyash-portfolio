@@ -10,7 +10,7 @@
 - Removed the duplicate legacy Omni project entry and described Omni as an early-stage specification-governed Rust compiler/toolchain; self-hosting remains a roadmap target.
 - Corrected project maturity language and removed unused maturity labels so concepts, alpha work, candidates, prototypes, and active implementation are not conflated.
 - Corrected the project-detail key map and validated one detail entry per selected project.
-- Replaced the old contribution chart/feed behavior with a same-origin Cloudflare Worker endpoint that parses GitHub's public contribution-calendar HTML and recent public PushEvents.
+- Replaced the old contribution chart/feed behavior with a same-origin Cloudflare Worker endpoint that parses GitHub's public contribution-calendar HTML and push entries from GitHub's public user Atom timeline.
 - Added validated contribution dates/levels, safe event parsing, commit SHA validation, an eight-second upstream timeout, a six-hour Cloudflare KV-backed last-good snapshot with five-minute freshness, visibly stale fallback for upstream outages, and a separate one-minute manual-refresh cooldown marker.
 - Added an explicit partial/stale activity warning instead of presenting stale data as fully current.
 - Made top navigation horizontally scrollable, keyboard focusable, and visibly scrollable on narrow screens.
@@ -53,7 +53,7 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 
 ### GitHub activity and local development
 - Replaced the initial Cache API persistence approach with Cloudflare KV, appropriate to the configured `workers.dev` target.
-- Store only the last fully successful normalized activity snapshot for up to six hours; use a five-minute freshness window, stale fallback on partial upstream failure, and a separate one-minute refresh-attempt marker. The profile calendar may include anonymized private/internal counts when GitHub's **Private contributions** setting is enabled; the separate PushEvents source is public-only.
+- Store only the last fully successful normalized activity snapshot for up to six hours; use a five-minute freshness window, stale fallback on partial upstream failure, and a separate one-minute refresh-attempt marker. The profile calendar may include anonymized private/internal counts when GitHub's **Private contributions** setting is enabled; the public Atom timeline parser retains only push entries and ignores other activity types.
 - Document KV's eventual-consistency boundary and avoid claiming it is a globally atomic rate limiter.
 - Make `npm run dev` build the static assets and run the actual Worker locally; retain `npm run dev:ui` for UI-only Vite hot reload with a Worker proxy.
 
@@ -70,7 +70,7 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 
 ## 2026-11-09 — GitHub contribution-calendar privacy qualification
 
-- Clarified the difference between a publicly rendered GitHub profile contribution calendar and the unauthenticated public PushEvents endpoint.
+- Clarified the difference between a publicly rendered GitHub profile contribution calendar and GitHub's public user Atom timeline, filtered to push entries.
 - Documented that the profile calendar may expose anonymized daily counts from private/internal repositories when the owner's GitHub **Private contributions** setting is enabled; the Worker stores calendar dates, levels, and summary but does not fetch private repository names or private event details.
 - Recorded the owner action required for strict public-repository-only output: disable **Private contributions** under GitHub profile → Contribution settings. The setting was not inspected or changed.
 - Updated the visible contribution-calendar footnote in all five locales to explain anonymized private contributions, and added a locale regression test.
