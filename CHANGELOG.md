@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-11-09 — Project navigation and implementation case studies
+
+- Fixed project-title navigation for all 14 Selected Work cards. After the hash-selected detail view renders, the page now scrolls to the actual project-detail card, lets the sticky toolbar settle, measures its live bottom edge, and corrects the viewport so the card begins beneath it.
+- Added a Playwright regression that visits all 14 project titles (including Kilo Code fork), verifies the detail heading, checks the detail card's position relative to the sticky toolbar, and returns to the project grid.
+- Expanded the case-study selector from five entries to seven implementation-focused studies: Omni, NexusAgent, Kilo Code fork, UEP, Mosaic-µ, Dynamic Neural Computation, and Tensor Ring Decomposition.
+- Removed Helios from the case-study selector because its current repository README explicitly identifies it as concept/specification-only with no implementation started. Helios remains in Selected Work and retains its accurate project detail.
+- Reworked the case-study narratives around repository-backed executable work, while retaining prerelease/candidate status, qualification blockers, upstream/fork boundaries and unresolved production-readiness claims. Other prototype projects remain in Selected Work without being promoted where implementation evidence or integration maturity is insufficient.
+- Localized the expanded case-study copy across English, German, French, Hindi, and Marathi. All five locale dictionaries retain identical key sets (230 keys each).
+- Preserved the existing portfolio design, themes, project cards, and illustrations. No generated or replacement visuals were added.
+- PR [#16](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/16) merged through a normal history-preserving merge as `586ac91a0e0bc387a07f3fded146aa63e17568b5`.
+- Exact PR-head CI [42628166687](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42628166687) and merged-main CI [42628471360](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42628471360) passed. The final main run reported zero npm vulnerabilities, three unit-test files passed, TypeScript and production build passed, and all 79 Chromium tests passed.
+- Cloudflare Workers Build `daa5ef4a-9de7-4ee1-b8cc-3cd1604015ec` completed successfully for the exact main SHA. Worker v28 (`8b7e4650-da12-4907-9dff-74ce071a2682`) is deployed at 100% traffic.
+- A production Browser Rendering check of `/#project/kilo` verified the Kilo Code fork detail card is visible immediately below the sticky toolbar, with the case-study section following it. The homepage and live case-study selector also render on the deployed Worker.
+- No project repository source, external credentials, Worker API behavior, DNS, profile settings, or KV state were changed.
+
+---
+
 ## 2026-11-09 — First-viewport layout correction
 
 - Rebalanced the opening hero so the text column has more usable width and the explanatory copy uses a 64-character measure rather than the previous narrow 52-character limit.
