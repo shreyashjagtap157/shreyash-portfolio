@@ -25,6 +25,26 @@ export function Projects() {
     return () => window.removeEventListener('hashchange', readHash)
   }, [])
 
+  useEffect(() => {
+    if (!detailId || !PROJECTS.some(project => project.id === detailId)) return
+
+    const frame = window.requestAnimationFrame(() => {
+      const detail = document.getElementById('project-detail')
+      if (!detail) return
+
+      const toolbar = document.querySelector<HTMLElement>('.toolbar')
+      const toolbarBottom = toolbar?.getBoundingClientRect().bottom ?? 0
+      const targetTop = window.scrollY + detail.getBoundingClientRect().top - toolbarBottom - 16
+      const behavior: ScrollBehavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth'
+
+      window.scrollTo({ top: Math.max(0, targetTop), behavior })
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [detailId])
+
   const selectedProject = PROJECTS.find(project => project.id === detailId)
   if (selectedProject) {
     return (
@@ -124,10 +144,10 @@ function ProjectDetail({ project }: { project: Project }) {
   const { t } = useI18n()
   const detailKey = PROJECT_DETAIL_KEYS[project.id]
   return (
-    <article className="project-detail-card">
+    <article id="project-detail" className="project-detail-card" tabIndex={-1} aria-labelledby="project-detail-title">
       <div className="project-detail-copy">
         <p className="eyebrow">{t('project_snapshot')}</p>
-        <h3 translate="no">{project.name}</h3>
+        <h3 id="project-detail-title" translate="no">{project.name}</h3>
         <p className="desc">{t('p_' + project.id)}</p>
         {detailKey && <p className="project-detail-note">{t(detailKey)}</p>}
         <p className="project-detail-status"><strong>{t('project_status')}:</strong> {t('st_' + project.status)}</p>
