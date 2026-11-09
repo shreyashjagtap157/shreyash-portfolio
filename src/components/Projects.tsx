@@ -32,11 +32,18 @@ export function Projects() {
       const detail = document.getElementById('project-detail')
       if (!detail) return
 
-      const behavior: ScrollBehavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 'auto'
-        : 'smooth'
+      const root = document.documentElement
+      const previousScrollBehavior = root.style.scrollBehavior
+      root.style.scrollBehavior = 'auto'
+      detail.scrollIntoView({ block: 'start', behavior: 'auto' })
 
-      detail.scrollIntoView({ block: 'start', behavior })
+      // The initial scroll makes the sticky toolbar settle at its pinned height.
+      // Measure that actual height, then correct the target position below it.
+      const toolbar = document.querySelector<HTMLElement>('.toolbar')
+      const toolbarBottom = toolbar?.getBoundingClientRect().bottom ?? 0
+      const gap = detail.getBoundingClientRect().top - toolbarBottom
+      window.scrollBy(0, gap - 16)
+      root.style.scrollBehavior = previousScrollBehavior
     })
 
     return () => window.cancelAnimationFrame(frame)
