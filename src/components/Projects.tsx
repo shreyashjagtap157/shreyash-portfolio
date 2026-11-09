@@ -32,14 +32,11 @@ export function Projects() {
       const detail = document.getElementById('project-detail')
       if (!detail) return
 
-      const toolbar = document.querySelector<HTMLElement>('.toolbar')
-      const toolbarBottom = toolbar?.getBoundingClientRect().bottom ?? 0
-      const targetTop = window.scrollY + detail.getBoundingClientRect().top - toolbarBottom - 16
       const behavior: ScrollBehavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ? 'auto'
         : 'smooth'
 
-      window.scrollTo({ top: Math.max(0, targetTop), behavior })
+      detail.scrollIntoView({ block: 'start', behavior })
     })
 
     return () => window.cancelAnimationFrame(frame)
