@@ -266,12 +266,27 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - Replaced the REST Events request with GitHub's documented public user Atom timeline at `https://github.com/<username>.atom`. The parser retains only Atom entries whose IDs use GitHub's public push-event identifier form and ignores pull-request, review, issue, and other timeline entries.
 - Contribution-calendar retrieval remains a separate public HTML request. Its privacy qualification is unchanged: GitHub may include anonymized private/internal daily counts when the profile owner's **Private contributions** setting is enabled; no private repository names or private event details are fetched.
 - Added parser and Worker integration tests for valid push entries, ignored non-push entries, malformed Atom content, and successful persistence. No GitHub token was introduced.
-- The change is on `fix/activity-feed-use-atom` pending CI and production deployment. Do not claim the rate-limit workaround is live until the merged revision is deployed and the live endpoint returns a complete response.
+- PR #4 was merged as `b9525b8843bfc06b822b1650ec899d62bfc0fc88`; exact-head CI passed and the Cloudflare production deployment was verified. The initial complete live snapshot returned `partial: false`, `stale: false`, and six public pushes. See section 22 for deployment evidence.
 
+## 22. Atom activity feed production deployment — 2026-11-09
 
-## 22. Atom push message normalization — 2026-11-09
+- PR [#4](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/4) merged through a normal history-preserving merge. The initial production `main` commit was `b9525b8843bfc06b822b1650ec899d62bfc0fc88`; the subsequent commit-message normalization merge is `72cad2c1646e77c0997db0f1ae69223a94c57636`.
+- Exact-head PR CI [42576973442](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42576973442) passed: npm audit reported zero vulnerabilities; all 39 Vitest tests passed across three files; TypeScript and Vite production build passed; Playwright Chromium reported 77 passing tests.
+- GitHub merge-commit CI [42577121709](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42577121709) also completed successfully.
+- Refreshed the Cloudflare Workers Builds production token and corrected the build command from `npm ci && npm run check` to `npm ci --include=dev && npm run check`. This is required because TypeScript, Vite, and the test tools are development dependencies while the Cloudflare build environment sets `NODE_ENV=production`.
+- Cloudflare production build `dfb19ee3-28b7-485e-a76a-4f1aead4a50a` deployed Worker version 22 (`ad0d84a9-86cc-4bcf-8126-214114c6a099`), replacing the stale October deployment.
+- A successful initial refresh wrote a complete snapshot: 366 contribution days, 8,047 contribution counts, six parsed public push records, `partial: false`, and `stale: false`. The root page served the current About-first portfolio and canonical metadata under the `workers.dev` hostname.
+- The activity Worker no longer calls the quota-limited REST `/events/public` endpoint. It parses GitHub's public user Atom timeline and keeps only push-event entries. No GitHub token was added. The separate profile contribution-calendar privacy caveat remains unchanged.
+- Cloudflare's automatic build trigger did not create builds for recent merges. Production deployments were started explicitly against exact `main` commits; continue verifying build history after each merge rather than assuming deployment occurred.
 
-- Production KV inspection after the Atom deployment confirmed a complete, fresh activity snapshot with 366 calendar days, six public pushes, and no upstream-failure log entries.
-- The same inspection found empty commit-message fields because GitHub's Atom HTML places a leading newline inside `blockquote`; the previous extractor selected the blank line before trimming.
-- Updated normalization to skip blank lines and retain the first non-empty commit-summary line, including HTML `br` boundaries.
-- Added a regression test matching the leading-newline format. This follow-up is pending CI and deployment; production currently has the Atom feed enabled, but commit messages remain blank until this fix is released.
+## 23. Atom push commit-message normalization and current refresh state — 2026-11-09
+
+- Production KV inspection after the first Atom deployment confirmed a complete snapshot with 366 calendar days, six public pushes, 8,047 contribution counts, `partial: false`, and `stale: false`.
+- That snapshot exposed empty commit-message fields because GitHub's Atom HTML places a leading newline inside `blockquote`; the parser had selected the blank line before trimming.
+- Updated normalization to convert HTML `br` markers to line breaks, skip blank lines, and retain the first non-empty commit-summary line. Added a regression test matching the newline-prefixed GitHub markup.
+- PR #6 merged as `72cad2c1646e77c0997db0f1ae69223a94c57636`. Exact-head CI [42579753513](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42579753513) passed: zero npm vulnerabilities, 40 Vitest tests across three files, TypeScript, Vite build, and 77 Chromium browser tests.
+- Deployed Worker version 23 (`c20ce6ad-b169-4619-9079-d49c20c67da1`) using Cloudflare build `15d841a5-f6a8-493c-8829-9309238546b3`; Wrangler reported successful deployment with both `ACTIVITY_KV` and `ASSETS` bindings.
+- A post-deployment refresh at `2026-11-09T07:35:09Z` timed out for both GitHub upstream requests at the configured eight-second timeout. Sanitized Worker logs identify `TimeoutError` for both `contributions` and `public-events`; there was no REST Events 403/rate-limit warning on this refresh.
+- The Worker correctly retained the last-good KV snapshot and served it as `partial: true`, `stale: true`; its `updatedAt` remains `2026-11-09T07:07:24.139Z`. That preserved snapshot still contains empty messages from before version 23, so successful post-fix message population is **not yet verified**.
+- No fabricated commit messages, direct KV edits, GitHub credentials, or alternative event-source credentials were introduced. Retry upstream refresh after GitHub connectivity recovers; verify a new `partial: false`, `stale: false` snapshot and non-empty valid commit messages before closing this issue.
+
