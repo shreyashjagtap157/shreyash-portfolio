@@ -80,3 +80,9 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 
 - Rechecked the public Cloudflare Worker root and same-origin activity API after the privacy and localization corrections. The root still serves the legacy portfolio with duplicate Omni content, legacy maturity labels, and old canonical/Open Graph metadata; `/api/github/activity` still returns HTTP 404.
 - Confirmed branch source metadata and Worker route remain correct. Deployment is still blocked on Cloudflare credential recovery; no alternate hosting, DNS change, merge, or deployment was attempted.
+
+
+## 2026-11-09 — Atom push commit-message normalization
+
+- Skip leading whitespace-only lines in GitHub Atom push markup and retain the first non-empty commit summary.
+- Added a regression test for GitHub's newline-prefixed `blockquote` formatting.
