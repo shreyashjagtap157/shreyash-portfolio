@@ -42,9 +42,9 @@ The final total is recorded from the CI test output after the latest change, not
 
 ## 4. GitHub activity architecture
 
-The browser talks only to same-origin `/api/github/activity`. The Cloudflare Worker fetches GitHub's public contribution HTML and unauthenticated public PushEvents, then returns normalized data.
+The browser talks only to same-origin `/api/github/activity`. The Cloudflare Worker fetches GitHub's public contribution HTML and public user Atom timeline (`https://github.com/<username>.atom`), retaining push entries only before returning normalized data.
 
-The Worker validates calendar dates and activity levels, rejects malformed events/repository names, validates commit SHAs before producing commit links, and never exposes a personal GitHub token. The contribution calendar is publicly rendered by GitHub but can include anonymized daily counts from private/internal repositories when the profile owner's **Private contributions** setting is enabled. The Worker stores those dates, intensity levels, and the calendar summary; it does not fetch private repository names or private event details. The separate unauthenticated `public` PushEvents source remains public-event-only.
+The Worker validates calendar dates and activity levels, rejects malformed events/repository names, validates commit SHAs before producing commit links, and never exposes a personal GitHub token. The contribution calendar is publicly rendered by GitHub but can include anonymized daily counts from private/internal repositories when the profile owner's **Private contributions** setting is enabled. The Worker stores those dates, intensity levels, and the calendar summary; it does not fetch private repository names or private event details. The public user Atom timeline is filtered to entries whose IDs identify push events; other timeline entry types are ignored.
 
 Reliability controls:
 
@@ -56,7 +56,7 @@ Reliability controls:
 - No fabricated contributions or commits if GitHub is unavailable.
 - KV is eventually consistent: writes are immediately visible in the serving location but may take up to 60 seconds to appear elsewhere. The cooldown is therefore best-effort, not a globally atomic rate limit.
 
-The combined feed is sourced from a public profile surface, but is not guaranteed to be public-repository-only while **Private contributions** is enabled. The recent PushEvents component is restricted to public events. Disabling the profile setting is required to exclude anonymized private/internal contribution counts from the calendar. See [GitHub's profile contributions reference](https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference).
+The combined feed is sourced from a public profile surface, but is not guaranteed to be public-repository-only while **Private contributions** is enabled. The recent-push component retains only push entries from the public user Atom timeline. Disabling the profile setting is required to exclude anonymized private/internal contribution counts from the calendar. See [GitHub's profile contributions reference](https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference).
 
 ## 5. Cloudflare hosting and cost model
 
@@ -245,7 +245,7 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - Revisited the existing Codex P2 review finding on PR #2 (review comment `4502715661`), which correctly noted that GitHub's public contribution calendar can contain anonymized counts from private repositories when the profile owner enables **Private contributions**.
 - Verified the current `src/worker.ts`: it fetches `https://github.com/users/<username>/contributions`, parses each calendar day's `data-date` and `data-level`, and stores the calendar summary. Separately, it fetches `/users/<username>/events/public`, which is explicitly the public-events feed.
 - GitHub's [profile contributions reference](https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference) states that when private contributions are publicized, people without access to those repositories can see the number of contributions made each day, but not specific details.
-- Corrected README, design rules, local-agent handoff, changelog, and this audit: the calendar's daily intensity levels and summary may reflect anonymized private/internal activity; no private repository names or private event details are fetched. The recent-push feed remains based on unauthenticated public PushEvents. The visible calendar footnote now states this distinction in all five locales, with an exact-copy regression test.
+- Corrected README, design rules, local-agent handoff, changelog, and this audit: the calendar's daily intensity levels and summary may reflect anonymized private/internal activity; no private repository names or private event details are fetched. The recent-push feed remains based on push entries filtered from the public user Atom timeline. The visible calendar footnote now states this distinction in all five locales, with an exact-copy regression test.
 - The GitHub profile's **Private contributions** visibility setting has not been inspected or changed. If strict public-repository-only output is required, the owner must disable it under GitHub profile → Contribution settings. This owner setting is not something the Worker can infer or enforce reliably.
 - The Worker runtime behavior was not changed. The visible contribution-calendar footnote and its five locale values were updated, with an exact-copy regression test. GitHub Actions push run [42567471094](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42567471094) and PR run [42567466482](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42567466482) both passed on commit `049b046cbaa14c016b9251343cf1243561113804`: 34 Vitest tests across 3 files, TypeScript typecheck, production build (63 modules), 77 Chromium browser tests, and npm audit with 0 vulnerabilities. No GitHub profile setting, Cloudflare credential, production deployment, DNS record, or merge state was changed.
 
@@ -258,3 +258,12 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - The live `/api/github/activity` request again returned **HTTP 404** (`page_not_found`). The branch Worker still explicitly routes this path.
 - This 9 November fetch independently confirms the deployment drift documented in section 17. No newer production deployment was established. The prior Cloudflare deployment API observation remains Worker version 19 from 23 October 2026, and the connected Cloudflare token verification still returns HTTP 401 `Invalid API Token`.
 - No DNS, custom-domain, Cloudflare token, production deployment, or PR merge changes were made. Do not treat CI success or the PR branch as evidence that the public Worker has been updated.
+
+
+## 21. Public activity source resilience — 2026-11-09
+
+- The deployed diagnostics identified GitHub's unauthenticated REST public-events request returning HTTP 403 with `X-RateLimit-Remaining: 0`; GitHub supplied a reset timestamp. The Worker correctly marked that source partial and retained the last successful payload rather than fabricating event data.
+- Replaced the REST Events request with GitHub's documented public user Atom timeline at `https://github.com/<username>.atom`. The parser retains only Atom entries whose IDs use GitHub's public push-event identifier form and ignores pull-request, review, issue, and other timeline entries.
+- Contribution-calendar retrieval remains a separate public HTML request. Its privacy qualification is unchanged: GitHub may include anonymized private/internal daily counts when the profile owner's **Private contributions** setting is enabled; no private repository names or private event details are fetched.
+- Added parser and Worker integration tests for valid push entries, ignored non-push entries, malformed Atom content, and successful persistence. No GitHub token was introduced.
+- The change is on `fix/activity-feed-use-atom` pending CI and production deployment. Do not claim the rate-limit workaround is live until the merged revision is deployed and the live endpoint returns a complete response.
