@@ -125,4 +125,12 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 
 - The first PR CI run passed dependency audit (zero npm advisories), TypeScript, unit tests, and the production build, then reported 72 passing and five failing Chromium tests.
 - All five failures were stale expected text in the existing localized Omni case-study browser-test fixtures (one per locale), not a mismatch between the rendered page and locale dictionaries.
-- Updated the five fixture expectations. A full rerun is required before the change is accepted or deployed.
+- Updated the five fixture expectations. The corrected PR and merged-main CI runs subsequently passed all 77 Chromium tests; see the production release entry below.
+
+
+### PR #11 merge and production deployment — 2026-11-09
+
+- PR [#11](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/11) merged as `cb6b050390e57a134bab2eb0a7ef7d9cdce7a157`.
+- Final PR CI [42615899184](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42615899184) and merged-main CI [42616089231](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42616089231) both passed the security audit, TypeScript, 42 unit tests, production build, and 77 Playwright Chromium tests.
+- Cloudflare Workers Build `b8d39d7a-d017-43d9-ba73-6f70a7989f4e` succeeded against the exact merge SHA and deployed Worker version 25 (`27f21140-43cd-4b56-a6a7-30ec86069893`) to 100% production traffic.
+- Live verification confirmed the revised hero, Omni case study, and all 14 selected projects. The activity API subsequently returned a fresh, complete snapshot (`partial: false`, `stale: false`) with 8,105 contributions and six recent push records.
