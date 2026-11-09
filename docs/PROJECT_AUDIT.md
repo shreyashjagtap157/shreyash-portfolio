@@ -314,3 +314,12 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - The shared cooldown change is covered by unit tests for ordinary stale-cache throttling, no-cache automatic retry responses, marker persistence, and last-good snapshot preservation. A live failure-injection test against production was not performed; the Cloudflare KV cooldown is intentionally documented as best-effort because KV is eventually consistent.
 - One fresh complete snapshot is verified. Do not mark sustained recovery until a second distinct successful refresh has independently produced a complete, current snapshot. Daily recovery monitoring was scheduled; it must not force refreshes or mutate production data.
 - No Cloudflare token, DNS record, custom domain, GitHub profile privacy setting, or KV data was changed manually.
+
+
+## 26. Sustained GitHub activity feed recovery — 2026-11-09
+
+- Verified a second distinct post-version-24 refresh after the first snapshot's five-minute freshness period. The first complete snapshot timestamp was `2026-11-09T09:02:34.220Z`; the second was `2026-11-09T09:07:49.149Z`.
+- Both live endpoint responses returned HTTP 200, `partial: false`, `stale: false`, 366 contribution-day cells, and six public push records. All six public push records had non-empty commit summaries on both snapshots.
+- The contribution summary advanced from `8,086 contributions in the last year` to `8,093 contributions in the last year`, corroborating that the second response was a distinct successful refresh rather than another read of the first cached payload.
+- This satisfies the previously defined two-consecutive-fresh-complete-snapshots recovery criterion. The Atom commit-message normalization fix and the automatic/manual refresh cooldown are verified in production at this checkpoint. This does not guarantee that future GitHub requests cannot time out; the stale fallback and cooldown remain the outage behavior.
+- The temporary daily recovery automation was disabled after the stopping condition was met. No recurring monitoring remains enabled.
