@@ -152,14 +152,14 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - Worker parser unit tests cover contribution-day metadata on non-table elements as well as table cells.
 - Worker stale-cache fallback retains the timestamp of the last successful cached payload rather than stamping stale content with the time of the failed request. Playwright coverage verifies the desktop navigation/control boundary at intermediate widths and confirms that the full navigation row fits before hiding the scrollbar at 1,440px. Locale tests verify Omni and Helios case-study names and introductions and all contact-link labels/descriptions in the five built-in languages.
 - The 80rem main content container remains unchanged; only the desktop toolbar is allowed a slightly wider 84rem container to provide sufficient room for navigation and controls.
-- Project maturity, external documentation conflicts, public-only GitHub activity, and the Cloudflare deployment gate remain explicit; no production-readiness or live-deployment claim is introduced.
+- Project maturity, external documentation conflicts, the GitHub contribution-calendar privacy caveat, and the Cloudflare deployment gate remain explicit; no production-readiness or live-deployment claim is introduced.
 
 
 ## 13. Storage correction for the `workers.dev` deployment target (2026-11-07)
 
 - The PR implementation originally used `caches.default` for its six-hour stale-data store. Cloudflare documents functional Cache API operations for Workers deployed to custom domains and Pages Functions; the portfolio's configured production hostname is a `workers.dev` subdomain. The Cache API was therefore not an appropriate dependency for this deployment target.
 - Created the account's first KV namespace, `shreyash-portfolio-activity`, with ID `f5b00902986840448a64aa9a7bb05ab5`, and bound it as `ACTIVITY_KV` in `wrangler.jsonc`.
-- Replaced Cache API reads/writes with KV-backed persistence for the last fully successful public activity snapshot (six-hour TTL) and a separate one-minute manual-refresh attempt marker. A failed or partial upstream refresh does not overwrite the last-good payload and cannot reset its timestamp.
+- Replaced Cache API reads/writes with KV-backed persistence for the last fully successful normalized activity snapshot (six-hour TTL) and a separate one-minute manual-refresh attempt marker. A failed or partial upstream refresh does not overwrite the last-good payload and cannot reset its timestamp.
 - Added unit coverage for Retry-After calculation, stale payload preservation during a throttled refresh, and the no-cache 429 path.
 - KV is available on Workers Free but has finite quotas (currently 100,000 reads/day, 1,000 writes/day, 1 GB storage). Its eventual consistency means remote locations may not see a recent write for up to 60 seconds; this design improves availability but is not a strict globally synchronized lock. A KV quota or binding failure falls back to live upstream fetches, not fabricated/stale data.
 - The code change is on PR #2 and is not deployed to production. The Workers Builds token blocker and live smoke-test requirement remain open.
