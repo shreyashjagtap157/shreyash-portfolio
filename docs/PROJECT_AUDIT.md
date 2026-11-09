@@ -1,8 +1,8 @@
 # Portfolio project audit and issue ledger
 
-**Audit date:** 2026-11-08  
+**Audit date:** 2026-11-09  
 **Repository:** `shreyashjagtap157/shreyash-portfolio`  
-**Review branch:** `work/portfolio-about-case-studies`  
+**Review branch:** `main`  
 **Production target:** Cloudflare Worker `shreyash-portfolio`  
 **Public hostname:** https://shreyash-portfolio.ssjagtap2016.workers.dev/
 
@@ -52,7 +52,7 @@ Reliability controls:
 - Up to six-hour TTL for the last fully successful result in Cloudflare KV; partial results never overwrite it.
 - Stale fallback, visibly marked as partial, if an upstream source is unavailable.
 - Eight-second timeout for GitHub upstream requests.
-- A separate one-minute manual-refresh marker, independent of the last-successful-data timestamp.
+- A shared one-minute refresh-attempt marker for automatic and manual upstream refreshes, independent of the last-successful-data timestamp. It is written before every upstream attempt, including failures; KV eventual consistency means throttling is best-effort rather than a globally atomic lock.
 - No fabricated contributions or commits if GitHub is unavailable.
 - KV is eventually consistent: writes are immediately visible in the serving location but may take up to 60 seconds to appear elsewhere. The cooldown is therefore best-effort, not a globally atomic rate limit.
 
@@ -68,17 +68,18 @@ No domain purchase is required. A custom domain is optional. The production targ
 
 ## 6. CI and regression verification
 
-The latest verified checkpoint is GitHub Actions run [42375334373](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42375334373), commit `56ac50d2ea1a9bb4e85c36c2a00361140c1a4c5a`:
+The latest verified main-branch checkpoint is commit `c32c907e6345b830f3b2e037f49629bd80dc9931`, validated by GitHub Actions run [42591387883](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42591387883):
 
+- Dependency security audit: passed with zero npm vulnerabilities.
 - TypeScript typecheck: passed.
-- Vitest: 27 tests passed in 3 files, including contribution-calendar parsing from non-table HTML elements and stale-cache timestamp preservation.
+- Vitest: 42 tests passed across 3 files, including automatic-refresh cooldown, last-good snapshot preservation, and Atom commit-summary normalization regressions.
 - Vite production build: passed (63 modules transformed).
 - Chromium browser suite: 77 tests passed.
 - Responsive coverage includes the four theme × three density × four base-viewport matrix plus desktop nav geometry checks at 1,100px, 1,200px, 1,360px and 1,440px.
 - Locale-specific browser coverage checks all five supported dictionaries for project case-study content and contact-link labels/descriptions.
 - Browser checks include no duplicate DOM IDs and no nested interactive anchors/buttons.
 
-The audit-only follow-up is tracked separately from that application-code checkpoint.
+The main commit includes the merged activity reliability and audit-history changes. The portfolio repository has no open pull requests at this checkpoint.
 
 ## 7. Known cross-repository contradictions
 
@@ -103,14 +104,25 @@ The audit-only follow-up is tracked separately from that application-code checkp
 - Custom-domain canonical metadata removed in favor of the verified free Cloudflare Worker hostname.
 - Stale Lighthouse claims are not carried forward.
 
-## 9. Remaining work before closure
+## 9. Current release status and remaining owner decisions
 
-1. **Completed:** GitHub Actions is green for the current implementation revision. TypeScript typecheck, 33 Vitest tests, the production build, and 77 Playwright Chromium tests passed. The latest CI npm audit report contains zero advisories.
-2. **Blocked by Cloudflare credentials:** repair the deleted/rolled Workers Builds API token, then confirm Cloudflare can build and deploy this repository using the existing free Worker hostname.
-3. **After deployment:** verify the live page, API response, cache/refresh behavior, response headers, and browser console/network errors.
-4. **Owner review:** decide project inclusion (Miner/PromptWars) and reconcile the remaining external documentation contradictions (Helios/Kilo).
+### Completed engineering and production gates
 
-No final "fully complete" claim is made until Cloudflare deployment and live smoke tests are green, and the remaining owner review decisions are closed.
+1. **Repository and review state:** PRs [#2–#9](https://github.com/shreyashjagtap157/shreyash-portfolio/pulls) are merged through normal history-preserving merges. `main` is at `c32c907e6345b830f3b2e037f49629bd80dc9931`; there are no open pull requests.
+2. **Continuous integration:** the latest main-branch run [42591387883](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42591387883) passed the dependency audit (zero reported npm vulnerabilities), TypeScript check, 42 Vitest tests across three files, Vite production build, and 77 Playwright Chromium tests.
+3. **Cloudflare deployment:** the Workers Build pinned to the runtime merge commit succeeded with `npm ci --include=dev && npm run check` and `npx wrangler deploy`. Worker version 24 (`733aa39d-24c4-4379-9138-025266652a0a`) is active at 100% traffic on the existing free `workers.dev` hostname.
+4. **Production smoke tests:** the homepage returned HTTP 200 with the expected canonical URL, About-first navigation, and hydrated project case-study selector. The activity endpoint produced two distinct complete snapshots at `2026-11-09T09:02:34.220Z` and `2026-11-09T09:07:49.149Z`; both returned HTTP 200, `partial: false`, `stale: false`, 366 calendar days, six public pushes, and six populated commit summaries. This satisfies the two-snapshot recovery criterion documented in section 26.
+5. **Activity-feed outage protection:** automatic and manual refreshes share a one-minute KV attempt marker. Last-good data remains independent of refresh attempts; failed/partial refreshes do not overwrite it. KV eventual consistency means the cooldown remains best-effort, not globally atomic.
+
+### Remaining owner decisions (not deployment blockers)
+
+- **Helios:** reconcile the separate repository's older prohibition on pretrained models with the newer perception-only frozen-model direction, while keeping the symbolic reasoning/memory/planning/action core explicit. The portfolio conservatively labels Helios as concept/specification stage; no runtime is claimed.
+- **Kilo Code fork:** decide whether to update the fork's public README/status documentation with evidence of experimental specialist-agent/NVIDIA NIM work. The portfolio continues to distinguish the fork from upstream Kilo Code and does not imply a public release.
+- **Project selection:** confirm whether Miner or PromptWars-Virtual-2 belongs in the intentionally selected 14-project portfolio. Both remain excluded pending owner confirmation.
+- **Optional profile content:** a separate professional email and a headshot remain optional owner decisions. Neither is required for the deployed site.
+- **Custom domain:** the existing free Cloudflare `workers.dev` hostname is working; a purchased custom domain is optional, not a release requirement.
+
+No known production deployment gate remains open. The portfolio application and GitHub activity feed are deployed and smoke-verified. The owner decisions above concern cross-repository documentation or optional content and should not be silently resolved by changing separate projects or personal profile information.
 
 
 ## 10. About navigation, case studies, project visuals, and local development (2026-11-07)
