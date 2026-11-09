@@ -32,6 +32,41 @@ test.describe('responsive layout across themes and densities', () => {
   }
 })
 
+
+test('desktop first viewport shows a balanced hero and the start of selected work', async ({ page }) => {
+  await page.setViewportSize({ width: 1648, height: 785 })
+  await page.goto('/')
+  await page.evaluate(() => document.fonts.ready)
+
+  const metrics = await page.evaluate(() => {
+    const heroCopy = document.querySelector<HTMLElement>('.hero-copy')
+    const heroVisual = document.querySelector<HTMLElement>('.viz')
+    const selectedWorkHeading = document.querySelector<HTMLElement>('#work h2')
+    if (!heroCopy || !heroVisual || !selectedWorkHeading) {
+      throw new Error('The hero or selected-work section is missing from the page.')
+    }
+    const copy = heroCopy.getBoundingClientRect()
+    const visual = heroVisual.getBoundingClientRect()
+    const work = selectedWorkHeading.getBoundingClientRect()
+    return {
+      viewportHeight: window.innerHeight,
+      copyWidth: copy.width,
+      copyBottom: copy.bottom,
+      visualLeft: visual.left,
+      visualRight: visual.right,
+      workHeadingTop: work.top,
+      workHeadingBottom: work.bottom,
+    }
+  })
+
+  expect(metrics.copyWidth).toBeGreaterThan(560)
+  expect(metrics.copyBottom).toBeLessThan(metrics.viewportHeight)
+  expect(metrics.visualLeft).toBeGreaterThan(0)
+  expect(metrics.visualRight).toBeLessThan(1648)
+  expect(metrics.workHeadingTop).toBeLessThan(metrics.viewportHeight)
+  expect(metrics.workHeadingBottom).toBeLessThan(metrics.viewportHeight)
+})
+
 test.describe('theme, density and dropdown interactions', () => {
   test('theme and density changes persist after reload', async ({ page }) => {
     await page.goto('/')
