@@ -201,8 +201,8 @@ export function parseAtomPushes(source: string): PushRecord[] {
     const messageMatch = content.match(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote\s*>/i)
     const messageLines = messageMatch
       ? decodeXmlEntities(messageMatch[1])
-        .replace(/<br\b[^>]*>/gi, '\\n')
-        .split(/[\\r\\n]+/)
+        .replace(/<br\b[^>]*>/gi, '\n')
+        .split(/[\r\n]+/)
         .map((line) => plainText(line))
         .filter(Boolean)
       : []
