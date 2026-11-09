@@ -119,3 +119,10 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 - Kept AstraVCS out of the selected work because its public repository is currently a documentation/handoff shell with its executable source and test suites not imported.
 - Preserved the 14-project curated inventory and the five-locale identical-key-set requirement.
 - Review branch: `content/engineering-profile-omni-refresh`. Production deployment is not claimed by this changelog entry; it is contingent on review, CI, merge, and Cloudflare Workers Builds verification.
+
+
+### PR #11 validation follow-up
+
+- The first PR CI run passed dependency audit (zero npm advisories), TypeScript, unit tests, and the production build, then reported 72 passing and five failing Chromium tests.
+- All five failures were stale expected text in the existing localized Omni case-study browser-test fixtures (one per locale), not a mismatch between the rendered page and locale dictionaries.
+- Updated the five fixture expectations. A full rerun is required before the change is accepted or deployed.

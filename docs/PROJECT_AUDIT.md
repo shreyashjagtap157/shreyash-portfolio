@@ -345,3 +345,11 @@ No known production deployment gate remains open. The portfolio application and 
 - Identified a stale evidence statement in Omni's own README: it refers to earlier head `3902f6d...` as the full-pipeline success checkpoint, which must not be carried forward to the newer `27c5565...` head without fresh matching workflow evidence.
 - AstraVCS is not included in the public project grid yet. Its live public repo says it is a handoff/documentation shell missing the Rust workspace, Python reference implementation, tests, conformance programs, normative source files, and original Git history. Its historical requirement-status figures are explicitly not independently revalidated.
 - The selected-work inventory remains 14 unique projects; no placeholder or incomplete handoff repository was added just to increase the count.
+
+
+## 10. PR #11 browser-suite fixture correction — 2026-11-09
+
+- The first CI run for PR #11 passed dependency audit, TypeScript, unit tests, and production build.
+- Chromium browser tests reported 72 passed and five failed. All five failures were the expected Omni case-study introduction strings in the existing locale test fixture; the rendered copy matched the updated dictionaries. No application runtime or layout regression was indicated by those failures.
+- Updated the expected introduction prefixes in `tests/portfolio.spec.ts` for English, German, French, Hindi, and Marathi to match the revised localized case-study copy. The test still asserts the rendered case-study content in every supported locale.
+- The browser suite must be rerun before merge; this fixture correction is not itself a passing result.
