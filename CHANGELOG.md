@@ -80,3 +80,12 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 
 - Rechecked the public Cloudflare Worker root and same-origin activity API after the privacy and localization corrections. The root still serves the legacy portfolio with duplicate Omni content, legacy maturity labels, and old canonical/Open Graph metadata; `/api/github/activity` still returns HTTP 404.
 - Confirmed branch source metadata and Worker route remain correct. Deployment is still blocked on Cloudflare credential recovery; no alternate hosting, DNS change, merge, or deployment was attempted.
+
+
+## 2026-11-09 — Atom push feed and successful production deployment
+
+- Replaced the unauthenticated REST public-events request with GitHub's documented public user Atom timeline; the Worker retains only push entries and ignores all other timeline activity.
+- Added Atom parsing, safe repository/branch/commit extraction, failure diagnostics, and regression tests. The public contribution-calendar source and its privacy disclosure are unchanged.
+- Refreshed the Cloudflare Workers Builds production token and changed the production build command to `npm ci --include=dev && npm run check`, ensuring the development toolchain is installed in Cloudflare's production build environment.
+- Merged PR #4 as `b9525b8843bfc06b822b1650ec899d62bfc0fc88`. Exact-head and merge-commit CI passed; the exact-head suite reported 39 unit tests, 77 Playwright tests, typecheck/build success, and zero npm vulnerabilities.
+- Deployed Cloudflare Worker version 22 (`ad0d84a9-86cc-4bcf-8126-214114c6a099`). A fresh live endpoint response returned `partial: false`, `stale: false`, and six recent public pushes.
