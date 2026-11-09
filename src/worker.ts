@@ -199,7 +199,7 @@ export function parseAtomPushes(source: string): PushRecord[] {
     }
 
     const messageMatch = content.match(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote\s*>/i)
-    const message = messageMatch ? plainText(decodeXmlEntities(messageMatch[1])).split('\n')[0] : ''
+    const message = messageMatch ? plainText(decodeXmlEntities(messageMatch[1]).split(/<br\\b|[\\r\\n]/i)[0]) : ''
 
     pushes.push({
       id: pushId,
