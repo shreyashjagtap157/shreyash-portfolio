@@ -301,3 +301,16 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - Added two automatic-refresh cooldown regression tests and updated successful-persistence expectations to require both the one-minute attempt marker and the six-hour successful payload.
 - KV eventual consistency means this is a best-effort per-location cooldown, not a globally atomic distributed lock. If KV is unavailable, the Worker cannot enforce a persistent cross-request cooldown.
 - Implementation branch: `fix/activity-refresh-cooldown`. Pull-request CI, merge, Cloudflare build/deployment, and deployed behavior verification are pending at the time of this audit entry. The GitHub upstream availability problem remains unresolved; no fresh complete snapshot or non-empty post-fix messages are claimed.
+
+
+## 25. Shared refresh cooldown release and production verification — 2026-11-09
+
+- PR [#7](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/7) merged through a normal history-preserving merge as `2253aa19f7729c91f2c50acaf2b36e8de81750ce`; the repository has no open PRs at this checkpoint.
+- Exact-head PR CI [42589703396](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42589703396) passed on `8c189fb85b5c3ab66509298d3afc9eb6145caf5b`; main merge-commit CI [42589935965](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42589935965) passed on the merge commit. Both runs verified zero npm vulnerabilities, TypeScript, Vite production build, 42 Vitest tests across three files, and 77 Playwright Chromium tests.
+- Cloudflare Workers Build `2dc004d3-3ff5-4e4e-9f93-caa9cef70c70` completed successfully against the exact main merge commit using `npm ci --include=dev && npm run check` and `npx wrangler deploy`.
+- Cloudflare deployed Worker version 24, ID `733aa39d-24c4-4379-9138-025266652a0a`, at 100% traffic on 2026-11-09 09:01:26Z.
+- Live homepage verification after deployment returned HTTP 200, the expected `workers.dev` canonical URL, About-first navigation, a hydrated case-study selector, and no duplicate `Omni (earlier)` project entry.
+- The first post-deployment live activity endpoint read returned HTTP 200 with `partial: false`, `stale: false`, `updatedAt: 2026-11-09T09:02:34.220Z`, 366 contribution-day cells, the GitHub summary `8,086 contributions in the last year`, and six public push entries. All six push entries had non-empty commit summaries, including the previously blank summaries. This verifies the version-23 Atom normalization fix on a fresh successful fetch.
+- The shared cooldown change is covered by unit tests for ordinary stale-cache throttling, no-cache automatic retry responses, marker persistence, and last-good snapshot preservation. A live failure-injection test against production was not performed; the Cloudflare KV cooldown is intentionally documented as best-effort because KV is eventually consistent.
+- One fresh complete snapshot is verified. Do not mark sustained recovery until a second distinct successful refresh has independently produced a complete, current snapshot. Daily recovery monitoring was scheduled; it must not force refreshes or mutate production data.
+- No Cloudflare token, DNS record, custom domain, GitHub profile privacy setting, or KV data was changed manually.
