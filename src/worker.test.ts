@@ -179,7 +179,6 @@ describe('GitHub activity cache policy', () => {
     expect(refreshRetryAfterSeconds('not-a-date', now)).toBe(0)
   })
 
-
   it('throttles automatic stale-cache refreshes while preserving the last-good payload', async () => {
     const oldPayload = {
       contributions: [{ date: '2026-11-01', level: 2 }],
@@ -634,9 +633,16 @@ describe('GitHub activity KV persistence', () => {
     const values = new Map<string, string>([
       ['github-activity:v1:last-successful', JSON.stringify(previous)],
     ])
+    const writes: string[] = []
     const kv = {
       async get(key: string) { return values.get(key) ?? null },
-      async put() { throw new Error('Partial or failed responses must not replace last-good data') },
+      async put(key: string, value: string) {
+        writes.push(key)
+        if (key === 'github-activity:v1:last-successful') {
+          throw new Error('Partial or failed responses must not replace last-good data')
+        }
+        values.set(key, value)
+      },
     }
     const originalFetch = globalThis.fetch
     globalThis.fetch = (async () => new Response('', { status: 503 })) as typeof fetch
@@ -652,6 +658,8 @@ describe('GitHub activity KV persistence', () => {
       expect(body.contributions).toEqual(previous.contributions)
       expect(body.partial).toBe(true)
       expect(body.stale).toBe(true)
+      expect(writes).toEqual(['github-activity:v1:last-refresh-attempt'])
+      expect(values.get('github-activity:v1:last-refresh-attempt')).toBeDefined()
       expect(values.get('github-activity:v1:last-successful')).toBe(JSON.stringify(previous))
     } finally {
       globalThis.fetch = originalFetch
