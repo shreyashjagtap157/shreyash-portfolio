@@ -199,7 +199,7 @@ test.describe('localized project case studies', () => {
   const locales = [
     { locale:'en', omni:'Omni — language and compiler engineering', intro:'Rust compiler and toolchain', mosaic:'Mosaic-µ — byte-exact tokenization', mosaicIntro:'byte-authoritative tokenizer' },
     { locale:'de', omni:'Omni — Sprach- und Compilerentwicklung', intro:'Rust-Compiler und Toolchain', mosaic:'Mosaic-µ — bytegenaue Tokenisierung', mosaicIntro:'byteautoritativer Tokenizer' },
-    { locale:'fr', omni:'Omni — conception de langage et de compilateur', intro:'compilateur et chaîne d’outils Rust', mosaic:'Mosaic-µ — tokenisation exacte des octets', mosaicIntro:'tokeniseur dont la source en octets fait autorité' },
+    { locale:'fr', omni:'Omni — conception de langage et de compilateur', intro:'compilateur Rust et chaîne d’outils', mosaic:'Mosaic-µ — tokenisation exacte des octets', mosaicIntro:'tokeniseur dont la source en octets fait autorité' },
     { locale:'hi', omni:'Omni — भाषा और कंपाइलर इंजीनियरिंग', intro:'Rust कंपाइलर और टूलचेन', mosaic:'Mosaic-µ — बाइट-सटीक टोकनाइज़ेशन', mosaicIntro:'मूल बाइट्स को प्रामाणिक मानने वाला टोकनाइज़र' },
     { locale:'mr', omni:'Omni — भाषा आणि कंपायलर अभियांत्रिकी', intro:'Rust कंपायलर आणि टूलचेन', mosaic:'Mosaic-µ — बाइट-अचूक टोकनायझेशन', mosaicIntro:'मूळ बाइट्सना प्रामाणिक मानणारा टोकनायझर' },
   ] as const
