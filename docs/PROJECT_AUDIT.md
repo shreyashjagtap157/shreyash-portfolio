@@ -267,3 +267,11 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - Contribution-calendar retrieval remains a separate public HTML request. Its privacy qualification is unchanged: GitHub may include anonymized private/internal daily counts when the profile owner's **Private contributions** setting is enabled; no private repository names or private event details are fetched.
 - Added parser and Worker integration tests for valid push entries, ignored non-push entries, malformed Atom content, and successful persistence. No GitHub token was introduced.
 - The change is on `fix/activity-feed-use-atom` pending CI and production deployment. Do not claim the rate-limit workaround is live until the merged revision is deployed and the live endpoint returns a complete response.
+
+
+## 22. Atom push message normalization — 2026-11-09
+
+- Production KV inspection after the Atom deployment confirmed a complete, fresh activity snapshot with 366 calendar days, six public pushes, and no upstream-failure log entries.
+- The same inspection found empty commit-message fields because GitHub's Atom HTML places a leading newline inside `blockquote`; the previous extractor selected the blank line before trimming.
+- Updated normalization to skip blank lines and retain the first non-empty commit-summary line, including HTML `br` boundaries.
+- Added a regression test matching the leading-newline format. This follow-up is pending CI and deployment; production currently has the Atom feed enabled, but commit messages remain blank until this fix is released.

@@ -124,6 +124,25 @@ describe('GitHub activity normalization', () => {
     expect(parseAtomPushes('<html>not an Atom feed</html>')).toEqual([])
   })
 
+  it('skips leading blank lines and uses the first real Atom commit summary', () => {
+    const feed = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <id>tag:github.com,2008:push/26621893235</id>
+    <published>2026-11-09T05:24:27Z</published>
+    <content type="html"><![CDATA[
+      <a class="branch-name" href="/owner/project/tree/main">main</a>
+      <blockquote>
+        Fix production activity extraction
+        <br>
+        Additional commit details
+      </blockquote>
+    ]]></content>
+  </entry>
+</feed>`
+    expect(parseAtomPushes(feed)[0]?.message).toBe('Fix production activity extraction')
+  })
+
   it('returns an empty list for an invalid upstream event payload', () => {
     expect(parsePushes(null)).toEqual([])
     expect(parsePushes({ events: [] })).toEqual([])
