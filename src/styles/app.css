@@ -410,23 +410,23 @@ img,svg,video,canvas{max-width:100%}
 
 
 /* Opening-viewport balance: give the hero copy enough width before reducing type. */
-.top{padding-block:1.05rem .75rem}
+.top{padding-block:calc(1.05rem*var(--s)) calc(.75rem*var(--s))}
 .logo{width:clamp(2.8rem,5vw,3.75rem)}
 .brand-name{font-size:clamp(1.75rem,3.8vw,3rem)}
 .hero{
   grid-template-columns:minmax(0,1.3fr) minmax(0,.95fr);
-  gap:clamp(1.5rem,3.2vw,3rem);
-  padding-block:2rem 2.5rem;
+  gap:calc(clamp(1.5rem,3.2vw,3rem)*var(--s));
+  padding-block:calc(2rem*var(--s)) calc(2.5rem*var(--s));
 }
 .hero h1{font-size:clamp(2rem,3.8vw,2.9rem);line-height:1.08}
-.sub{max-width:64ch;line-height:1.55;margin-bottom:1.25rem}
+.sub{max-width:64ch;line-height:1.55;margin-bottom:calc(1.25rem*var(--s))}
 .viz{min-height:12rem}
 
 @media(max-width:68rem){
   .hero{
     grid-template-columns:minmax(0,1fr);
-    gap:1.5rem;
-    padding-block:1.8rem 2.2rem;
+    gap:calc(1.5rem*var(--s));
+    padding-block:calc(1.8rem*var(--s)) calc(2.2rem*var(--s));
   }
   .hero-copy{max-width:68ch}
   .hero h1{font-size:clamp(2rem,5vw,2.7rem)}
@@ -434,11 +434,11 @@ img,svg,video,canvas{max-width:100%}
   .viz{min-height:11rem}
 }
 @media(max-width:40rem){
-  .top{padding-block:1rem .7rem}
+  .top{padding-block:calc(1rem*var(--s)) calc(.7rem*var(--s))}
   .logo{width:3rem}
   .brand-name{font-size:clamp(1.55rem,7vw,2.25rem)}
-  .hero{padding-block:1.45rem 1.9rem;gap:1.25rem}
+  .hero{padding-block:calc(1.45rem*var(--s)) calc(1.9rem*var(--s));gap:calc(1.25rem*var(--s))}
   .hero h1{font-size:clamp(1.8rem,8vw,2.25rem)}
-  .sub{font-size:.96rem;line-height:1.55;margin-bottom:1.1rem}
+  .sub{font-size:.96rem;line-height:1.55;margin-bottom:calc(1.1rem*var(--s))}
   .viz{min-height:10rem}
 }
