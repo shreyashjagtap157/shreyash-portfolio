@@ -290,3 +290,14 @@ No final "fully complete" claim is made until Cloudflare deployment and live smo
 - The Worker correctly retained the last-good KV snapshot and served it as `partial: true`, `stale: true`; its `updatedAt` remains `2026-11-09T07:07:24.139Z`. That preserved snapshot still contains empty messages from before version 23, so successful post-fix message population is **not yet verified**.
 - No fabricated commit messages, direct KV edits, GitHub credentials, or alternative event-source credentials were introduced. Retry upstream refresh after GitHub connectivity recovers; verify a new `partial: false`, `stale: false` snapshot and non-empty valid commit messages before closing this issue.
 
+
+
+## 24. Shared automatic/manual activity refresh cooldown — 2026-11-09
+
+- Cloudflare telemetry for Worker version 23 confirmed repeated GitHub upstream timeouts on both the contribution-calendar and public Atom sources. The last-good KV snapshot remained intact; the previous implementation throttled explicit `?refresh=1` requests but allowed ordinary stale-cache page requests to start another upstream attempt after each request.
+- Extended the existing one-minute KV refresh-attempt marker to every upstream attempt, automatic or manual. The marker is read for every request that would otherwise refresh stale/missing data and is written before each upstream attempt, including failed attempts.
+- When the cooldown is active and a cached snapshot exists, the Worker returns that last-good snapshot, marking it partial/stale when its five-minute freshness window has elapsed. Without a cached snapshot, automatic requests return HTTP 502 and `Retry-After`; manual refreshes retain HTTP 429 and `Retry-After`.
+- Kept `updatedAt` tied to successful data, retained the six-hour payload TTL and eight-second upstream timeout, and left the Atom parser, calendar parser, KV payload format, and external data sources unchanged. Partial or failed refreshes still do not overwrite the last-good payload.
+- Added two automatic-refresh cooldown regression tests and updated successful-persistence expectations to require both the one-minute attempt marker and the six-hour successful payload.
+- KV eventual consistency means this is a best-effort per-location cooldown, not a globally atomic distributed lock. If KV is unavailable, the Worker cannot enforce a persistent cross-request cooldown.
+- Implementation branch: `fix/activity-refresh-cooldown`. Pull-request CI, merge, Cloudflare build/deployment, and deployed behavior verification are pending at the time of this audit entry. The GitHub upstream availability problem remains unresolved; no fresh complete snapshot or non-empty post-fix messages are claimed.

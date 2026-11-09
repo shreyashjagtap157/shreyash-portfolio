@@ -50,13 +50,13 @@ The UI requests same-origin `/api/github/activity`. The Cloudflare Worker fetche
 - Consider activity fresh for five minutes.
 - Use the last successful payload as a visibly marked stale fallback when an upstream source fails.
 - Use an eight-second timeout for GitHub requests.
-- Throttle manual upstream refresh to one request per minute.
+- Throttle all automatic and manual upstream refresh attempts to one request per minute per Worker KV view; do not repeatedly retry GitHub on every visitor request while the cache is stale.
 - Handle partial, empty, malformed, rate-limited, and unavailable upstream responses without fabricated data.
 - No client-side GitHub token or external contribution-image/chart service.
 
 ## Security and privacy
 
-- Use a separate one-minute KV refresh-attempt marker so stale data cannot bypass manual-refresh throttling. KV is eventually consistent, so the cooldown is best-effort rather than a globally atomic lock.
+- Use a shared one-minute KV refresh-attempt marker for both automatic and manual refreshes. Read and write this marker for every upstream attempt, including failed attempts, while keeping `updatedAt` tied only to successful data. KV is eventually consistent, so the cooldown is best-effort rather than a globally atomic lock. If KV is unavailable, the Worker degrades to upstream fetching without a persistent cross-request cooldown.
 - Browser JavaScript connects only to the portfolio's same origin. GitHub API and HTML requests originate from the Worker.
 - Keep user preferences in browser storage only.
 - Display Pune, Maharashtra, India; never a street address.

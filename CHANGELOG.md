@@ -95,3 +95,13 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 - Added a regression test for GitHub's newline-prefixed `blockquote` formatting.
 - Deployed Worker version 23 (`c20ce6ad-b169-4619-9079-d49c20c67da1`) from `main` commit `72cad2c1646e77c0997db0f1ae69223a94c57636`. Exact-head CI passed: 40 unit tests, 77 Playwright tests, TypeScript/build success, and zero npm advisories.
 - The first post-deployment refresh timed out for both the contribution-calendar and Atom upstream requests at eight seconds. The Worker preserved the last-good KV snapshot and returned `partial: true`, `stale: true`; commit-message extraction is deployed but not yet verified against a successful post-fix refresh.
+
+
+## 2026-11-09 — Shared GitHub activity refresh cooldown
+
+- Extended the existing one-minute KV refresh-attempt marker to cover ordinary automatic refreshes as well as explicit manual refreshes. The stale-cache request path now observes the same cooldown, avoiding repeated upstream requests on each visitor request during a GitHub outage.
+- Every upstream attempt records the marker before fetching, including attempts that fail. The last-successful payload and its `updatedAt` timestamp remain independent; partial or failed responses still never overwrite the last-good snapshot.
+- During an active cooldown, a stale cached payload is returned with `partial: true` and `stale: true`. Without a cached payload, automatic requests return HTTP 502 and a `Retry-After` header; explicit manual refreshes return HTTP 429 and the same retry guidance.
+- The cooldown remains best-effort because Cloudflare KV is eventually consistent. The eight-second upstream timeout, public Atom source, contribution-calendar source, and public-data validation rules are unchanged.
+- Regression tests cover automatic cooldown handling with and without a cached payload and verify that successful refreshes persist both the attempt marker and the complete snapshot.
+- This implementation is on branch `fix/activity-refresh-cooldown`; pull-request CI, merge, and production deployment are pending. No fresh GitHub activity snapshot or commit-message recovery is claimed by this change.

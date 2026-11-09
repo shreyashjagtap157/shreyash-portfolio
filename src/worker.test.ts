@@ -179,6 +179,74 @@ describe('GitHub activity cache policy', () => {
     expect(refreshRetryAfterSeconds('not-a-date', now)).toBe(0)
   })
 
+  it('throttles automatic stale-cache refreshes while preserving the last-good payload', async () => {
+    const oldPayload = {
+      contributions: [{ date: '2026-11-01', level: 2 }],
+      summary: 'Previously loaded contributions',
+      pushes: [],
+      updatedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+      partial: false,
+      stale: false,
+    }
+    const values = new Map<string, string>([
+      ['github-activity:v1:last-successful', JSON.stringify(oldPayload)],
+      ['github-activity:v1:last-refresh-attempt', new Date(Date.now() - 30 * 1000).toISOString()],
+    ])
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put() { throw new Error('A throttled request must not write another attempt') },
+    }
+    const originalFetch = globalThis.fetch
+    let upstreamRequests = 0
+    globalThis.fetch = (async () => {
+      upstreamRequests += 1
+      return new Response('', { status: 503 })
+    }) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: { fetch: async () => new Response('asset') }, ACTIVITY_KV: kv },
+      )
+      const body = await response.json() as typeof oldPayload
+      expect(response.status).toBe(200)
+      expect(body.updatedAt).toBe(oldPayload.updatedAt)
+      expect(body.partial).toBe(true)
+      expect(body.stale).toBe(true)
+      expect(upstreamRequests).toBe(0)
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('returns a retryable unavailable response for automatic refreshes without a cached snapshot', async () => {
+    const values = new Map<string, string>([
+      ['github-activity:v1:last-refresh-attempt', new Date(Date.now() - 30 * 1000).toISOString()],
+    ])
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put() { throw new Error('A throttled request must not write another attempt') },
+    }
+    const originalFetch = globalThis.fetch
+    let upstreamRequests = 0
+    globalThis.fetch = (async () => {
+      upstreamRequests += 1
+      return new Response('', { status: 503 })
+    }) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: { fetch: async () => new Response('asset') }, ACTIVITY_KV: kv },
+      )
+      expect(response.status).toBe(502)
+      expect(response.headers.get('Retry-After')).toBe('30')
+      expect(upstreamRequests).toBe(0)
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
   it('uses the stored attempt time when stale data is older than the cooldown', async () => {
     const oldPayload = {
       contributions: [{ date: '2026-11-01', level: 2 }],
@@ -540,10 +608,14 @@ describe('GitHub activity KV persistence', () => {
       expect(body.contributions).toEqual([{ date: '2026-11-07', level: 2 }])
       expect(body.partial).toBe(false)
       expect(body.stale).toBe(false)
-      expect(writes).toHaveLength(1)
-      expect(writes[0].key).toBe('github-activity:v1:last-successful')
-      expect(writes[0].expirationTtl).toBe(6 * 60 * 60)
-      expect(JSON.parse(writes[0].value).summary).toBe('3 contributions in the last year')
+      expect(writes).toHaveLength(2)
+      expect(writes[0]).toMatchObject({
+        key: 'github-activity:v1:last-refresh-attempt',
+        expirationTtl: 60,
+      })
+      expect(writes[1].key).toBe('github-activity:v1:last-successful')
+      expect(writes[1].expirationTtl).toBe(6 * 60 * 60)
+      expect(JSON.parse(writes[1].value).summary).toBe('3 contributions in the last year')
     } finally {
       globalThis.fetch = originalFetch
     }
@@ -561,9 +633,16 @@ describe('GitHub activity KV persistence', () => {
     const values = new Map<string, string>([
       ['github-activity:v1:last-successful', JSON.stringify(previous)],
     ])
+    const writes: string[] = []
     const kv = {
       async get(key: string) { return values.get(key) ?? null },
-      async put() { throw new Error('Partial or failed responses must not replace last-good data') },
+      async put(key: string, value: string) {
+        writes.push(key)
+        if (key === 'github-activity:v1:last-successful') {
+          throw new Error('Partial or failed responses must not replace last-good data')
+        }
+        values.set(key, value)
+      },
     }
     const originalFetch = globalThis.fetch
     globalThis.fetch = (async () => new Response('', { status: 503 })) as typeof fetch
@@ -579,6 +658,8 @@ describe('GitHub activity KV persistence', () => {
       expect(body.contributions).toEqual(previous.contributions)
       expect(body.partial).toBe(true)
       expect(body.stale).toBe(true)
+      expect(writes).toEqual(['github-activity:v1:last-refresh-attempt'])
+      expect(values.get('github-activity:v1:last-refresh-attempt')).toBeDefined()
       expect(values.get('github-activity:v1:last-successful')).toBe(JSON.stringify(previous))
     } finally {
       globalThis.fetch = originalFetch
