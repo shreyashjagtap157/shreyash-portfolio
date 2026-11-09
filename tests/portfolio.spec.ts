@@ -197,11 +197,11 @@ test('desktop navigation remains scrollable until the complete row fits', async 
 
 test.describe('localized project case studies', () => {
   const locales = [
-    { locale:'en', omni:'Omni — language and compiler engineering', intro:'Rust compiler and toolchain', mosaic:'Mosaic-µ — byte-exact tokenization', mosaicIntro:'byte-authoritative tokenizer' },
-    { locale:'de', omni:'Omni — Sprach- und Compilerentwicklung', intro:'Rust-Compiler und Toolchain', mosaic:'Mosaic-µ — bytegenaue Tokenisierung', mosaicIntro:'byteautoritativer Tokenizer' },
-    { locale:'fr', omni:'Omni — conception de langage et de compilateur', intro:'compilateur Rust et chaîne d’outils', mosaic:'Mosaic-µ — tokenisation exacte des octets', mosaicIntro:'tokeniseur dont la source en octets fait autorité' },
-    { locale:'hi', omni:'Omni — भाषा और कंपाइलर इंजीनियरिंग', intro:'Rust कंपाइलर और टूलचेन', mosaic:'Mosaic-µ — बाइट-सटीक टोकनाइज़ेशन', mosaicIntro:'मूल बाइट्स को प्रामाणिक मानने वाला टोकनाइज़र' },
-    { locale:'mr', omni:'Omni — भाषा आणि कंपायलर अभियांत्रिकी', intro:'Rust कंपायलर आणि टूलचेन', mosaic:'Mosaic-µ — बाइट-अचूक टोकनायझेशन', mosaicIntro:'मूळ बाइट्सना प्रामाणिक मानणारा टोकनायझर' },
+    { locale:'en', omni:'Omni — language and compiler engineering', intro:'Rust compiler and toolchain', mosaic:'Mosaic-µ — byte-exact tokenization', mosaicIntro:'exact source-byte preservation' },
+    { locale:'de', omni:'Omni — Sprach- und Compilerentwicklung', intro:'Rust-Compiler und eine Toolchain', mosaic:'Mosaic-µ — bytegenaue Tokenisierung', mosaicIntro:'exakte Bewahrung der Quellbytes' },
+    { locale:'fr', omni:'Omni — conception de langage et de compilateur', intro:'compilateur Rust et une chaîne d’outils', mosaic:'Mosaic-µ — tokenisation exacte des octets', mosaicIntro:'préservation exacte des octets source' },
+    { locale:'hi', omni:'Omni — भाषा और कंपाइलर इंजीनियरिंग', intro:'Rust compiler और toolchain', mosaic:'Mosaic-µ — बाइट-सटीक टोकनाइज़ेशन', mosaicIntro:'मूल source bytes को अक्षुण्ण रखना' },
+    { locale:'mr', omni:'Omni — भाषा आणि कंपायलर अभियांत्रिकी', intro:'Rust compiler आणि toolchain', mosaic:'Mosaic-µ — बाइट-अचूक टोकनायझेशन', mosaicIntro:'मूळ source bytes अचूक जतन करण्यावर' },
   ] as const
   for (const item of locales) {
     test(`Omni and Mosaic case studies use the ${item.locale} dictionary`, async ({ page }) => {
