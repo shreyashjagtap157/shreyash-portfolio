@@ -197,21 +197,21 @@ test('desktop navigation remains scrollable until the complete row fits', async 
 
 test.describe('localized project case studies', () => {
   const locales = [
-    { locale:'en', omni:'Omni — language and compiler engineering', intro:'Research-led, specification-governed language engineering', helios:'Helios — symbolic cognitive architecture', heliosIntro:'A research architecture for a trusted non-neural symbolic core' },
-    { locale:'de', omni:'Omni — Sprach- und Compilerentwicklung', intro:'Forschungsgeleitete, spezifikationsgebundene Sprachentwicklung', helios:'Helios — symbolische kognitive Architektur', heliosIntro:'Eine Forschungsarchitektur mit einem vertrauenswürdigen' },
-    { locale:'fr', omni:'Omni — conception de langage et de compilateur', intro:'Ingénierie des langages guidée par la recherche et gouvernée par une spécification', helios:'Helios — architecture cognitive symbolique', heliosIntro:'Une architecture de recherche fondée sur un noyau symbolique' },
-    { locale:'hi', omni:'Omni — भाषा और कंपाइलर इंजीनियरिंग', intro:'शोध-आधारित और विनिर्देश-नियंत्रित भाषा अभियांत्रिकी', helios:'Helios — प्रतीकात्मक संज्ञानात्मक आर्किटेक्चर', heliosIntro:'विश्वसनीय गैर-न्यूरल प्रतीकात्मक कोर' },
-    { locale:'mr', omni:'Omni — भाषा आणि कंपायलर अभियांत्रिकी', intro:'संशोधनाधारित आणि स्पेसिफिकेशन-नियंत्रित भाषा अभियांत्रिकी', helios:'Helios — प्रतीकात्मक संज्ञानात्मक रचना', heliosIntro:'विश्वासार्ह, गैर-न्यूरल प्रतीकात्मक कोर' },
+    { locale:'en', omni:'Omni — language and compiler engineering', intro:'Rust compiler and toolchain', mosaic:'Mosaic-µ — byte-exact tokenization', mosaicIntro:'byte-authoritative tokenizer' },
+    { locale:'de', omni:'Omni — Sprach- und Compilerentwicklung', intro:'Rust-Compiler und Toolchain', mosaic:'Mosaic-µ — bytegenaue Tokenisierung', mosaicIntro:'byteautoritativer Tokenizer' },
+    { locale:'fr', omni:'Omni — conception de langage et de compilateur', intro:'compilateur et chaîne d’outils Rust', mosaic:'Mosaic-µ — tokenisation exacte des octets', mosaicIntro:'tokeniseur dont la source en octets fait autorité' },
+    { locale:'hi', omni:'Omni — भाषा और कंपाइलर इंजीनियरिंग', intro:'Rust कंपाइलर और टूलचेन', mosaic:'Mosaic-µ — बाइट-सटीक टोकनाइज़ेशन', mosaicIntro:'मूल बाइट्स को प्रामाणिक मानने वाला टोकनाइज़र' },
+    { locale:'mr', omni:'Omni — भाषा आणि कंपायलर अभियांत्रिकी', intro:'Rust कंपायलर आणि टूलचेन', mosaic:'Mosaic-µ — बाइट-अचूक टोकनायझेशन', mosaicIntro:'मूळ बाइट्सना प्रामाणिक मानणारा टोकनायझर' },
   ] as const
   for (const item of locales) {
-    test(`Omni and Helios case studies use the ${item.locale} dictionary`, async ({ page }) => {
+    test(`Omni and Mosaic case studies use the ${item.locale} dictionary`, async ({ page }) => {
       await page.addInitScript(locale => localStorage.setItem('lang', locale), item.locale)
       await page.goto('/')
       await expect(page.locator('.case-study-active h3')).toHaveText(item.omni)
       await expect(page.locator('.case-study-intro')).toContainText(item.intro)
-      await page.locator('#case-study-project').selectOption('helios')
-      await expect(page.locator('.case-study-active h3')).toHaveText(item.helios)
-      await expect(page.locator('.case-study-intro')).toContainText(item.heliosIntro)
+      await page.locator('#case-study-project').selectOption('mosaic')
+      await expect(page.locator('.case-study-active h3')).toHaveText(item.mosaic)
+      await expect(page.locator('.case-study-intro')).toContainText(item.mosaicIntro)
     })
   }
 })
@@ -240,16 +240,20 @@ test.describe('localized contact links', () => {
   }
 })
 
-test('project case study selector switches between evidence-bounded project narratives', async ({ page }) => {
-    await page.goto('/')
-    const selector = page.getByLabel('Choose a project case study')
-    await expect(page.getByRole('heading', { name: 'Omni — language and compiler engineering' })).toBeVisible()
-    await selector.selectOption('helios')
-    await expect(page.getByRole('heading', { name: 'Helios — symbolic cognitive architecture' })).toBeVisible()
-    await expect(page.getByText(/Frozen models may produce candidate observations/)).toBeVisible()
-    await selector.selectOption('uep')
-    await expect(page.getByRole('heading', { name: 'UEP — multi-tenant education platform' })).toBeVisible()
-  })
+test('case studies cover implemented and actively developed projects', async ({ page }) => {
+  await page.goto('/')
+  const selector = page.getByLabel('Choose a project case study')
+  const expectedCases = ['omni', 'nexus', 'kilo', 'uep', 'mosaic', 'dnc', 'tensor']
+  await expect(selector.locator('option')).toHaveCount(expectedCases.length)
+  await expect(selector.locator('option[value="helios"]')).toHaveCount(0)
+
+  for (const projectId of expectedCases) {
+    await selector.selectOption(projectId)
+    await expect(page.locator('.case-study-active h3')).toBeVisible()
+    await expect(page.locator('.case-study-intro')).not.toBeEmpty()
+    await expect(page.locator('.case-study article')).toHaveCount(3)
+  }
+})
 
   test('project visuals are diagrams rather than initial-based placeholders', async ({ page }) => {
     await page.goto('/')
@@ -266,7 +270,45 @@ test('project case study selector switches between evidence-bounded project narr
     )
   })
 
-  test('category filters update the visible project collection', async ({ page }) => {
+  test('every project title opens its detail card below the sticky toolbar', async ({ page }) => {
+  const projects = [
+    { id: 'omni', name: 'Omni' },
+    { id: 'helios', name: 'Helios' },
+    { id: 'nexus', name: 'NexusAgent' },
+    { id: 'aether', name: 'AetherOS' },
+    { id: 'mosaic', name: 'Mosaic-µ' },
+    { id: 'kilo', name: 'Kilo Code fork' },
+    { id: 'dnc', name: 'Dynamic Neural Computation' },
+    { id: 'tensor', name: 'Tensor Ring Decomposition' },
+    { id: 'uep', name: 'Universal Education Platform' },
+    { id: 'iot', name: 'Decentralized IoT Network' },
+    { id: 'acts', name: 'ACTSConnect' },
+    { id: 'oah', name: 'OldAgeHome' },
+    { id: 'milky', name: 'MilkyWay' },
+    { id: 'aios', name: 'AI-OS' },
+  ] as const
+
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+
+  for (const project of projects) {
+    await page.locator(`a.project-title[href="#project/${project.id}"]`).click()
+    const detail = page.locator('#project-detail')
+    await expect(detail.getByRole('heading', { name: project.name, exact: true })).toBeVisible()
+
+    const offset = async () => detail.evaluate(element => {
+      const toolbar = document.querySelector<HTMLElement>('.toolbar')
+      return element.getBoundingClientRect().top - (toolbar?.getBoundingClientRect().bottom ?? 0)
+    })
+    await expect.poll(offset).toBeGreaterThanOrEqual(8)
+    await expect.poll(offset).toBeLessThan(40)
+
+    await page.locator('.back-link').click()
+    await expect(page.locator(`a.project-title[href="#project/${project.id}"]`)).toBeVisible()
+  }
+})
+
+test('category filters update the visible project collection', async ({ page }) => {
     await page.goto('/')
     const cards = page.locator('.project-card')
     await expect(cards).toHaveCount(14)
