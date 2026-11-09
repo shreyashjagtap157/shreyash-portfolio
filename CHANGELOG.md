@@ -74,3 +74,9 @@ No Lighthouse score is advertised until a fresh report exists for the final depl
 - Documented that the profile calendar may expose anonymized daily counts from private/internal repositories when the owner's GitHub **Private contributions** setting is enabled; the Worker stores calendar dates, levels, and summary but does not fetch private repository names or private event details.
 - Recorded the owner action required for strict public-repository-only output: disable **Private contributions** under GitHub profile → Contribution settings. The setting was not inspected or changed.
 - Updated the visible contribution-calendar footnote in all five locales to explain anonymized private contributions, and added a locale regression test.
+
+
+## 2026-11-09 — Production deployment recheck
+
+- Rechecked the public Cloudflare Worker root and same-origin activity API after the privacy and localization corrections. The root still serves the legacy portfolio with duplicate Omni content, legacy maturity labels, and old canonical/Open Graph metadata; `/api/github/activity` still returns HTTP 404.
+- Confirmed branch source metadata and Worker route remain correct. Deployment is still blocked on Cloudflare credential recovery; no alternate hosting, DNS change, merge, or deployment was attempted.
