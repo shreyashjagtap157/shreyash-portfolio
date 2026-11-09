@@ -183,6 +183,27 @@ function jsonResponse(payload: ActivityPayload, cacheControl = 'no-store'): Resp
   return Response.json(payload, { headers: { 'Cache-Control': cacheControl } })
 }
 
+type ActivityUpstream = 'contributions' | 'public-events'
+type ActivityUpstreamFailureStage = 'request' | 'response' | 'parse' | 'content'
+
+function logUpstreamFailure(
+  source: ActivityUpstream,
+  stage: ActivityUpstreamFailureStage,
+  details: { response?: Response; error?: unknown } = {},
+): void {
+  const { response, error } = details
+  console.warn('[portfolio-activity] GitHub upstream failure', {
+    source,
+    stage,
+    status: response?.status ?? null,
+    retryAfter: response?.headers.get('retry-after') ?? null,
+    rateLimitRemaining: response?.headers.get('x-ratelimit-remaining') ?? null,
+    rateLimitReset: response?.headers.get('x-ratelimit-reset') ?? null,
+    errorName: error instanceof Error ? error.name : error === undefined ? null : 'UnknownError',
+    errorMessage: error instanceof Error ? error.message.slice(0, 160) : null,
+  })
+}
+
 async function githubActivity(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url)
   const forceRefresh = url.searchParams.get('refresh') === '1'
@@ -273,24 +294,38 @@ async function githubActivity(request: Request, env: Env): Promise<Response> {
   let calendarOk = false
   let eventsOk = false
 
-  if (calendarResult.status === 'fulfilled' && calendarResult.value.ok) {
+  if (calendarResult.status === 'rejected') {
+    logUpstreamFailure('contributions', 'request', { error: calendarResult.reason })
+  } else if (!calendarResult.value.ok) {
+    logUpstreamFailure('contributions', 'response', { response: calendarResult.value })
+  } else {
     try {
       const parsed = parseContributions(await calendarResult.value.text())
       if (parsed.contributions.length > 0) {
         contributions = parsed.contributions
         summary = parsed.summary
         calendarOk = true
+      } else {
+        logUpstreamFailure('contributions', 'content', {
+          error: new Error('No valid contribution days were parsed from the response'),
+        })
       }
-    } catch {
+    } catch (error) {
+      logUpstreamFailure('contributions', 'parse', { error })
       // Fall back to the last successful cached calendar, if one exists.
     }
   }
 
-  if (eventsResult.status === 'fulfilled' && eventsResult.value.ok) {
+  if (eventsResult.status === 'rejected') {
+    logUpstreamFailure('public-events', 'request', { error: eventsResult.reason })
+  } else if (!eventsResult.value.ok) {
+    logUpstreamFailure('public-events', 'response', { response: eventsResult.value })
+  } else {
     try {
       pushes = parsePushes(await eventsResult.value.json())
       eventsOk = true
-    } catch {
+    } catch (error) {
+      logUpstreamFailure('public-events', 'parse', { error })
       // Fall back to the last successful cached event list, if one exists.
     }
   }
