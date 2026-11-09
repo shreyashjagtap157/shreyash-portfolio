@@ -13,6 +13,16 @@ describe('portfolio content integrity', () => {
     for (const locale of [de, fr, hi, mr]) expect(Object.keys(locale).sort()).toEqual(expected)
   })
 
+  it('explains GitHub contribution-calendar privacy consistently in all five locales', () => {
+    expect({ en: en.activity_graph_scope, de: de.activity_graph_scope, fr: fr.activity_graph_scope, hi: hi.activity_graph_scope, mr: mr.activity_graph_scope }).toEqual({
+      en: "GitHub's public profile calendar may include anonymized contributions from private repositories when that setting is enabled; repository names and details are not shown.",
+      de: "Der öffentliche Profilkalender von GitHub kann anonymisierte Beiträge aus privaten Repositories enthalten, wenn diese Einstellung aktiviert ist; Repository-Namen und Details werden nicht angezeigt.",
+      fr: "Le calendrier public du profil GitHub peut inclure des contributions anonymisées provenant de dépôts privés lorsque cette option est activée ; les noms et les détails des dépôts ne sont pas affichés.",
+      hi: "GitHub के सार्वजनिक प्रोफ़ाइल कैलेंडर में, यह सेटिंग चालू होने पर, निजी रिपॉज़िटरी के अनाम योगदान शामिल हो सकते हैं; रिपॉज़िटरी के नाम और विवरण नहीं दिखाए जाते।",
+      mr: "GitHub च्या सार्वजनिक प्रोफाइल कॅलेंडरमध्ये, ही सेटिंग सुरू असल्यास, खाजगी रिपॉझिटरीमधील अनामिक योगदानांचा समावेश होऊ शकतो; रिपॉझिटरीची नावे आणि तपशील दाखवले जात नाहीत.",
+    })
+  })
+
   it('has exactly 14 unique selected repositories and project identifiers', () => {
     expect(PROJECTS).toHaveLength(14)
     expect(new Set(PROJECTS.map(project => project.id)).size).toBe(14)

@@ -5,7 +5,7 @@ import { useI18n } from '../i18n/I18nProvider'
 import { NAME } from '../data/profile'
 
 const NAV: [string, string][] = [
-  ['work', 'n_work'], ['case', 'n_case'], ['skills', 'n_skills'],
+  ['about', 'n_about'], ['work', 'n_work'], ['case', 'n_case'], ['skills', 'n_skills'],
   ['activity', 'n_activity'], ['exp', 'n_exp'], ['contact', 'n_contact'],
 ]
 

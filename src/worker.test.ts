@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { isCacheFresh, isRefreshThrottled, parseContributions, parsePushes } from './worker'
+import activityWorker, {
+  isCacheFresh,
+  isRefreshThrottled,
+  parseContributions,
+  parsePushes,
+  refreshRetryAfterSeconds,
+  resolveActivityUpdatedAt,
+} from './worker'
 
 describe('GitHub activity normalization', () => {
   it('extracts valid dated contribution cells and the profile summary', () => {
@@ -19,6 +26,18 @@ describe('GitHub activity normalization', () => {
         { date: '2026-11-02', level: 4 },
       ],
     })
+  })
+
+  it('extracts calendar days from non-table HTML elements as well as table cells', () => {
+    const html = [
+      '<rect class="ContributionCalendar-day" data-date="2026-11-05" data-level="2"></rect>',
+      '<tool-tip class="ContributionCalendar-day" data-date="2026-11-06" data-level="4"></tool-tip>',
+      '<span class="not-a-calendar-day" data-date="2026-11-07" data-level="3"></span>',
+    ].join('')
+    expect(parseContributions(html).contributions).toEqual([
+      { date: '2026-11-05', level: 2 },
+      { date: '2026-11-06', level: 4 },
+    ])
   })
 
   it('deduplicates repeated dates and rejects levels outside GitHub calendar bounds', () => {
@@ -98,5 +117,223 @@ describe('GitHub activity cache policy', () => {
     expect(isRefreshThrottled('2026-11-06T11:59:30Z', now)).toBe(true)
     expect(isRefreshThrottled('2026-11-06T11:58:59Z', now)).toBe(false)
     expect(isRefreshThrottled('not-a-date', now)).toBe(false)
+  })
+
+  it('calculates a bounded Retry-After value from the last refresh attempt', () => {
+    expect(refreshRetryAfterSeconds('2026-11-06T11:59:30Z', now)).toBe(30)
+    expect(refreshRetryAfterSeconds('2026-11-06T11:59:00.500Z', now)).toBe(1)
+    expect(refreshRetryAfterSeconds('2026-11-06T11:59:00Z', now)).toBe(0)
+    expect(refreshRetryAfterSeconds('2026-11-06T12:01:00Z', now)).toBe(0)
+    expect(refreshRetryAfterSeconds('not-a-date', now)).toBe(0)
+  })
+
+  it('uses the stored attempt time when stale data is older than the cooldown', async () => {
+    const oldPayload = {
+      contributions: [{ date: '2026-11-01', level: 2 }],
+      summary: 'Previously loaded contributions',
+      pushes: [],
+      updatedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+      partial: false,
+      stale: false,
+    }
+    const values = new Map<string, string>([
+      ['github-activity:v1:last-successful', JSON.stringify(oldPayload)],
+      ['github-activity:v1:last-refresh-attempt', new Date(Date.now() - 30 * 1000).toISOString()],
+    ])
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put() { throw new Error('A throttled refresh must not write another attempt') },
+    }
+    const originalFetch = globalThis.fetch
+    let upstreamRequests = 0
+    globalThis.fetch = (async () => {
+      upstreamRequests += 1
+      return new Response('', { status: 503 })
+    }) as typeof fetch
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity?refresh=1'),
+        { ASSETS: { fetch: async () => new Response('asset') }, ACTIVITY_KV: kv },
+      )
+      const body = await response.json() as typeof oldPayload
+      expect(response.status).toBe(200)
+      expect(body.updatedAt).toBe(oldPayload.updatedAt)
+      expect(body.partial).toBe(true)
+      expect(body.stale).toBe(true)
+      expect(upstreamRequests).toBe(0)
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('returns Retry-After when throttled and no last-good payload exists', async () => {
+    const values = new Map<string, string>([
+      ['github-activity:v1:last-refresh-attempt', new Date(Date.now() - 30 * 1000).toISOString()],
+    ])
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put() { throw new Error('A throttled refresh must not write another attempt') },
+    }
+    const originalFetch = globalThis.fetch
+    let upstreamRequests = 0
+    globalThis.fetch = (async () => {
+      upstreamRequests += 1
+      return new Response('', { status: 503 })
+    }) as typeof fetch
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity?refresh=1'),
+        { ASSETS: { fetch: async () => new Response('asset') }, ACTIVITY_KV: kv },
+      )
+      expect(response.status).toBe(429)
+      expect(response.headers.get('Retry-After')).toBe('30')
+      expect(upstreamRequests).toBe(0)
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('preserves the last successful timestamp when stale cached data is reused', () => {
+    expect(resolveActivityUpdatedAt(
+      '2026-11-07T12:00:00.000Z',
+      '2026-11-06T08:30:00.000Z',
+      true,
+    )).toBe('2026-11-06T08:30:00.000Z')
+  })
+
+  it('uses the current request timestamp when no stale fallback was used', () => {
+    expect(resolveActivityUpdatedAt(
+      '2026-11-07T12:00:00.000Z',
+      '2026-11-06T08:30:00.000Z',
+      false,
+    )).toBe('2026-11-07T12:00:00.000Z')
+    expect(resolveActivityUpdatedAt(
+      '2026-11-07T12:00:00.000Z',
+      null,
+      true,
+    )).toBe('2026-11-07T12:00:00.000Z')
+  })
+})
+
+
+describe('GitHub activity KV persistence', () => {
+  const assetEnv = { fetch: async () => new Response('asset') }
+
+  it('serves a fresh KV snapshot without contacting GitHub', async () => {
+    const payload = {
+      contributions: [{ date: '2026-11-07', level: 3 }],
+      summary: 'Fresh contribution snapshot',
+      pushes: [],
+      updatedAt: new Date().toISOString(),
+      partial: false,
+      stale: false,
+    }
+    const values = new Map<string, string>([
+      ['github-activity:v1:last-successful', JSON.stringify(payload)],
+    ])
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put() { throw new Error('Fresh cache reads must not write') },
+    }
+    const originalFetch = globalThis.fetch
+    let upstreamRequests = 0
+    globalThis.fetch = (async () => {
+      upstreamRequests += 1
+      return new Response('', { status: 503 })
+    }) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: assetEnv, ACTIVITY_KV: kv },
+      )
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual(payload)
+      expect(upstreamRequests).toBe(0)
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('persists a fully refreshed payload with the configured retention', async () => {
+    const values = new Map<string, string>()
+    const writes: { key: string; value: string; expirationTtl?: number }[] = []
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put(key: string, value: string, options?: { expirationTtl?: number }) {
+        values.set(key, value)
+        writes.push({ key, value, expirationTtl: options?.expirationTtl })
+      },
+    }
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const target = String(input)
+      if (target.includes('/contributions')) {
+        return new Response(
+          '<h2 id="js-contribution-activity-description">3 contributions in the last year</h2>' +
+          '<td class="ContributionCalendar-day" data-date="2026-11-07" data-level="2"></td>',
+          { status: 200, headers: { 'Content-Type': 'text/html' } },
+        )
+      }
+      return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } })
+    }) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: assetEnv, ACTIVITY_KV: kv },
+      )
+      const body = await response.json() as {
+        contributions: { date: string; level: number }[]
+        partial: boolean
+        stale: boolean
+      }
+      expect(response.status).toBe(200)
+      expect(body.contributions).toEqual([{ date: '2026-11-07', level: 2 }])
+      expect(body.partial).toBe(false)
+      expect(body.stale).toBe(false)
+      expect(writes).toHaveLength(1)
+      expect(writes[0].key).toBe('github-activity:v1:last-successful')
+      expect(writes[0].expirationTtl).toBe(6 * 60 * 60)
+      expect(JSON.parse(writes[0].value).summary).toBe('3 contributions in the last year')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('preserves the previous KV snapshot when upstream refreshes fail', async () => {
+    const previous = {
+      contributions: [{ date: '2026-11-01', level: 2 }],
+      summary: 'Last successful snapshot',
+      pushes: [],
+      updatedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+      partial: false,
+      stale: false,
+    }
+    const values = new Map<string, string>([
+      ['github-activity:v1:last-successful', JSON.stringify(previous)],
+    ])
+    const kv = {
+      async get(key: string) { return values.get(key) ?? null },
+      async put() { throw new Error('Partial or failed responses must not replace last-good data') },
+    }
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = (async () => new Response('', { status: 503 })) as typeof fetch
+
+    try {
+      const response = await activityWorker.fetch(
+        new Request('https://portfolio.test/api/github/activity'),
+        { ASSETS: assetEnv, ACTIVITY_KV: kv },
+      )
+      const body = await response.json() as typeof previous
+      expect(response.status).toBe(200)
+      expect(body.updatedAt).toBe(previous.updatedAt)
+      expect(body.contributions).toEqual(previous.contributions)
+      expect(body.partial).toBe(true)
+      expect(body.stale).toBe(true)
+      expect(values.get('github-activity:v1:last-successful')).toBe(JSON.stringify(previous))
+    } finally {
+      globalThis.fetch = originalFetch
+    }
   })
 })

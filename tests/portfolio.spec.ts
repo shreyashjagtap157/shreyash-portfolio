@@ -125,6 +125,103 @@ test.describe('navigation and project behavior', () => {
     expect(await nav.evaluate(element => element.scrollLeft)).toBeGreaterThan(0)
   })
 
+  test('About is the first primary navigation item and targets the hero statement', async ({ page }) => {
+    await page.goto('/')
+    const nav = page.getByRole('navigation', { name: 'Primary navigation' })
+    await expect(nav.getByRole('link').first()).toHaveText('About')
+    await expect(nav.getByRole('link').first()).toHaveAttribute('href', '#about')
+    await expect(page.locator('#about h1')).toBeVisible()
+  })
+
+  
+test('desktop navigation remains scrollable until the complete row fits', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => document.fonts.ready)
+  const nav = page.getByRole('navigation', { name: 'Primary navigation' })
+  const controls = page.locator('.toolbar-in .controls')
+  for (const width of [1100, 1200, 1360]) {
+    await page.setViewportSize({ width, height: 900 })
+    const metrics = await page.evaluate(() => {
+      const navElement = document.querySelector<HTMLElement>('.toolbar-in .primary-nav')!
+      const controlsElement = document.querySelector<HTMLElement>('.toolbar-in .controls')!
+      const navRect = navElement.getBoundingClientRect()
+      const controlsRect = controlsElement.getBoundingClientRect()
+      return { overflowX:getComputedStyle(navElement).overflowX, scrollbarWidth:getComputedStyle(navElement).scrollbarWidth, navRight:navRect.right, controlsLeft:controlsRect.left }
+    })
+    expect(metrics.overflowX).toBe('auto')
+    expect(metrics.scrollbarWidth).toBe('thin')
+    expect(metrics.navRight).toBeLessThanOrEqual(metrics.controlsLeft + 1)
+  }
+  await page.setViewportSize({ width: 1440, height: 900 })
+  const wide = await nav.evaluate(element => ({ overflowX:getComputedStyle(element).overflowX, scrollbarWidth:getComputedStyle(element).scrollbarWidth, scrollWidth:element.scrollWidth, clientWidth:element.clientWidth }))
+  expect(wide.overflowX).toBe('auto')
+  expect(wide.scrollbarWidth).toBe('none')
+  expect(wide.scrollWidth).toBeLessThanOrEqual(wide.clientWidth + 1)
+  await expect(controls).toBeVisible()
+})
+
+test.describe('localized project case studies', () => {
+  const locales = [
+    { locale:'en', omni:'Omni — language and compiler engineering', intro:'Specification-governed language design', helios:'Helios — symbolic cognitive architecture', heliosIntro:'A research architecture for a trusted non-neural symbolic core' },
+    { locale:'de', omni:'Omni — Sprach- und Compilerentwicklung', intro:'Normativ spezifiziertes Sprachdesign', helios:'Helios — symbolische kognitive Architektur', heliosIntro:'Eine Forschungsarchitektur mit einem vertrauenswürdigen' },
+    { locale:'fr', omni:'Omni — conception de langage et de compilateur', intro:'Conception de langage régie par une spécification', helios:'Helios — architecture cognitive symbolique', heliosIntro:'Une architecture de recherche fondée sur un noyau symbolique' },
+    { locale:'hi', omni:'Omni — भाषा और कंपाइलर इंजीनियरिंग', intro:'विनिर्देश-आधारित भाषा डिज़ाइन', helios:'Helios — प्रतीकात्मक संज्ञानात्मक आर्किटेक्चर', heliosIntro:'विश्वसनीय गैर-न्यूरल प्रतीकात्मक कोर' },
+    { locale:'mr', omni:'Omni — भाषा आणि कंपायलर अभियांत्रिकी', intro:'विनिर्देश-नियंत्रित भाषा रचना', helios:'Helios — प्रतीकात्मक संज्ञानात्मक रचना', heliosIntro:'विश्वासार्ह, गैर-न्यूरल प्रतीकात्मक कोर' },
+  ] as const
+  for (const item of locales) {
+    test(`Omni and Helios case studies use the ${item.locale} dictionary`, async ({ page }) => {
+      await page.addInitScript(locale => localStorage.setItem('lang', locale), item.locale)
+      await page.goto('/')
+      await expect(page.locator('.case-study-active h3')).toHaveText(item.omni)
+      await expect(page.locator('.case-study-intro')).toContainText(item.intro)
+      await page.locator('#case-study-project').selectOption('helios')
+      await expect(page.locator('.case-study-active h3')).toHaveText(item.helios)
+      await expect(page.locator('.case-study-intro')).toContainText(item.heliosIntro)
+    })
+  }
+})
+
+
+test.describe('localized contact links', () => {
+  const locales = [
+    { locale:'en', linkedin:'LinkedIn — professional profile', linkedinDescription:'Career background, professional connections, and direct messaging.', github:'GitHub — shreyashjagtap157', githubDescription:'Source repositories, project history, code, and public contributions.', phone:'Phone', phoneDescription:'Direct telephone contact for relevant professional conversations.' },
+    { locale:'de', linkedin:'LinkedIn — berufliches Profil', linkedinDescription:'Beruflicher Werdegang, professionelle Kontakte und direkte Nachrichten.', github:'GitHub — shreyashjagtap157', githubDescription:'Quellcode-Repositories, Projektverlauf, Code und öffentliche Beiträge.', phone:'Telefon', phoneDescription:'Direkter telefonischer Kontakt für relevante berufliche Gespräche.' },
+    { locale:'fr', linkedin:'LinkedIn — profil professionnel', linkedinDescription:'Parcours professionnel, relations professionnelles et messages directs.', github:'GitHub — shreyashjagtap157', githubDescription:'Dépôts de code source, historique des projets, code et contributions publiques.', phone:'Téléphone', phoneDescription:'Contact téléphonique direct pour les échanges professionnels pertinents.' },
+    { locale:'hi', linkedin:'LinkedIn — पेशेवर प्रोफ़ाइल', linkedinDescription:'करियर की जानकारी, पेशेवर संपर्क और सीधे संदेश।', github:'GitHub — shreyashjagtap157', githubDescription:'सोर्स रिपॉज़िटरी, प्रोजेक्ट इतिहास, कोड और सार्वजनिक योगदान।', phone:'फ़ोन', phoneDescription:'प्रासंगिक पेशेवर बातचीत के लिए सीधे टेलीफ़ोन पर संपर्क करें।' },
+    { locale:'mr', linkedin:'LinkedIn — व्यावसायिक प्रोफाइल', linkedinDescription:'कारकिर्दीची माहिती, व्यावसायिक संपर्क आणि थेट संदेश.', github:'GitHub — shreyashjagtap157', githubDescription:'सोर्स रिपॉझिटरी, प्रकल्पाचा इतिहास, कोड आणि सार्वजनिक योगदान.', phone:'फोन', phoneDescription:'संबंधित व्यावसायिक चर्चांसाठी थेट दूरध्वनी संपर्क.' },
+  ] as const
+  for (const item of locales) {
+    test(`contact-link copy uses the ${item.locale} dictionary`, async ({ page }) => {
+      await page.addInitScript(locale => localStorage.setItem('lang', locale), item.locale)
+      await page.goto('/')
+      const links = page.locator('.contact-link-group')
+      await expect(links.nth(0).getByRole('link')).toHaveText(item.linkedin)
+      await expect(links.nth(0).locator('small')).toHaveText(item.linkedinDescription)
+      await expect(links.nth(1).getByRole('link')).toHaveText(item.github)
+      await expect(links.nth(1).locator('small')).toHaveText(item.githubDescription)
+      await expect(links.nth(2).getByRole('link')).toContainText(item.phone)
+      await expect(links.nth(2).locator('small')).toHaveText(item.phoneDescription)
+    })
+  }
+})
+
+test('project case study selector switches between evidence-bounded project narratives', async ({ page }) => {
+    await page.goto('/')
+    const selector = page.getByLabel('Choose a project case study')
+    await expect(page.getByRole('heading', { name: 'Omni — language and compiler engineering' })).toBeVisible()
+    await selector.selectOption('helios')
+    await expect(page.getByRole('heading', { name: 'Helios — symbolic cognitive architecture' })).toBeVisible()
+    await expect(page.getByText(/Frozen models may produce candidate observations/)).toBeVisible()
+    await selector.selectOption('uep')
+    await expect(page.getByRole('heading', { name: 'UEP — multi-tenant education platform' })).toBeVisible()
+  })
+
+  test('project visuals are diagrams rather than initial-based placeholders', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('.project-card .project-diagram')).toHaveCount(14)
+    await expect(page.locator('.project-card .visual-symbol')).toHaveCount(0)
+  })
+
   test('project detail and repository links remain independent', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('link', { name: 'Omni', exact: true }).click()

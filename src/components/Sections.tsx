@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Section } from './Section'
 import { SKILLS } from '../data/projects'
 import { RESUME, EMAIL, LINKEDIN, GITHUB, NAME, PHONE_DISPLAY, PHONE_HREF } from '../data/profile'
@@ -5,16 +6,33 @@ import { useI18n } from '../i18n/I18nProvider'
 
 export function CaseStudy() {
   const { t } = useI18n()
-  const items = [
-    ['01 / ' + t('c_1h'), t('c_1')],
-    ['02 / ' + t('c_2h'), t('c_2')],
-    ['03 / ' + t('c_3h'), t('c_3')],
-    ['04 / ' + t('c_4h'), t('c_4')],
-  ]
+  const [selected, setSelected] = useState('omni')
+  const cases = [
+    { id: 'omni' },
+    { id: 'helios' },
+    { id: 'nexus' },
+    { id: 'uep' },
+    { id: 'kilo' },
+  ] as const
+  const active = cases.find(item => item.id === selected) ?? cases[0]
+  const casePoints = [1, 2, 3] as const
   return (
     <Section id="case" title={t('c_h')} lead={t('c_l')}>
-      <div className="split case-study">
-        {items.map(([heading, copy]) => <p key={heading}><strong>{heading}</strong>{copy}</p>)}
+      <div className="case-study-selector">
+        <label htmlFor="case-study-project">{t('case_select_label')}</label>
+        <select id="case-study-project" value={selected} onChange={event => setSelected(event.target.value)}>
+          {cases.map(item => <option value={item.id} key={item.id}>{t(`case_${item.id}_name`)}</option>)}
+        </select>
+      </div>
+      <div className="case-study-active" aria-live="polite">
+        <h3>{t(`case_${active.id}_name`)}</h3>
+        <p className="case-study-intro">{t(`case_${active.id}_intro`)}</p>
+        <div className="split case-study">
+          {casePoints.map(index => <article key={index}>
+            <strong>{t(`case_${active.id}_${index}h`)}</strong>
+            <p>{t(`case_${active.id}_${index}`)}</p>
+          </article>)}
+        </div>
       </div>
     </Section>
   )
@@ -43,6 +61,8 @@ export function Approach() {
     ['a_1h', 'a_1'],
     ['a_2h', 'a_2'],
     ['a_3h', 'a_3'],
+    ['a_4h', 'a_4'],
+    ['a_5h', 'a_5'],
   ] as const
   return (
     <Section id="approach" title={t('a_h')} lead={t('a_l')}>
@@ -90,9 +110,9 @@ export function Contact() {
         </div>
         <div className="contact-card">
           <p>{t('contact_intro')}</p>
-          <a className="contact-external" href={LINKEDIN} target="_blank" rel="noopener noreferrer">Shreyash Jagtap | LinkedIn</a>
-          <a className="contact-external" href={GITHUB} target="_blank" rel="noopener noreferrer">shreyashjagtap157 (warrite)</a>
-          <a href={PHONE_HREF}>{PHONE_DISPLAY}</a>
+          <div className="contact-link-group"><a className="contact-external" href={LINKEDIN} target="_blank" rel="noopener noreferrer">{t('contact_linkedin_label')}</a><small>{t('contact_linkedin_description')}</small></div>
+          <div className="contact-link-group"><a className="contact-external" href={GITHUB} target="_blank" rel="noopener noreferrer">{t('contact_github_label')}</a><small>{t('contact_github_description')}</small></div>
+          <div className="contact-link-group"><a href={PHONE_HREF}>{t('contact_phone_label')} — {PHONE_DISPLAY}</a><small>{t('contact_phone_description')}</small></div>
         </div>
       </div>
     </Section>

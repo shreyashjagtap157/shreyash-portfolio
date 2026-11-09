@@ -1,8 +1,8 @@
 # Portfolio project audit and issue ledger
 
-**Audit date:** 2026-11-06  
+**Audit date:** 2026-11-08  
 **Repository:** `shreyashjagtap157/shreyash-portfolio`  
-**Review branch:** `work/portfolio-quality-refresh`  
+**Review branch:** `work/portfolio-about-case-studies`  
 **Production target:** Cloudflare Worker `shreyash-portfolio`  
 **Public hostname:** https://shreyash-portfolio.ssjagtap2016.workers.dev/
 
@@ -44,18 +44,19 @@ The final total is recorded from the CI test output after the latest change, not
 
 The browser talks only to same-origin `/api/github/activity`. The Cloudflare Worker fetches GitHub's public contribution HTML and unauthenticated public PushEvents, then returns normalized data.
 
-The Worker validates calendar dates and activity levels, rejects malformed events/repository names, validates commit SHAs before producing commit links, and never exposes a personal GitHub token. Private-repository activity is not included.
+The Worker validates calendar dates and activity levels, rejects malformed events/repository names, validates commit SHAs before producing commit links, and never exposes a personal GitHub token. The contribution calendar is publicly rendered by GitHub but can include anonymized daily counts from private/internal repositories when the profile owner's **Private contributions** setting is enabled. The Worker stores those dates, intensity levels, and the calendar summary; it does not fetch private repository names or private event details. The separate unauthenticated `public` PushEvents source remains public-event-only.
 
 Reliability controls:
 
 - Five-minute freshness window.
-- Up to six-hour retention of the last fully successful result.
+- Up to six-hour TTL for the last fully successful result in Cloudflare KV; partial results never overwrite it.
 - Stale fallback, visibly marked as partial, if an upstream source is unavailable.
 - Eight-second timeout for GitHub upstream requests.
-- One-minute manual refresh cooldown.
+- A separate one-minute manual-refresh marker, independent of the last-successful-data timestamp.
 - No fabricated contributions or commits if GitHub is unavailable.
+- KV is eventually consistent: writes are immediately visible in the serving location but may take up to 60 seconds to appear elsewhere. The cooldown is therefore best-effort, not a globally atomic rate limit.
 
-The feed remains limited to GitHub's public data and recent public events; it is not a full private contribution record.
+The combined feed is sourced from a public profile surface, but is not guaranteed to be public-repository-only while **Private contributions** is enabled. The recent PushEvents component is restricted to public events. Disabling the profile setting is required to exclude anonymized private/internal contribution counts from the calendar. See [GitHub's profile contributions reference](https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference).
 
 ## 5. Cloudflare hosting and cost model
 
@@ -67,16 +68,17 @@ No domain purchase is required. A custom domain is optional. The production targ
 
 ## 6. CI and regression verification
 
-The latest previously verified checkpoint is GitHub Actions run [42258764088](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42258764088), commit `4210968c2d9ff3e4554b5fa425834fbbe72464c2`:
+The latest verified checkpoint is GitHub Actions run [42375334373](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42375334373), commit `56ac50d2ea1a9bb4e85c36c2a00361140c1a4c5a`:
 
 - TypeScript typecheck: passed.
-- Vitest: 19 tests passed in 3 files.
+- Vitest: 27 tests passed in 3 files, including contribution-calendar parsing from non-table HTML elements and stale-cache timestamp preservation.
 - Vite production build: passed (63 modules transformed).
-- Chromium browser suite: 62 tests passed.
-- Responsive test matrix: all 48 combinations passed.
+- Chromium browser suite: 77 tests passed.
+- Responsive coverage includes the four theme × three density × four base-viewport matrix plus desktop nav geometry checks at 1,100px, 1,200px, 1,360px and 1,440px.
+- Locale-specific browser coverage checks all five supported dictionaries for project case-study content and contact-link labels/descriptions.
 - Browser checks include no duplicate DOM IDs and no nested interactive anchors/buttons.
 
-After the checkpoint, the Worker gained stronger cache/stale handling and corresponding tests. The next CI result must supersede this checkpoint before production publication.
+The audit-only follow-up is tracked separately from that application-code checkpoint.
 
 ## 7. Known cross-repository contradictions
 
@@ -103,9 +105,156 @@ After the checkpoint, the Worker gained stronger cache/stale handling and corres
 
 ## 9. Remaining work before closure
 
-1. Obtain a green GitHub Actions run for the latest Worker/cache hardening commit.
-2. Confirm Cloudflare Workers Builds can build and deploy this repository using the existing free Worker hostname.
-3. Verify the live page, API response, cache/refresh behavior, headers, and browser console after Cloudflare deployment.
-4. Review the final live site with the owner and resolve project inclusion decisions (Miner/PromptWars) and external documentation contradictions (Helios/Kilo).
+1. **Completed:** GitHub Actions is green for the current implementation revision. TypeScript typecheck, 33 Vitest tests, the production build, and 77 Playwright Chromium tests passed. The latest CI npm audit report contains zero advisories.
+2. **Blocked by Cloudflare credentials:** repair the deleted/rolled Workers Builds API token, then confirm Cloudflare can build and deploy this repository using the existing free Worker hostname.
+3. **After deployment:** verify the live page, API response, cache/refresh behavior, response headers, and browser console/network errors.
+4. **Owner review:** decide project inclusion (Miner/PromptWars) and reconcile the remaining external documentation contradictions (Helios/Kilo).
 
-No final "fully complete" claim is made until the latest CI and deployed Cloudflare smoke tests are green.
+No final "fully complete" claim is made until Cloudflare deployment and live smoke tests are green, and the remaining owner review decisions are closed.
+
+
+## 10. About navigation, case studies, project visuals, and local development (2026-11-07)
+
+- Added an **About** navigation anchor before Projects, targeting the hero/about statement.
+- Expanded the main content container to 80rem. The desktop toolbar uses an 84rem maximum width so the navigation and controls fit together at 1,440px; intermediate widths retain a visible, keyboard-accessible horizontal scrollbar.
+- Replaced project initials with conceptual SVG architecture illustrations rather than arbitrary monograms. These are explicitly conceptual visuals, not screenshots of deployed products.
+- Added a project selector with distinct case studies for Omni, Helios, NexusAgent, UEP, and the Kilo fork. Each case study distinguishes verified maturity from intended architecture and roadmap work.
+- Rewrote engineering approach around repository/spec inspection, explicit constraints, coherent milestones, complete verification, and evidence-based reporting.
+- Added explanatory labels to LinkedIn, GitHub, and telephone contact links; their labels and descriptions are localized in all five built-in languages.
+- Local development now runs the actual Cloudflare Worker with built assets (`npm run dev`), so `/api/github/activity` is served locally by Wrangler rather than failing against Vite's static dev server. `npm run dev:ui` remains available for UI-only work, with API proxying to a separately running Worker on port 8787.
+- Activity UI now surfaces stale-cache state distinctly and avoids showing an empty-feed message after a network error.
+
+
+## 11. Current review, verification, and Cloudflare deployment gate (2026-11-07)
+
+- Review PR: [#2](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/2), open against `main` from `work/portfolio-about-case-studies`. The branch is not merged, and no production deployment is claimed.
+- Latest application-code revision: `56ac50d2ea1a9bb4e85c36c2a00361140c1a4c5a`. It includes localized LinkedIn, GitHub, and telephone contact copy, explicit browser assertions for contact labels, a parser regression for non-table contribution-day elements, and truthful timestamps when stale cached data is reused. The current PR head also includes the audit-only follow-up commit `0c3b351a44b3cdf9ba550a642148dd42752469cc`.
+- GitHub Actions run [42375334373](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42375334373) passed on the application-code revision:
+  - TypeScript typecheck: passed.
+  - Vitest: 27 tests passed across 3 files.
+  - Production build: passed, 63 modules transformed.
+  - Playwright Chromium: 77 tests passed, including navigation at 1,100px, 1,200px, 1,360px, and 1,440px; case-study content in English, German, French, Hindi, and Marathi; and localized contact links in all five built-in languages.
+- All five built-in locale dictionaries contain 206 keys each with matching key sets, including project case studies and contact-link labels/descriptions.
+- Automated review findings on desktop navigation overflow, untranslated project case studies, and untranslated contact-link copy were addressed with higher-specificity toolbar rules, a desktop-only wider toolbar container, localized dictionary entries, and regression tests. All three corresponding inline threads are resolved. The contact-link localization finding was verified by CI run #74; parser element-type coverage passed in run #79; preserving the last successful timestamp in stale-data responses passed in run #86.
+- Cloudflare Worker: `shreyash-portfolio`, script tag `a934c1d629784998983f15b258830b5f`; repository connection: `shreyashjagtap157/shreyash-portfolio`, production branch: `main`.
+- Production build command: `npm ci && npm run check`; deploy command: `npx wrangler deploy`.
+- Latest inspected Cloudflare build `2bb5f642-3352-4acc-8990-64adeade14eb` stopped before dependency installation. Its log explicitly reports that the selected Build token was deleted or rolled.
+- Production settings and trigger still reference Build token UUID `8c144870-c82c-428f-8a7a-40c180d4294c`. Cloudflare lists two Build-token records, but both reference the same underlying Cloudflare token ID; switching between those records does not establish a valid independent credential.
+- Workers Builds remains connected to the expected GitHub repository and `main` branch. The Cloudflare API's Build-token creation endpoint requires a valid `build_token_secret` and `cloudflare_token_id`; the connected session cannot mint or recover those credentials from the expired token ID. No token secret was exposed, regenerated, or changed in this workflow.
+- The latest live Worker deployment record is `2026-10-23T15:21:08.788883Z`. The PR has not been deployed. Its code cannot be represented as live until the token is repaired and a successful Cloudflare build/deploy is observed.
+- Required owner action: in Cloudflare Dashboard, open Workers & Pages → `shreyash-portfolio` → Settings → Builds → API token. Select/create a valid API token and refresh the associated Build token. Do not paste the secret into chat or commit it to Git.
+- After credential repair: trigger a Cloudflare production build from `main`; verify successful build and deployment; smoke-test the live page and `/api/github/activity`; inspect response headers, browser console, and network failures.
+
+## 12. Review follow-up: responsive navigation and localization
+
+- The primary navigation remains horizontally scrollable with a visible scrollbar throughout the 1,100–1,360px intermediate desktop range. The toolbar container expands to 84rem at desktop widths, making the full row fit at 1,440px; the scrollbar is hidden only at that tested width, with overflow still configured as a safety fallback.
+- Omni, Helios, NexusAgent, UEP, and Kilo Code fork case-study names, introductions, headings, and narrative text, plus LinkedIn/GitHub/telephone contact labels and descriptions, are stored in all five built-in dictionaries: English, German, French, Hindi, and Marathi.
+- Worker parser unit tests cover contribution-day metadata on non-table elements as well as table cells.
+- Worker stale-cache fallback retains the timestamp of the last successful cached payload rather than stamping stale content with the time of the failed request. Playwright coverage verifies the desktop navigation/control boundary at intermediate widths and confirms that the full navigation row fits before hiding the scrollbar at 1,440px. Locale tests verify Omni and Helios case-study names and introductions and all contact-link labels/descriptions in the five built-in languages.
+- The 80rem main content container remains unchanged; only the desktop toolbar is allowed a slightly wider 84rem container to provide sufficient room for navigation and controls.
+- Project maturity, external documentation conflicts, the GitHub contribution-calendar privacy caveat, and the Cloudflare deployment gate remain explicit; no production-readiness or live-deployment claim is introduced.
+
+
+## 13. Storage correction for the `workers.dev` deployment target (2026-11-07)
+
+- The PR implementation originally used `caches.default` for its six-hour stale-data store. Cloudflare documents functional Cache API operations for Workers deployed to custom domains and Pages Functions; the portfolio's configured production hostname is a `workers.dev` subdomain. The Cache API was therefore not an appropriate dependency for this deployment target.
+- Created the account's first KV namespace, `shreyash-portfolio-activity`, with ID `f5b00902986840448a64aa9a7bb05ab5`, and bound it as `ACTIVITY_KV` in `wrangler.jsonc`.
+- Replaced Cache API reads/writes with KV-backed persistence for the last fully successful normalized activity snapshot (six-hour TTL) and a separate one-minute manual-refresh attempt marker. A failed or partial upstream refresh does not overwrite the last-good payload and cannot reset its timestamp.
+- Added unit coverage for Retry-After calculation, stale payload preservation during a throttled refresh, and the no-cache 429 path.
+- KV is available on Workers Free but has finite quotas (currently 100,000 reads/day, 1,000 writes/day, 1 GB storage). Its eventual consistency means remote locations may not see a recent write for up to 60 seconds; this design improves availability but is not a strict globally synchronized lock. A KV quota or binding failure falls back to live upstream fetches, not fabricated/stale data.
+- The code change is on PR #2 and is not deployed to production. The Workers Builds token blocker and live smoke-test requirement remain open.
+
+
+## 14. Dependency security remediation and current verification (2026-11-07)
+
+- The detailed CI npm audit report identified a transitive `undici` vulnerability chain through `miniflare` and `wrangler`: locked versions were Wrangler `4.151.3`, Miniflare `5.20261019.1-beta`, and Undici `7.29.1`. npm reported compatible fixes available.
+- Applied npm's non-forced compatible lockfile remediation without changing `package.json` or introducing a major-version upgrade. The lockfile now resolves Wrangler `4.158.0`, Miniflare `5.20261104.0-beta`, and Undici `7.30.1`.
+- The subsequent clean CI `npm ci` audit reported **0 vulnerabilities** (0 moderate, 0 high, 0 critical).
+- Added a CI dependency-security gate that prints package, severity, affected range, advisory links, and fix availability. It fails closed if the audit report is unreadable or reports any unresolved npm advisory.
+- Current implementation verification on commit `5d5b2d314dd858baaef00aa683dfe675e754ee56`:
+  - TypeScript typecheck: passed.
+  - Vitest: 33 tests passed across 3 files.
+  - Vite production build: passed (63 modules transformed).
+  - Playwright Chromium: 77 tests passed.
+  - GitHub Actions push run [42387174246](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42387174246): passed.
+  - GitHub Actions PR run [42387179600](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42387179600): passed.
+- PR #2 remains open and is not deployed. The production deployment gate is still the expired/deleted Cloudflare Workers Builds token recorded in section 11; the lockfile security remediation does not change production deployment state.
+
+## 15. Live revalidation after dependency-security remediation (2026-11-07)
+
+- Revalidated the active review branch and PR #2 against the live repository. The PR remains open and unmerged; its exact head at this checkpoint is `09a61d3249d230ab62f4aa94669be280f5bea94a`.
+- Both GitHub Actions runs for that exact head completed successfully: push run [42387713021](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42387713021) and pull-request run [42387716952](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42387716952).
+- The verified checks on this revision are TypeScript typecheck, 33 Vitest tests across 3 files, Vite production build (63 modules transformed), 77 Playwright Chromium tests, and npm audit with zero reported vulnerabilities. CI now fails closed when the audit report cannot be parsed or when any advisory remains.
+- Re-read the Cloudflare account's Worker, Workers Builds settings, build-token metadata, build history, and deployment history. The production Worker remains connected to `shreyashjagtap157/shreyash-portfolio` on `main`; build command is `npm ci && npm run check`, deploy command is `npx wrangler deploy`, and the production trigger still references Build-token UUID `8c144870-c82c-428f-8a7a-40c180d4294c`.
+- Latest recorded Workers Build is `2bb5f642-3352-4acc-8990-64adeade14eb`, stopped with outcome `fail` on 2026-11-06. Its log explicitly states: the selected build token was deleted or rolled and cannot be used. The failure occurred before dependency installation; it is not evidence of a failing application build.
+- Cloudflare lists two Build-token metadata records, but both reference the same underlying Cloudflare API-token identifier. Selecting the other record therefore does not establish an independent valid credential. Token secrets are not readable from the metadata endpoint.
+- Latest production deployment remains Worker version 19, deployed at `2026-10-23T15:21:08.788883Z`. The November source changes remain undeployed; no production smoke-test pass is claimed.
+- No Cloudflare token was created, rotated, deleted, or exposed during this inspection. The required owner action remains to create/select a valid, appropriately scoped Cloudflare API token in Cloudflare's dashboard and refresh the Workers Build-token association without sharing the secret in chat or Git.
+- After the credential repair, run the existing production build trigger and verify the new deployment version, live page, `/api/github/activity` response, cache/refresh behavior, security headers, and browser console/network errors. Keep PR #2 open until the chosen merge and deployment sequence is explicitly completed.
+
+
+
+## 16. Documentation architecture reconciliation (2026-11-07)
+
+- Rechecked the current README, design rules, local-agent handoff, locale tests, project metadata, and activity Worker after the KV migration.
+- Corrected README privacy language: the Worker is not described as stateless or as using only an edge cache. It serves static assets and uses Cloudflare KV for the last successful normalized GitHub-activity snapshot (up to six hours) and a separate one-minute manual-refresh marker. The snapshot is not a user profile; the contribution calendar may include anonymized private/internal daily counts if the profile owner enables that GitHub visibility setting. This qualifies the earlier overly broad statement that the cache excludes all private-repository-derived activity.
+- Corrected `docs/DESIGN.md`: removed the obsolete Cache API requirement and specified Cloudflare KV, five-minute freshness, six-hour last-good retention, partial/stale fallback, separate one-minute cooldown state, and eventual-consistency limits.
+- Corrected `docs/PROMPT.md`: removed the obsolete stateless-Worker description and aligned the implementation constraints with the actual KV behavior and graceful fallback when KV is unavailable.
+- Corrected the changelog's cache description and added the November 7 About/case-study, activity persistence, security-gate, documentation, and deployment status update.
+- Locale regression coverage already enforces identical key sets across all five maintained dictionaries. The content tests also assert the exact 14-project inventory, category totals, allowed maturity labels, per-project detail mapping, the Helios perception-only/specification caveat, and the Kilo fork/upstream distinction.
+- Verification baseline immediately before the documentation reconciliation: both GitHub Actions runs for `e58b0a272c4e573940126278bd8203abc55e145e` passed (push run [42390253333](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42390253333); PR run [42390256087](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42390256087)). These documentation changes do not modify runtime code; final CI is required for the resulting branch head.
+- PR #2 remains open and unmerged. The production Worker remains on the October 23 deployment; deployment is waiting for an owner-repaired Workers Builds credential. No credential was created, changed, or exposed in this work.
+
+
+## 17. Live public deployment smoke test — 2026-11-08
+
+### Production observations
+
+- Fetched the public site at `https://shreyash-portfolio.ssjagtap2016.workers.dev/` using a JavaScript-capable public-page fetch. The page returned content, but it is a legacy snapshot rather than the current review-branch implementation.
+- The served project grid contains both `Omni` and `Omni (earlier)`, despite the current source having exactly 14 unique repository slugs and no duplicate Omni entry.
+- The served project list still uses legacy `Built` labels for Tensor Ring Decomposition, ACTSConnect, OldAgeHome, and MilkyWay. The current source deliberately permits only `alpha`, `progress`, `spec`, `research`, `candidate`, and `prototype` maturity states.
+- The fetched page still exposes the older single Omni case study and legacy section structure; it does not show the current About-first navigation and selectable Omni/Helios/NexusAgent/UEP/Kilo case studies from PR #2.
+- The live page metadata reports canonical and Open Graph URLs under `https://www.shreyashjagtap.com/`, while current branch `index.html` correctly sets the canonical and Open Graph URLs to the configured `workers.dev` hostname.
+- The live same-origin endpoint `/api/github/activity` returned **HTTP 404** (`page_not_found`). The current source routes this path in `src/worker.ts`; therefore the currently deployed activity panel cannot obtain its intended Worker response.
+- Cloudflare's deployment API still reports production Worker version 19, last deployed at `2026-10-23T15:21:08.788883Z`. The failed Workers Build from 2026-11-06 remains the only recorded build and was rejected before dependency installation because its selected Build token had been deleted or rolled.
+- A read-only Cloudflare token-verification request from the connected API context also returned HTTP 401 `Invalid API Token`. The token-details endpoint could not be inspected through the current OAuth connection (HTTP 403; no matching OAuth scope). This is an additional Cloudflare-connection reauthentication limitation; it does not establish or repair the separate Workers Builds credential.
+ 
+### Source-versus-production conclusion
+
+- The branch source is not the cause of the observed public mismatch: current `index.html` uses the correct `workers.dev` canonical metadata, current `src/worker.ts` handles `/api/github/activity`, the selected-project tests prohibit duplicate repository slugs and unsupported maturity states, and both GitHub Actions workflows passed on commit `e49ed5b7e53f82cb49525bd1640b315fed17aba9`.
+- PR #2 remains open and unmerged. The production Worker is not being represented as updated by this PR.
+- Do not change DNS, switch providers, deploy from an unverified source, or bypass Cloudflare's existing deployment flow to work around the expired token.
+- Required recovery sequence: reauthenticate the Cloudflare connection if API operations are needed; in Cloudflare Dashboard refresh/select a valid Workers Builds API token; run the production build from the intended production branch after the merge decision; verify a new deployed Worker version; then retest the page, canonical metadata, project grid, `/api/github/activity`, KV freshness/refresh behavior, headers, and browser console.
+- No credential was generated, changed, or exposed. No production deployment, DNS change, PR merge, or custom-domain change was performed during this smoke test.
+
+
+## 18. Latest exact-head CI verification — 2026-11-08
+
+- Exact branch head: `55cecf853e3d1686930150e923a7c5427cf9c054`.
+- GitHub Actions push run [42472120080](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42472120080): **success**.
+- GitHub Actions pull-request run [42472124575](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42472124575): **success**.
+- Raw job logs confirm for the push run: `npm ci` installed 173 packages and audited 174 packages; npm reported **0 vulnerabilities**; the fail-closed dependency audit step passed; TypeScript typecheck passed; Vitest reported **33 tests passed across 3 files**; Vite production build transformed **63 modules**; Playwright reported **77 passed**.
+- The PR run independently repeated the same full pipeline and reported **77 passed** in Chromium.
+- The commit under test contains only README and audit-ledger documentation changes; no application runtime code changed from the previously green application-code checkpoint.
+- PR #2 remains open and unmerged. These CI results qualify the branch source, not the currently deployed Worker. The live smoke-test findings in section 17 remain unresolved: the public page is stale and `/api/github/activity` returns 404.
+- The latest attempted fresh code/security reviews against this documentation-only head were rejected by the review service because its usage limit had been reached. The last completed code review on commit `e49ed5b7e5` reported no major issues; it is not a review of the new `55cecf8` head.
+
+
+## 19. GitHub contribution-calendar privacy qualification — 2026-11-09
+
+- Revisited the existing Codex P2 review finding on PR #2 (review comment `4502715661`), which correctly noted that GitHub's public contribution calendar can contain anonymized counts from private repositories when the profile owner enables **Private contributions**.
+- Verified the current `src/worker.ts`: it fetches `https://github.com/users/<username>/contributions`, parses each calendar day's `data-date` and `data-level`, and stores the calendar summary. Separately, it fetches `/users/<username>/events/public`, which is explicitly the public-events feed.
+- GitHub's [profile contributions reference](https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference) states that when private contributions are publicized, people without access to those repositories can see the number of contributions made each day, but not specific details.
+- Corrected README, design rules, local-agent handoff, changelog, and this audit: the calendar's daily intensity levels and summary may reflect anonymized private/internal activity; no private repository names or private event details are fetched. The recent-push feed remains based on unauthenticated public PushEvents. The visible calendar footnote now states this distinction in all five locales, with an exact-copy regression test.
+- The GitHub profile's **Private contributions** visibility setting has not been inspected or changed. If strict public-repository-only output is required, the owner must disable it under GitHub profile → Contribution settings. This owner setting is not something the Worker can infer or enforce reliably.
+- The Worker runtime behavior was not changed. The visible contribution-calendar footnote and its five locale values were updated, with an exact-copy regression test. GitHub Actions push run [42567471094](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42567471094) and PR run [42567466482](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42567466482) both passed on commit `049b046cbaa14c016b9251343cf1243561113804`: 34 Vitest tests across 3 files, TypeScript typecheck, production build (63 modules), 77 Chromium browser tests, and npm audit with 0 vulnerabilities. No GitHub profile setting, Cloudflare credential, production deployment, DNS record, or merge state was changed.
+
+
+## 20. Live Cloudflare deployment recheck — 2026-11-09
+
+- Re-fetched the public `workers.dev` root page and `/api/github/activity` using a JavaScript-capable public fetch with cache freshness set to zero.
+- The root remains the same legacy page: it contains `Omni` and `Omni (earlier)`, retains the old `Built` maturity labels, presents the earlier case-study/section structure, and still shows “Loading contributions…”. The current branch continues to define the 14-project inventory without duplicate repository slugs, About-first navigation, and five selectable project case studies.
+- The live canonical and Open Graph URL still point to `https://www.shreyashjagtap.com/`; the exact current branch `index.html` sets canonical and Open Graph URLs to `https://shreyash-portfolio.ssjagtap2016.workers.dev/`.
+- The live `/api/github/activity` request again returned **HTTP 404** (`page_not_found`). The branch Worker still explicitly routes this path.
+- This 9 November fetch independently confirms the deployment drift documented in section 17. No newer production deployment was established. The prior Cloudflare deployment API observation remains Worker version 19 from 23 October 2026, and the connected Cloudflare token verification still returns HTTP 401 `Invalid API Token`.
+- No DNS, custom-domain, Cloudflare token, production deployment, or PR merge changes were made. Do not treat CI success or the PR branch as evidence that the public Worker has been updated.

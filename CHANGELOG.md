@@ -11,7 +11,7 @@
 - Corrected project maturity language and removed unused maturity labels so concepts, alpha work, candidates, prototypes, and active implementation are not conflated.
 - Corrected the project-detail key map and validated one detail entry per selected project.
 - Replaced the old contribution chart/feed behavior with a same-origin Cloudflare Worker endpoint that parses GitHub's public contribution-calendar HTML and recent public PushEvents.
-- Added validated contribution dates/levels, safe event parsing, commit SHA validation, an eight-second upstream timeout, a six-hour edge-retained cache with five-minute freshness, stale fallback for upstream outages, and a one-minute manual-refresh cooldown.
+- Added validated contribution dates/levels, safe event parsing, commit SHA validation, an eight-second upstream timeout, a six-hour Cloudflare KV-backed last-good snapshot with five-minute freshness, visibly stale fallback for upstream outages, and a separate one-minute manual-refresh cooldown marker.
 - Added an explicit partial/stale activity warning instead of presenting stale data as fully current.
 - Made top navigation horizontally scrollable, keyboard focusable, and visibly scrollable on narrow screens.
 - Improved responsive project cards, tags, contact layout, control touch targets, dropdown empty states, language-switch race handling, and reduced-motion support.
@@ -40,3 +40,43 @@ The subsequent stale-cache hardening and partial-state test changes require a ne
 - **Optional profile content:** separate professional email and headshot remain optional owner decisions.
 
 No Lighthouse score is advertised until a fresh report exists for the final deployed Cloudflare build.
+
+
+## 2026-11-07 — About, case studies, activity persistence, and documentation corrections
+
+### Portfolio presentation and content
+- Added About as the first primary navigation item and verified its target.
+- Added selectable, distinct case studies for Omni, Helios, NexusAgent, Universal Education Platform, and the personal Kilo Code fork.
+- Added conceptual architecture illustrations in place of project initials; they are not presented as screenshots or proof of deployed systems.
+- Localized the case-study copy and LinkedIn, GitHub, and telephone contact descriptions in English, German, French, Hindi, and Marathi.
+- Kept the selected-work inventory at 14 unique repositories with explicit maturity labels and no unsupported production claims.
+
+### GitHub activity and local development
+- Replaced the initial Cache API persistence approach with Cloudflare KV, appropriate to the configured `workers.dev` target.
+- Store only the last fully successful normalized activity snapshot for up to six hours; use a five-minute freshness window, stale fallback on partial upstream failure, and a separate one-minute refresh-attempt marker. The profile calendar may include anonymized private/internal counts when GitHub's **Private contributions** setting is enabled; the separate PushEvents source is public-only.
+- Document KV's eventual-consistency boundary and avoid claiming it is a globally atomic rate limiter.
+- Make `npm run dev` build the static assets and run the actual Worker locally; retain `npm run dev:ui` for UI-only Vite hot reload with a Worker proxy.
+
+### Dependency security and documentation
+- Remediated the vulnerable transitive Wrangler/Miniflare/Undici lockfile chain using compatible patch/minor resolutions; the current CI dependency audit reports zero advisories.
+- Added a fail-closed dependency-audit gate in GitHub Actions.
+- Reconciled README, design rules, local-agent handoff, and the issue ledger with the KV-backed activity architecture and current deployment blocker.
+
+### Verification and publication status
+- The latest CI baseline before these final documentation-only reconciliations was commit `e58b0a272c4e573940126278bd8203abc55e145e`: push run [42390253333](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42390253333) and pull-request run [42390256087](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42390256087) both passed, including 33 unit tests, 77 Chromium browser tests, typecheck, production build, and the zero-advisory npm audit.
+- PR #2 remains open against `main`; no merge or production deployment is claimed.
+- Cloudflare production deployment remains blocked by the selected Workers Builds token whose underlying API token Cloudflare reports as deleted or rolled. The separate project audit records the exact build failure and required owner action.
+
+
+## 2026-11-09 — GitHub contribution-calendar privacy qualification
+
+- Clarified the difference between a publicly rendered GitHub profile contribution calendar and the unauthenticated public PushEvents endpoint.
+- Documented that the profile calendar may expose anonymized daily counts from private/internal repositories when the owner's GitHub **Private contributions** setting is enabled; the Worker stores calendar dates, levels, and summary but does not fetch private repository names or private event details.
+- Recorded the owner action required for strict public-repository-only output: disable **Private contributions** under GitHub profile → Contribution settings. The setting was not inspected or changed.
+- Updated the visible contribution-calendar footnote in all five locales to explain anonymized private contributions, and added a locale regression test.
+
+
+## 2026-11-09 — Production deployment recheck
+
+- Rechecked the public Cloudflare Worker root and same-origin activity API after the privacy and localization corrections. The root still serves the legacy portfolio with duplicate Omni content, legacy maturity labels, and old canonical/Open Graph metadata; `/api/github/activity` still returns HTTP 404.
+- Confirmed branch source metadata and Worker route remain correct. Deployment is still blocked on Cloudflare credential recovery; no alternate hosting, DNS change, merge, or deployment was attempted.

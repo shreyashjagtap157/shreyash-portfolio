@@ -7,7 +7,7 @@ a{color:inherit}
 h1,h2,h3{margin:0;font-family:var(--f);font-weight:var(--h);letter-spacing:var(--ls);line-height:1.12}
 p{margin:0}
 :focus-visible{outline:2px solid var(--ac2);outline-offset:3px}
-.container{width:min(100% - 2*var(--gutter),72rem);margin-inline:auto}
+.container{width:min(100% - 2*var(--gutter),80rem);margin-inline:auto}
 .skip{position:absolute;inset-inline-start:-999px}.skip:focus{inset-inline-start:.75rem;top:.75rem;z-index:60;background:var(--ac);color:var(--on);padding:.5rem .8rem}
 
 /* Top: brand left, details right. Aligns on a two-column grid, stacks on small screens. */
@@ -24,7 +24,7 @@ p{margin:0}
 /* Sticky toolbar: navigation left, dropdowns right. */
 .toolbar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);border-block:1px solid var(--line);padding-top:env(safe-area-inset-top)}
 .toolbar-in{display:flex;justify-content:space-between;align-items:center;gap:var(--gap);padding-block:calc(.5rem*var(--s));flex-wrap:wrap}
-nav{display:flex;gap:calc(1.2rem*var(--s));overflow-x:auto;scrollbar-width:none;font-size:.9rem;min-width:0}
+nav{display:flex;gap:calc(1.2rem*var(--s));overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--ac2) transparent;font-size:.9rem;min-width:0}.primary-nav{flex:1 1 auto;min-width:0;white-space:nowrap}.primary-nav::-webkit-scrollbar{height:5px}.primary-nav::-webkit-scrollbar-thumb{background:var(--ac2);border-radius:9px}
 nav a{color:var(--mut);text-decoration:none;white-space:nowrap;padding-block:.35rem}nav a:hover{color:var(--ac)}nav a.active{position:relative;padding-block:.35rem;padding-inline:.5rem;background:color-mix(in srgb,var(--ac) 12%,transparent);border-radius:var(--r)}
 nav a.active:after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--ac);transition:width .3s ease}
 nav a.active:hover:after{width:100%}
@@ -402,3 +402,8 @@ img,svg,video,canvas{max-width:100%}
 .toolbar-in .primary-nav a{flex:none}
 .category-group,.project-card,.project-detail-card,.contact-card{min-width:0}
 .project-card .tags{min-width:0}
+
+@media(min-width:1100px){.toolbar-in{flex-wrap:nowrap}.toolbar-in.container{width:min(100% - 2*var(--gutter),84rem)}.toolbar-in nav.primary-nav{overflow-x:auto;scrollbar-width:thin;flex:1 1 auto}.toolbar-in .controls{flex:0 0 auto}}
+.case-study-selector{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;margin-bottom:1.25rem}.case-study-selector label{color:var(--mut);font-size:.85rem}.case-study-selector select{max-width:100%;min-height:var(--ctl);padding:.45rem 2.2rem .45rem .8rem;border:1px solid var(--line);border-radius:var(--r);background:var(--card);color:var(--fg);font:inherit}.case-study-active{padding:clamp(1rem,2vw,1.6rem);border:1px solid var(--line);border-radius:var(--r);background:var(--card)}.case-study-active h3{font-size:clamp(1.1rem,2.4vw,1.55rem);margin-bottom:.65rem}.case-study-intro{max-width:75ch;color:var(--mut);margin-bottom:1.2rem}.case-study article{padding:1rem;border:1px solid var(--line);border-radius:var(--r)}.case-study article strong{display:block;color:var(--ac2);margin-bottom:.45rem}.case-study article p{color:var(--mut);font-size:.9rem}.contact-link-group{display:grid;gap:.2rem;padding-block:.7rem;border-top:1px solid var(--line)}.contact-link-group small{color:var(--mut);font-size:.78rem;line-height:1.5}.project-diagram{width:100%;height:7.2rem;overflow:visible;color:var(--ac)}.diagram-lines line{stroke:currentColor;stroke-width:1.5;opacity:.55;stroke-dasharray:4 4}.diagram-node circle:first-child{fill:var(--card);stroke:currentColor;stroke-width:1.7}.diagram-node.primary circle:first-child{fill:color-mix(in srgb,var(--ac) 18%,var(--card));stroke-width:2.5}.diagram-core{fill:var(--ac2);stroke:none}.diagram-captions{fill:var(--mut);font:9px var(--m);text-anchor:middle}
+@media(min-width:1440px){.toolbar-in nav.primary-nav{scrollbar-width:none}.toolbar-in nav.primary-nav::-webkit-scrollbar{display:none}}
+@media(prefers-reduced-motion:reduce){.project-diagram *,.case-study-active *{animation:none!important;transition:none!important}}
