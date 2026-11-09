@@ -11,7 +11,7 @@
 - Corrected project maturity language and removed unused maturity labels so concepts, alpha work, candidates, prototypes, and active implementation are not conflated.
 - Corrected the project-detail key map and validated one detail entry per selected project.
 - Replaced the old contribution chart/feed behavior with a same-origin Cloudflare Worker endpoint that parses GitHub's public contribution-calendar HTML and push entries from GitHub's public user Atom timeline.
-- Added validated contribution dates/levels, safe event parsing, commit SHA validation, an eight-second upstream timeout, a six-hour Cloudflare KV-backed last-good snapshot with five-minute freshness, visibly stale fallback for upstream outages, and a separate one-minute manual-refresh cooldown marker.
+- Added validated contribution dates/levels, safe event parsing, commit SHA validation, an eight-second upstream timeout, a six-hour Cloudflare KV-backed last-good snapshot with five-minute freshness, visibly stale fallback for upstream outages, and a shared one-minute cooldown marker for automatic and manual upstream refresh attempts.
 - Added an explicit partial/stale activity warning instead of presenting stale data as fully current.
 - Made top navigation horizontally scrollable, keyboard focusable, and visibly scrollable on narrow screens.
 - Improved responsive project cards, tags, contact layout, control touch targets, dropdown empty states, language-switch race handling, and reduced-motion support.
