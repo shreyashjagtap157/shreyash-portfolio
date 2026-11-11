@@ -529,3 +529,32 @@ img,svg,video,canvas{max-width:100%}
 @media(prefers-reduced-motion:reduce){
   .reader-view-option,.portfolio-console *{scroll-behavior:auto;transition:none!important;animation:none!important}
 }
+
+
+/* Compact reading controls live beside the portfolio identity instead of consuming hero height. */
+.top{grid-template-columns:minmax(0,1fr) auto auto}
+.reader-view-compact{
+  display:flex;
+  align-items:center;
+  gap:.65rem;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+}
+.reader-view-compact .reader-view-copy{display:block;flex:none}
+.reader-view-compact .reader-view-kicker{display:none}
+.reader-view-compact .reader-view-copy h2{font-size:.72rem;white-space:nowrap;color:var(--mut)}
+.reader-view-compact .reader-view-options{flex-wrap:nowrap;justify-content:flex-start;gap:.25rem}
+.reader-view-compact .reader-view-option{min-height:2.5rem;padding:.4rem .58rem;font-size:.7rem;white-space:nowrap}
+.reader-view-compact .reader-view-option[aria-pressed="true"]{box-shadow:none}
+@media(max-width:68rem){
+  .top{grid-template-columns:minmax(0,1fr)}
+  .reader-view-compact{display:grid;grid-template-columns:minmax(0,1fr);gap:.35rem}
+  .reader-view-compact .reader-view-options{justify-content:flex-start;flex-wrap:wrap}
+}
+@media(max-width:30rem){
+  .reader-view-compact .reader-view-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .reader-view-compact .reader-view-option{width:100%}
+}
