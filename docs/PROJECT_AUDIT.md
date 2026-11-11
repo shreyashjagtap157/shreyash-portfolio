@@ -446,7 +446,7 @@ Omni's normative Edition 1 grammar contract and parser tests now provide direct 
 
 NexusAgent source and tests establish actual concurrent `AgentLoop` team orchestration and persisted team messages, but the team integration tests use a `FakeProvider`; no real provider-backed team qualification is established by those tests. The latest security workflow reported 13 `filelock 4.0.12` findings and failed its required gate. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#17-omni-and-nexusagent-source-level-case-study-evidence--2026-11-11).
 
-## 27. Adaptive reader and safe-console production release — 2026-11-11
+## 19. Adaptive reader and safe-console production release — 2026-11-11
 
 The approved reader-experience work is integrated and deployed. PR #19 added the project evidence and reader-experience specification, PR #21 implemented the four reading views and closed-command portfolio console, and PR #22 added Escape dismissal/focus restoration while updating the implementation record.
 
