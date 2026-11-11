@@ -503,6 +503,21 @@ test.describe('audience-adaptive reader views', () => {
   })
 })
 
+
+  test('hero introduction adapts to the selected reading view without changing the shared facts', async ({ page }) => {
+    await page.goto('/')
+    const intro = page.locator('.hero .sub')
+    const balanced = await intro.textContent()
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Engineering', exact: true }).click()
+    await expect(intro).toContainText('architecture')
+    const engineering = await intro.textContent()
+    expect(engineering).not.toBe(balanced)
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Research', exact: true }).click()
+    await expect(intro).toContainText('assumptions')
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Overview', exact: true }).click()
+    await expect(intro).toContainText('experience')
+  })
+
 test.describe('safe portfolio console easter egg', () => {
   test('is optional, has a visible touch-accessible entry point and answers fixed commands', async ({ page }) => {
     await page.goto('/')
