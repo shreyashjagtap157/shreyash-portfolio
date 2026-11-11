@@ -122,7 +122,7 @@ export function PortfolioConsole() {
           >
             <header className="console-header">
               <div>
-                <p className="console-kicker">LOCAL / READ-ONLY</p>
+                <p className="console-kicker">{t('console_status')}</p>
                 <h2 id="portfolio-console-title">{t('console_title')}</h2>
               </div>
               <button type="button" className="console-close" onClick={close} aria-label={t('console_close')}>×</button>
