@@ -240,6 +240,27 @@ test.describe('localized contact links', () => {
   }
 })
 
+
+  test('primary navigation follows the selected reading path', async ({ page }) => {
+    await page.goto('/')
+    const nav = page.getByRole('navigation', { name: 'Primary navigation' })
+    await expect(nav.getByRole('link')).toHaveText([
+      'About', 'Projects', 'Case study', 'Skills', 'GitHub activity', 'Experience', 'Contact',
+    ])
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Overview', exact: true }).click()
+    await expect(nav.getByRole('link')).toHaveText([
+      'About', 'Experience', 'Projects', 'Skills', 'Case study', 'GitHub activity', 'Contact',
+    ])
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Engineering', exact: true }).click()
+    await expect(nav.getByRole('link')).toHaveText([
+      'About', 'Projects', 'Case study', 'GitHub activity', 'Skills', 'Experience', 'Contact',
+    ])
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Research', exact: true }).click()
+    await expect(nav.getByRole('link')).toHaveText([
+      'About', 'How I approach engineering', 'Projects', 'Case study', 'Skills', 'Experience', 'GitHub activity', 'Contact',
+    ])
+  })
+
 test('case studies cover implemented and actively developed projects', async ({ page }) => {
   await page.goto('/')
   const selector = page.getByLabel('Choose a project case study')
@@ -413,4 +434,209 @@ test.describe('Cloudflare-backed GitHub activity', () => {
     await page.getByRole('button', { name: 'Refresh' }).click()
     await expect.poll(() => requests.some(url => url.includes('refresh=1'))).toBe(true)
   })
+})
+
+
+test.describe('audience-adaptive reader views', () => {
+  test('starts in the balanced view and keeps every portfolio section available', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'balanced')
+    await expect(page.getByRole('group', { name: 'Choose how to explore' }).getByRole('button')).toHaveCount(4)
+    for (const id of ['exp', 'work', 'case', 'skills', 'approach', 'activity', 'contact']) {
+      await expect(page.locator('#' + id)).toHaveCount(1)
+    }
+    await expect(page.locator('.project-card')).toHaveCount(14)
+  })
+
+  test('overview puts experience and education before selected work', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Overview' }).click()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'overview')
+    const order = await page.locator('#main').evaluate(main => {
+      const ids = ['exp', 'work', 'skills', 'case', 'approach', 'activity']
+      return ids.map(id => Array.from(main.children).findIndex(node => node.id === id))
+    })
+    expect(order[0]).toBeLessThan(order[1])
+    expect(order[1]).toBeLessThan(order[2])
+    expect(order[2]).toBeLessThan(order[3])
+    await expect(page.locator('.project-card')).toHaveCount(14)
+  })
+
+  test('engineering puts projects, case studies and implementation activity first', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Engineering' }).click()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'engineering')
+    const order = await page.locator('#main').evaluate(main => {
+      const ids = ['work', 'case', 'activity', 'skills', 'approach', 'exp']
+      return ids.map(id => Array.from(main.children).findIndex(node => node.id === id))
+    })
+    expect(order).toEqual([...order].sort((a, b) => a - b))
+    await expect(page.locator('.case-study-selector')).toBeVisible()
+    await expect(page.locator('.project-card')).toHaveCount(14)
+  })
+
+  test('research puts the engineering approach and project context first', async ({ page }) => {
+    await page.goto('/')
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Research', exact: true }).click()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
+    const order = await page.locator('#main').evaluate(main => {
+      const ids = ['approach', 'work', 'case', 'skills', 'exp', 'activity']
+      return ids.map(id => Array.from(main.children).findIndex(node => node.id === id))
+    })
+    expect(order).toEqual([...order].sort((a, b) => a - b))
+    await expect(page.locator('.project-card')).toHaveCount(14)
+  })
+
+  test('reader preference persists locally and Balanced resets the selection', async ({ page }) => {
+    await page.goto('/')
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Research', exact: true }).click()
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('reader-view-v1'))).toBe('research')
+    await page.reload()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Balanced', exact: true }).click()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'balanced')
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('reader-view-v1'))).toBe('balanced')
+  })
+
+  test('reader view remains interactive when browser storage is unavailable', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        get() { throw new DOMException('Storage disabled', 'SecurityError') },
+      })
+    })
+    await page.goto('/')
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'balanced')
+    await page.getByRole('button', { name: 'Overview' }).click()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'overview')
+  })
+
+  test('reader view controls are available in all five maintained locales', async ({ page }) => {
+    for (const locale of ['en', 'de', 'fr', 'hi', 'mr']) {
+      await page.goto('/')
+      await page.evaluate(value => localStorage.setItem('lang', value), locale)
+      await page.reload()
+      await expect(page.locator('.reader-view')).toBeVisible()
+      await expect(page.locator('.reader-view-option')).toHaveCount(4)
+      await expect(page.locator('.reader-view-copy h2')).not.toBeEmpty()
+      await expect(page.locator('.reader-view-option').first()).toHaveAttribute('title', /.+/)
+      await expect(page.locator('.portfolio-console summary')).not.toBeEmpty()
+    }
+  })
+})
+
+
+  test('hero introduction adapts to the selected reading view without changing the shared facts', async ({ page }) => {
+    await page.goto('/')
+    const intro = page.locator('.hero .sub')
+    const balanced = await intro.textContent()
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Engineering', exact: true }).click()
+    await expect(intro).toContainText('architecture')
+    const engineering = await intro.textContent()
+    expect(engineering).not.toBe(balanced)
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Research', exact: true }).click()
+    await expect(intro).toContainText('assumptions')
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Overview', exact: true }).click()
+    await expect(intro).toContainText('experience')
+  })
+
+test.describe('safe portfolio console easter egg', () => {
+  test('is optional, has a visible touch-accessible entry point and answers fixed commands', async ({ page }) => {
+    await page.goto('/')
+    const details = page.locator('.portfolio-console details')
+    await expect(details).not.toHaveAttribute('open', '')
+    await page.locator('.portfolio-console summary').click()
+    await expect(details).toHaveAttribute('open', '')
+    const command = page.getByRole('textbox', { name: 'Try a command' })
+    await command.fill('help')
+    await page.getByRole('button', { name: 'Run' }).click()
+    await expect(page.locator('.portfolio-console-output')).toContainText('Available commands')
+    await command.fill('selfhost')
+    await command.press('Enter')
+    await expect(page.locator('.portfolio-console-output')).toContainText('long-term Omni roadmap goal')
+  })
+
+  test('unknown and shell-like input cannot execute arbitrary commands', async ({ page }) => {
+    await page.goto('/')
+    await page.locator('.portfolio-console summary').click()
+    const command = page.getByRole('textbox', { name: 'Try a command' })
+    await command.fill('rm -rf /')
+    await command.press('Enter')
+    await expect(page.locator('.portfolio-console-output')).toContainText('not in the fixed command list')
+    await expect(page.locator('.portfolio-console-output')).not.toContainText('executed successfully')
+    await expect(page.locator('.portfolio-console-entry')).toHaveCount(1)
+    for (const inheritedKey of ['constructor', 'toString', '__proto__']) {
+      await command.fill(inheritedKey)
+      await command.press('Enter')
+      await expect(page.locator('.portfolio-console-entry').last()).toContainText('not in the fixed command list')
+    }
+  })
+  test('hidden easter-egg commands stay local, factual and harmless', async ({ page }) => {
+    await page.goto('/')
+    await page.locator('.portfolio-console summary').click()
+    const command = page.getByRole('textbox', { name: 'Try a command' })
+    await command.fill('sudo')
+    await command.press('Enter')
+    await expect(page.locator('.portfolio-console-output')).toContainText('no elevated privileges')
+    await command.fill('42')
+    await command.press('Enter')
+    await expect(page.locator('.portfolio-console-output')).toContainText('The acceptance criteria still need to be written')
+    await command.fill('constellation')
+    await command.press('Enter')
+    await expect(page.locator('.portfolio-console-output')).toContainText('not a dependency graph')
+    await expect(page.locator('.portfolio-console-entry')).toHaveCount(3)
+  })
+
+})
+
+
+test('reader view controls support keyboard navigation without changing URL or history', async ({ page }) => {
+  await page.goto('/')
+  const initialUrl = page.url()
+  const historyLength = await page.evaluate(() => history.length)
+  const group = page.getByRole('group', { name: 'Choose how to explore' })
+  const balanced = group.getByRole('button', { name: 'Balanced', exact: true })
+  const overview = group.getByRole('button', { name: 'Overview', exact: true })
+
+  await balanced.focus()
+  await expect(balanced).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(overview).toBeFocused()
+  await page.keyboard.press('Space')
+  await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'overview')
+  await page.getByRole('button', { name: 'Research', exact: true }).click()
+  await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
+  expect(page.url()).toBe(initialUrl)
+  expect(await page.evaluate(() => history.length)).toBe(historyLength)
+})
+
+test('reader controls and the optional console remain touch-usable on a narrow viewport', async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 360, height: 800 },
+    isMobile: true,
+    hasTouch: true,
+  })
+  try {
+    const page = await context.newPage()
+    await page.goto('/')
+    const dimensions = await page.evaluate(() => ({
+      viewportWidth: document.documentElement.clientWidth,
+      documentWidth: document.documentElement.scrollWidth,
+    }))
+    expect(dimensions.documentWidth).toBeLessThanOrEqual(dimensions.viewportWidth)
+
+    await page.getByRole('button', { name: 'Research', exact: true }).tap()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
+
+    const details = page.locator('.portfolio-console details')
+    await page.locator('.portfolio-console summary').tap()
+    await expect(details).toHaveAttribute('open', '')
+
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    const transitionDuration = await page.locator('.reader-view-option').first()
+      .evaluate(element => getComputedStyle(element).transitionDuration)
+    expect(transitionDuration).toBe('0s')
+  } finally {
+    await context.close()
+  }
 })

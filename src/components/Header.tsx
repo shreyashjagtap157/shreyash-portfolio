@@ -3,13 +3,33 @@ import { Controls } from './Controls'
 import { useEffect, useState } from 'react'
 import { useI18n } from '../i18n/I18nProvider'
 import { NAME } from '../data/profile'
+import { ReaderView, type ReaderViewId } from './ReaderView'
 
-const NAV: [string, string][] = [
-  ['about', 'n_about'], ['work', 'n_work'], ['case', 'n_case'], ['skills', 'n_skills'],
-  ['activity', 'n_activity'], ['exp', 'n_exp'], ['contact', 'n_contact'],
-]
+interface HeaderProps {
+  readerView: ReaderViewId
+  onReaderViewChange: (value: ReaderViewId) => void
+}
 
-export function Header() {
+const NAV_ITEMS: Record<string, string> = {
+  about: 'n_about',
+  work: 'n_work',
+  case: 'n_case',
+  skills: 'n_skills',
+  activity: 'n_activity',
+  exp: 'n_exp',
+  approach: 'a_h',
+  contact: 'n_contact',
+}
+
+const NAV_ORDER: Record<ReaderViewId, readonly string[]> = {
+  balanced: ['about', 'work', 'case', 'skills', 'activity', 'exp', 'contact'],
+  overview: ['about', 'exp', 'work', 'skills', 'case', 'activity', 'contact'],
+  engineering: ['about', 'work', 'case', 'activity', 'skills', 'exp', 'contact'],
+  research: ['about', 'approach', 'work', 'case', 'skills', 'exp', 'activity', 'contact'],
+}
+const ALL_NAV_IDS = Object.keys(NAV_ITEMS)
+
+export function Header({ readerView, onReaderViewChange }: HeaderProps) {
   const { t, mt, lang } = useI18n()
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const translatedCopyUrl = 'https://translate.google.com/translate?sl=en&tl=' + lang + '&u=' + encodeURIComponent(window.location.href)
@@ -18,11 +38,11 @@ export function Header() {
     if (!('IntersectionObserver' in window)) return
     const observer = new IntersectionObserver(entries => {
       const visible = entries
-        .filter(entry => entry.isIntersecting && NAV.some(([id]) => id === entry.target.id))
+        .filter(entry => entry.isIntersecting && ALL_NAV_IDS.includes(entry.target.id))
         .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
       if (visible) setActiveSection(visible.target.id)
     }, { rootMargin: '-18% 0px -62% 0px', threshold: [0, 0.15, 0.35, 0.6] })
-    NAV.forEach(([id]) => {
+    ALL_NAV_IDS.forEach(id => {
       const section = document.getElementById(id)
       if (section) observer.observe(section)
     })
@@ -35,14 +55,15 @@ export function Header() {
         <a className="brand" href="#top" aria-label={NAME + ', home'}>
           <Logo /><span className="brand-name" translate="no">{NAME}</span>
         </a>
+        <ReaderView compact value={readerView} onChange={onReaderViewChange} />
         <p className="header-location">{t('loc')}</p>
       </header>
       <div className="toolbar">
         <div className="container toolbar-in">
           <nav className="primary-nav" aria-label={t('nav_primary')} tabIndex={0}>
-            {NAV.map(([id, key]) => (
+            {NAV_ORDER[readerView].map(id => (
               <a key={id} href={'#' + id} className={activeSection === id ? 'active' : ''}
-                aria-current={activeSection === id ? 'location' : undefined}>{t(key)}</a>
+                aria-current={activeSection === id ? 'location' : undefined}>{t(NAV_ITEMS[id])}</a>
             ))}
           </nav>
           <Controls />

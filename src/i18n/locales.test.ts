@@ -59,9 +59,65 @@ describe('portfolio content integrity', () => {
     expect(en.detail_helios).toContain('Specification conflict to resolve')
   })
 
-  it('does not attribute upstream Kilo Code functionality to the personal fork', () => {
-    expect(PROJECTS.find(project => project.id === 'kilo')?.name).toBe('Kilo Code fork')
-    expect(en.detail_kilo).toContain('upstream README still describes the upstream product')
-    expect(en.detail_kilo).toContain('experimental fork')
+  it('describes the public Kilo fork accurately without overstating qualification', () => {
+    const kilo = PROJECTS.find(project => project.id === 'kilo')
+    expect(kilo?.name).toBe('Kilo Code fork')
+    expect(kilo?.tags).toContain('NVIDIA NIM (experimental)')
+    expect(en.detail_kilo).toContain('The public Kilo Code fork contains committed fork-specific specialist-agent and swarm implementation')
+    expect(en.detail_kilo).toContain('M2 durable-state foundation has one passing focused workflow on an earlier commit dated 24 October 2026')
+    expect(en.detail_kilo).toContain('M3 remains under qualification')
+    expect(en.detail_kilo).toContain('NVIDIA NIM routing remains experimental')
+    expect(en.p_kilo).toContain('M3 remains under qualification')
+    expect(en.p_kilo).toContain('NVIDIA NIM routing remains experimental')
   })
+
+  it('provides the reader views and safe console in every maintained locale', () => {
+    const dictionaries = { en, de, fr, hi, mr }
+    const keys = [
+      'reader_kicker', 'reader_label', 'reader_balanced', 'reader_overview',
+      'reader_engineering', 'reader_research', 'reader_desc_balanced',
+      'reader_desc_overview', 'reader_desc_engineering', 'reader_desc_research',
+      'console_title', 'console_intro', 'console_command_label', 'console_run',
+      'console_placeholder', 'console_help', 'console_about', 'console_projects',
+      'console_principles', 'console_omni', 'console_selfhost', 'console_unknown',
+      'console_sudo', 'console_42', 'console_constellation',
+    ] as const
+    for (const [language, dictionary] of Object.entries(dictionaries)) {
+      for (const key of keys) {
+        expect(dictionary[key], language + ':' + key).toBeTruthy()
+        expect(dictionary[key], language + ':' + key).not.toBe(key)
+      }
+    }
+  })
+
+  it('keeps the portfolio console explicitly non-executing and maturity-aware', () => {
+    for (const dictionary of [en, de, fr, hi, mr]) {
+      expect(dictionary.console_intro.length).toBeGreaterThan(40)
+      expect(dictionary.console_omni).toBeTruthy()
+      expect(dictionary.console_selfhost).toBeTruthy()
+      expect(dictionary.console_sudo).toBeTruthy()
+      expect(dictionary.console_42).toBeTruthy()
+      expect(dictionary.console_constellation).toBeTruthy()
+    }
+    expect(en.console_omni).toContain('Full-language qualification and self-hosting are not complete')
+    expect(en.console_selfhost).toContain('not a completed capability')
+    expect(en.console_sudo).toContain('no elevated privileges')
+    expect(en.console_constellation).toContain('not a dependency graph')
+  })
+
+
+  it('provides reader-specific hero introductions in all maintained locales', () => {
+    const dictionaries = { en, de, fr, hi, mr }
+    const keys = ['reader_hero_overview', 'reader_hero_engineering', 'reader_hero_research'] as const
+    for (const [language, dictionary] of Object.entries(dictionaries)) {
+      for (const key of keys) {
+        expect(dictionary[key], language + ':' + key).toBeTruthy()
+        expect(dictionary[key], language + ':' + key).not.toBe(key)
+      }
+    }
+    expect(en.reader_hero_engineering).toContain('architecture')
+    expect(en.reader_hero_research).toContain('assumptions')
+    expect(en.reader_hero_overview).toContain('experience')
+  })
+
 })

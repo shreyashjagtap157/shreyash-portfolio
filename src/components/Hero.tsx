@@ -1,12 +1,14 @@
 import { useI18n } from '../i18n/I18nProvider'
+import type { ReaderViewId } from './ReaderView'
 
-export function Hero() {
+export function Hero({ readerView = 'balanced' }: { readerView?: ReaderViewId }) {
   const { t } = useI18n()
+  const introduction = readerView === 'balanced' ? t('sub') : t('reader_hero_' + readerView)
   return (
     <div className="hero" id="about">
       <div className="hero-copy">
         <h1>{t('h1')}</h1>
-        <p className="sub">{t('sub')}</p>
+        <p className="sub" aria-live="polite">{introduction}</p>
         <p className="actions"><a className="btn" href="#work">{t('b1')}</a><a className="btn ghost" href="#contact">{t('b2')}</a></p>
       </div>
       <div className="viz" aria-hidden="true" translate="no">
