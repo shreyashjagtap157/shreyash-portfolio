@@ -442,3 +442,50 @@ img,svg,video,canvas{max-width:100%}
   .sub{font-size:.96rem;line-height:1.55;margin-bottom:calc(1.1rem*var(--s))}
   .viz{min-height:10rem}
 }
+
+
+/* User-selected reading lens: a compact popover that does not add hero height. */
+.reader-lens-control{position:relative;display:inline-flex;flex:none}
+.reader-lens-trigger{gap:.45rem;white-space:nowrap;font-size:.82rem}
+.reader-lens-trigger>span:first-child{color:var(--mut)}
+.reader-lens-trigger strong{color:var(--ac2);font-weight:500}
+.reader-lens-menu{position:absolute;top:calc(100% + .5rem);inset-inline-start:0;inset-inline-end:auto;z-index:45;width:min(24rem,calc(100vw - 2rem));padding:.55rem;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);box-shadow:0 1rem 2.5rem rgba(0,0,0,.35)}
+[data-theme=aurora] .reader-lens-menu{background:#10141f}
+.reader-lens-menu>p{padding:.55rem .65rem .7rem;color:var(--mut);font-size:.76rem;line-height:1.5}
+.reader-lens-menu button{display:grid;gap:.12rem;width:100%;padding:.65rem .75rem;border:1px solid transparent;border-radius:calc(var(--r)*.7);background:transparent;color:var(--fg);font:inherit;text-align:start;cursor:pointer}
+.reader-lens-menu button:hover,.reader-lens-menu button:focus-visible{border-color:var(--line);background:color-mix(in srgb,var(--ac) 9%,var(--card))}
+.reader-lens-menu button[aria-pressed=true]{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 13%,var(--card))}
+.reader-lens-menu button span{font-size:.87rem;font-weight:600}
+.reader-lens-menu button small{color:var(--mut);font-size:.73rem;line-height:1.4}
+
+/* Safe local-only portfolio console easter egg. */
+.foot-actions{display:flex;align-items:center;flex-wrap:wrap;gap:1rem}
+.console-launcher{display:inline-flex;align-items:center;flex-wrap:wrap;gap:.4rem .65rem}
+.console-open{padding:0;border:0;border-bottom:1px dashed var(--ac2);background:transparent;color:var(--ac);font:inherit;font-size:.78rem;cursor:pointer}
+.console-launcher small{color:var(--mut);font-size:.7rem}
+.console-overlay{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:1rem;background:rgba(2,6,12,.78);backdrop-filter:blur(8px)}
+.console-dialog{display:flex;flex-direction:column;width:min(100%,46rem);max-height:min(42rem,calc(100dvh - 2rem));overflow:hidden;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--fg);box-shadow:0 1.5rem 4rem rgba(0,0,0,.55)}
+.console-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.2rem;border-bottom:1px solid var(--line);background:var(--card)}
+.console-kicker{margin-bottom:.2rem;color:var(--ac2);font:.65rem var(--m);letter-spacing:.12em}
+.console-header h2{font-size:1.05rem}
+.console-close{display:grid;place-items:center;width:2.4rem;height:2.4rem;border:1px solid var(--line);border-radius:var(--r);background:transparent;color:var(--fg);font:1.35rem/1 var(--f);cursor:pointer}
+.console-log{display:grid;gap:.9rem;min-height:8rem;max-height:min(48vh,22rem);overflow:auto;padding:1.2rem;font:.82rem/1.65 var(--m);overflow-wrap:anywhere}
+.console-entry{display:grid;gap:.2rem}
+.console-command{color:var(--ac2)}
+.console-response{color:var(--mut)}
+.console-form{display:grid;gap:.4rem;padding:1rem 1.2rem 1.2rem;border-top:1px solid var(--line);background:var(--card)}
+.console-form>label{color:var(--mut);font-size:.75rem}
+.console-input-row{display:flex;align-items:center;gap:.65rem;min-height:var(--ctl);padding-inline:.75rem;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--ac);font-family:var(--m)}
+.console-input-row input{flex:1;min-width:0;min-height:calc(var(--ctl) - .2rem);border:0;outline:none;background:transparent;color:var(--fg);font:inherit}
+.console-input-row input:focus-visible{outline:none}
+.console-input-row button{width:2rem;height:2rem;border:1px solid var(--line);border-radius:var(--r);background:var(--card);color:var(--ac);font:inherit;cursor:pointer}
+@media(max-width:40rem){
+  .reader-lens-menu{width:min(23rem,calc(100vw - 2rem))}
+  .console-overlay{padding:.5rem}
+  .console-dialog{max-height:calc(100dvh - 1rem)}
+  .console-log{max-height:45vh;padding:1rem}
+  .foot-actions{width:100%;justify-content:space-between}
+}
+@media(prefers-reduced-motion:reduce){
+  .reader-lens-menu,.console-dialog,.console-overlay{animation:none!important;transition:none!important}
+}
