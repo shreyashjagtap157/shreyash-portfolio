@@ -143,3 +143,9 @@ The case-study audit now records:
 - Tensor Ring's implementation scope, version mismatch and benchmark evidence limits.
 
 No claim of production readiness is added. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#16-featured-project-source-and-failing-gate-refinement--2026-11-11).
+
+
+## Omni and NexusAgent case-study source notes — 2026-11-11
+
+- **Omni:** present the normative Edition 1 grammar contract and tests for semicolon/newline rules and default rejection of unratified Vibe syntax. The separate experimental parser profile is opt-in. The language is not yet a complete production compiler; no full-language conformance or self-hosting claim is supported.
+- **NexusAgent:** present the concurrent team runtime and persistent team board as implemented/tested under a fake provider. State that real provider-backed workload qualification remains separate. Keep the unreleased 0.3.0-alpha.5 status and the latest failed dependency audit visible.
