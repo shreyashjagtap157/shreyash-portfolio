@@ -3,16 +3,26 @@ import { Controls } from './Controls'
 import { useEffect, useState } from 'react'
 import { useI18n } from '../i18n/I18nProvider'
 import { NAME } from '../data/profile'
+import { useReader, type ReadingLens } from '../reader/ReaderProvider'
 
 const NAV: [string, string][] = [
   ['about', 'n_about'], ['work', 'n_work'], ['case', 'n_case'], ['skills', 'n_skills'],
   ['activity', 'n_activity'], ['exp', 'n_exp'], ['contact', 'n_contact'],
 ]
 
+const NAV_ORDER: Record<ReadingLens, string[]> = {
+  balanced: ['about', 'work', 'case', 'skills', 'activity', 'exp', 'contact'],
+  overview: ['about', 'exp', 'work', 'skills', 'case', 'activity', 'contact'],
+  engineering: ['about', 'work', 'case', 'skills', 'activity', 'exp', 'contact'],
+  research: ['about', 'case', 'work', 'skills', 'activity', 'exp', 'contact'],
+}
+
 export function Header() {
   const { t, mt, lang } = useI18n()
+  const { lens } = useReader()
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const translatedCopyUrl = 'https://translate.google.com/translate?sl=en&tl=' + lang + '&u=' + encodeURIComponent(window.location.href)
+  const nav = NAV_ORDER[lens].map(id => NAV.find(item => item[0] === id)).filter((item): item is [string, string] => Boolean(item))
 
   useEffect(() => {
     if (!('IntersectionObserver' in window)) return
@@ -40,7 +50,7 @@ export function Header() {
       <div className="toolbar">
         <div className="container toolbar-in">
           <nav className="primary-nav" aria-label={t('nav_primary')} tabIndex={0}>
-            {NAV.map(([id, key]) => (
+            {nav.map(([id, key]) => (
               <a key={id} href={'#' + id} className={activeSection === id ? 'active' : ''}
                 aria-current={activeSection === id ? 'location' : undefined}>{t(key)}</a>
             ))}
