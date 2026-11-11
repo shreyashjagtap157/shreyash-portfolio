@@ -240,6 +240,27 @@ test.describe('localized contact links', () => {
   }
 })
 
+
+  test('primary navigation follows the selected reading path', async ({ page }) => {
+    await page.goto('/')
+    const nav = page.getByRole('navigation', { name: 'Primary navigation' })
+    await expect(nav.getByRole('link')).toHaveText([
+      'About', 'Projects', 'Case study', 'Skills', 'GitHub activity', 'Experience', 'Contact',
+    ])
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Overview', exact: true }).click()
+    await expect(nav.getByRole('link')).toHaveText([
+      'About', 'Experience', 'Projects', 'Skills', 'Case study', 'GitHub activity', 'Contact',
+    ])
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Engineering', exact: true }).click()
+    await expect(nav.getByRole('link')).toHaveText([
+      'About', 'Projects', 'Case study', 'GitHub activity', 'Skills', 'Experience', 'Contact',
+    ])
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Research', exact: true }).click()
+    await expect(nav.getByRole('link')).toHaveText([
+      'About', 'How I approach engineering', 'Projects', 'Case study', 'Skills', 'Experience', 'GitHub activity', 'Contact',
+    ])
+  })
+
 test('case studies cover implemented and actively developed projects', async ({ page }) => {
   await page.goto('/')
   const selector = page.getByLabel('Choose a project case study')
