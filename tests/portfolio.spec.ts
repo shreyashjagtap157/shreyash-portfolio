@@ -473,6 +473,12 @@ test.describe('portfolio console easter egg', () => {
     await command.press('Enter')
     await expect(log).toContainText('Commands: help, about, projects, principles, omni, selfhost.')
 
+    await command.fill('constellation')
+    await command.press('Enter')
+    await expect(log).toContainText('Systems: Omni, AetherOS, Mosaic-µ, AI-OS.')
+    await expect(log).toContainText('AI and agents: Helios, NexusAgent, Kilo Code fork, Dynamic Neural Computation, Tensor Ring Decomposition.')
+    await expect(log).toContainText('Platforms and web: Universal Education Platform, Decentralized IoT Network, ACTSConnect, OldAgeHome, MilkyWay.')
+
     await command.fill('rm -rf /')
     await command.press('Enter')
     await expect(log).toContainText('Unknown command. Type help to see the available commands.')
