@@ -167,3 +167,28 @@ Portfolio consequence: describe a local-first, unreleased alpha platform with re
 - Cloudflare Workers Build bd156174-db59-4aed-a477-2892d9bf5287 succeeded on the exact merged commit. Worker v29, ID 47a3bb11-5080-4039-9df9-346c677dd6d0, is assigned 100% production traffic; deployment 45541e4e-729c-4cea-94e1-a958fd0cfd6c was created at 2026-11-11T13:22:54.735Z.
 - Production render/accessibility smoke tests: Cloudflare Browser Rendering fetched the deployed URL at 1440×1000 desktop and 360×800 touch-enabled mobile; both returned HTTP 200 with the expected title/final URL, main region, Balanced default, and all four reader-view labels. Desktop and mobile accessibility-tree calls returned HTTP 200 and exposed the named reader-view group with four buttons, named primary navigation, main landmark, and optional console disclosure. No production browser-driven click/typing sequence was executed; CI run 43028148893 remains the evidence for keyboard, touch, Escape, and responsive interaction behavior. A human production check can still exercise the actual controls, locale switching, project links, activity feed, and console command path.
 - Editorial gate: automated five-locale key and control checks pass, but native/competent-speaker terminology and fluency review remains open. Do not describe it as completed.
+
+
+## 19. Portfolio CI reliability and production browser interaction verification — 2026-11-11
+
+### CI installation failure and correction
+
+- The first final-main CI attempt after the documentation-only release (run [43033921115](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43033921115)) was cancelled after the corrective branch began; the earlier failing PR run [43033432351](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43033432351) provides the root-cause evidence.
+- Run 43033432351 passed dependency audit, TypeScript, unit tests, and production build. It failed at `npx playwright install --with-deps chromium`: APT could not resolve `azure.archive.ubuntu.com`, `archive.ubuntu.com`, or `security.ubuntu.com` while fetching Ubuntu font packages. Browser tests were skipped. This was runner package-mirror DNS failure, not an application assertion or npm advisory.
+- PR [#24](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/24) added lockfile-keyed caching of `~/.cache/ms-playwright` and changed browser installation to `npx playwright install chromium`, avoiding the unnecessary APT installation path. PR run [43035858066](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43035858066) passed all steps, including the full browser suite. The branch-push run [43035828358](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43035828358) also passed. PR #24 merged as `a28548ddf3be1d434ac757ae2fd808293dbf2f25`.
+
+### Production browser interaction verification
+
+- PR [#25](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/25) added `playwright.production.config.ts`, `npm run test:e2e:production`, and the read-only workflow [portfolio-production-smoke.yml](../.github/workflows/portfolio-production-smoke.yml).
+- The production workflow is triggered by pushes to `main`, manual `workflow_dispatch`, and a weekly Monday run at 03:00 UTC (08:30 Asia/Kolkata). It runs against the HTTPS Cloudflare Worker, does not start Vite, and does not deploy or mutate Cloudflare configuration.
+- Final main commit at this verification: `402f7925ac7284bea78ba6cd9d689a59d3dbf484`.
+- Main CI run [43036856842](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43036856842) passed all steps, including audit, TypeScript, unit tests, production build, cached Chromium installation, and local browser regression tests.
+- Live production browser run [43036856722](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43036856722) passed **94/94 Playwright tests in 49.7 seconds** against `https://shreyash-portfolio.ssjagtap2016.workers.dev`.
+- Production test coverage includes four reader paths and local persistence/fallback, five maintained locales, project-detail and repository links, navigation and filters, activity-feed UI rendering/partial/failure/refresh states, safe fixed-response console commands and rejection of shell-like input, keyboard navigation, Escape closure and focus restoration, mobile touch use, reduced motion, and responsive layouts. Deterministic failure/refresh test cases intercept the activity endpoint to exercise those controlled UI states; the rest of the browser interaction is performed against the production page.
+- Worker v29 (ID `47a3bb11-5080-4039-9df9-346c677dd6d0`) remains the active production application version at 100% traffic. PRs #24 and #25 modify verification/test workflow configuration only; they do not change the application bundle, so no Worker redeployment was required.
+
+### Remaining qualifications and access limits
+
+- The production interaction gate is now passed; earlier statements that production click/typing checks remained open are superseded by run 43036856722.
+- Manual terminology and fluency review of German, French, Hindi, and Marathi by competent speakers remains open. Automated key parity and browser interaction coverage do not qualify translation quality.
+- The prior evidence register records `main` as unprotected. A fresh branch-protection API read was denied with HTTP 403 by the connected GitHub integration, so current protection/required-check configuration could not be independently reverified or changed here. Do not claim branch protection is configured.
