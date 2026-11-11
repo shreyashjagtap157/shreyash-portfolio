@@ -253,5 +253,8 @@
   "console_unknown": "Cette commande ne figure pas dans la liste fixe. Rien n’a été exécuté. Essayez help.",
   "reader_hero_overview": "Mon expérience comprend le développement d’API REST avec Django REST Framework et un stage actuel en développement Java full-stack. Découvrez les projets sélectionnés, les contributions réalisées et leur niveau de maturité.",
   "reader_hero_engineering": "Explorez des systèmes sélectionnés à travers leur architecture, leurs décisions d’implémentation, leurs preuves de vérification et leurs limites connues. Le code, les tests et la qualification sont clairement distingués.",
-  "reader_hero_research": "Découvrez ma démarche face aux problèmes difficiles : hypothèses explicites, spécifications, alternatives de conception, prototypes exécutables et questions de recherche ouvertes. Les concepts sont distingués des systèmes implémentés."
+  "reader_hero_research": "Découvrez ma démarche face aux problèmes difficiles : hypothèses explicites, spécifications, alternatives de conception, prototypes exécutables et questions de recherche ouvertes. Les concepts sont distingués des systèmes implémentés.",
+  "console_sudo": "Accès refusé : ce portfolio n’accorde aucun privilège élevé. Toute capacité nécessite un périmètre explicitement défini.",
+  "console_42": "42. Les critères d’acceptation restent à rédiger.",
+  "console_constellation": "Une constellation conceptuelle, pas un graphe de dépendances : Omni explore les fondations des langages et compilateurs ; Mosaic la tokenisation exacte des octets ; NexusAgent et le fork Kilo les workflows d’agents ; UEP une plateforme éducative multi-tenant ; Helios reste un projet de recherche en informatique symbolique."
 }
