@@ -45,9 +45,12 @@ npm run test:unit
 npm run build
 npx playwright install chromium
 npm run test:e2e
+
+# Read-only browser interaction suite against the deployed HTTPS Worker
+npm run test:e2e:production
 ```
 
-`npm run check` runs typecheck, unit tests, and the production build.
+`npm run check` runs typecheck, unit tests, and the production build. `npm run test:e2e:production` runs the browser suite against the configured HTTPS production URL (defaulting to the existing Cloudflare Worker) without starting a local application server.
 
 The browser suite exercises all 4 themes × 3 density modes × 4 viewport widths (360, 768, 1024, 1440 CSS pixels), plus theme persistence, dropdown keyboard/focus behavior, language search, RTL, reduced motion, horizontal navigation scrolling, About navigation, project routing/filtering, project-specific case-study switching, conceptual project diagrams, DOM duplicate/nested-interactive checks, and GitHub activity loading/partial/failure/refresh states. GitHub Actions verifies pull requests and pushes. Cloudflare Workers Builds is the production deployment path.
 
