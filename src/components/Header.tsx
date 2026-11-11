@@ -3,13 +3,19 @@ import { Controls } from './Controls'
 import { useEffect, useState } from 'react'
 import { useI18n } from '../i18n/I18nProvider'
 import { NAME } from '../data/profile'
+import { ReaderView, type ReaderViewId } from './ReaderView'
+
+interface HeaderProps {
+  readerView: ReaderViewId
+  onReaderViewChange: (value: ReaderViewId) => void
+}
 
 const NAV: [string, string][] = [
   ['about', 'n_about'], ['work', 'n_work'], ['case', 'n_case'], ['skills', 'n_skills'],
   ['activity', 'n_activity'], ['exp', 'n_exp'], ['contact', 'n_contact'],
 ]
 
-export function Header() {
+export function Header({ readerView, onReaderViewChange }: HeaderProps) {
   const { t, mt, lang } = useI18n()
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const translatedCopyUrl = 'https://translate.google.com/translate?sl=en&tl=' + lang + '&u=' + encodeURIComponent(window.location.href)
@@ -35,6 +41,7 @@ export function Header() {
         <a className="brand" href="#top" aria-label={NAME + ', home'}>
           <Logo /><span className="brand-name" translate="no">{NAME}</span>
         </a>
+        <ReaderView compact value={readerView} onChange={onReaderViewChange} />
         <p className="header-location">{t('loc')}</p>
       </header>
       <div className="toolbar">
