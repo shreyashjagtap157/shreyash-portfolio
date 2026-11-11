@@ -433,3 +433,8 @@ The public Kilo Code fork contains committed fork-specific swarm implementation 
 One M2 Swarm Foundation workflow passed on earlier commit `13ff9a7c0a34ddf94418e23fe21981745e580b41` on 24 October (run [40116350112](https://github.com/shreyashjagtap157/kilocode/actions/runs/40116350112)). The workflow covered migration/schema checks, durable events, migration upgrades, claims, reservations, recovery and process-race tests. Its commit message explicitly kept M3 dispatch out of scope.
 
 At the inspected 27 October main head `775a0f5c1870fb5e4e45de1014f1e5b935eddecf`, the repository includes M3 runtime code and focused tests. Its own qualification docs still require current focused CI and a real provider-backed workload; M3 remains under qualification. No production-ready swarm claim is permitted.
+
+
+## 17. Featured-project source audit update — 2026-11-11
+
+A second source/CI pass has refined the public maturity descriptions for Mosaic-µ, Dynamic Neural Computation, UEP and Tensor Ring Decomposition. It records exact test/job causes where the logs support them, labels unavailable runner diagnostics as unresolved, and distinguishes structural projection/checkpoint code from the larger formal guarantees claimed in documentation. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#16-featured-project-source-and-failing-gate-refinement--2026-11-11).
