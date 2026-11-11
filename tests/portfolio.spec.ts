@@ -414,3 +414,118 @@ test.describe('Cloudflare-backed GitHub activity', () => {
     await expect.poll(() => requests.some(url => url.includes('refresh=1'))).toBe(true)
   })
 })
+
+
+test.describe('audience-adaptive reader views', () => {
+  test('starts in the balanced view and keeps every portfolio section available', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'balanced')
+    await expect(page.getByRole('group', { name: 'Choose how to explore' }).getByRole('button')).toHaveCount(4)
+    for (const id of ['exp', 'work', 'case', 'skills', 'approach', 'activity', 'contact']) {
+      await expect(page.locator('#' + id)).toHaveCount(1)
+    }
+    await expect(page.locator('.project-card')).toHaveCount(14)
+  })
+
+  test('overview puts experience and education before selected work', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Overview' }).click()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'overview')
+    const order = await page.locator('#main').evaluate(main => {
+      const ids = ['exp', 'work', 'skills', 'case', 'approach', 'activity']
+      return ids.map(id => Array.from(main.children).findIndex(node => node.id === id))
+    })
+    expect(order[0]).toBeLessThan(order[1])
+    expect(order[1]).toBeLessThan(order[2])
+    expect(order[2]).toBeLessThan(order[3])
+    await expect(page.locator('.project-card')).toHaveCount(14)
+  })
+
+  test('engineering puts projects, case studies and implementation activity first', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Engineering' }).click()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'engineering')
+    const order = await page.locator('#main').evaluate(main => {
+      const ids = ['work', 'case', 'activity', 'skills', 'approach', 'exp']
+      return ids.map(id => Array.from(main.children).findIndex(node => node.id === id))
+    })
+    expect(order).toEqual([...order].sort((a, b) => a - b))
+    await expect(page.locator('.case-study-selector')).toBeVisible()
+    await expect(page.locator('.project-card')).toHaveCount(14)
+  })
+
+  test('research puts the engineering approach and project context first', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Research' }).click()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
+    const order = await page.locator('#main').evaluate(main => {
+      const ids = ['approach', 'work', 'case', 'skills', 'exp', 'activity']
+      return ids.map(id => Array.from(main.children).findIndex(node => node.id === id))
+    })
+    expect(order).toEqual([...order].sort((a, b) => a - b))
+    await expect(page.locator('.project-card')).toHaveCount(14)
+  })
+
+  test('reader preference persists locally and Balanced resets the selection', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Research' }).click()
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('reader-view-v1'))).toBe('research')
+    await page.reload()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
+    await page.getByRole('button', { name: 'Balanced' }).click()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'balanced')
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('reader-view-v1'))).toBe('balanced')
+  })
+
+  test('reader view remains interactive when browser storage is unavailable', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        get() { throw new DOMException('Storage disabled', 'SecurityError') },
+      })
+    })
+    await page.goto('/')
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'balanced')
+    await page.getByRole('button', { name: 'Overview' }).click()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'overview')
+  })
+
+  test('reader view controls are available in all five maintained locales', async ({ page }) => {
+    for (const locale of ['en', 'de', 'fr', 'hi', 'mr']) {
+      await page.addInitScript(value => localStorage.setItem('lang', value), locale)
+      await page.goto('/')
+      await expect(page.locator('.reader-view')).toBeVisible()
+      await expect(page.locator('.reader-view-option')).toHaveCount(4)
+      await expect(page.locator('.reader-view-copy p')).not.toBeEmpty()
+      await expect(page.locator('.portfolio-console summary')).not.toBeEmpty()
+    }
+  })
+})
+
+test.describe('safe portfolio console easter egg', () => {
+  test('is optional, has a visible touch-accessible entry point and answers fixed commands', async ({ page }) => {
+    await page.goto('/')
+    const details = page.locator('.portfolio-console details')
+    await expect(details).not.toHaveAttribute('open', '')
+    await page.locator('.portfolio-console summary').click()
+    await expect(details).toHaveAttribute('open', '')
+    const command = page.getByRole('textbox', { name: 'Try a command' })
+    await command.fill('help')
+    await page.getByRole('button', { name: 'Run' }).click()
+    await expect(page.locator('.portfolio-console-output')).toContainText('Available commands')
+    await command.fill('selfhost')
+    await command.press('Enter')
+    await expect(page.locator('.portfolio-console-output')).toContainText('long-term Omni roadmap goal')
+  })
+
+  test('unknown and shell-like input cannot execute arbitrary commands', async ({ page }) => {
+    await page.goto('/')
+    await page.locator('.portfolio-console summary').click()
+    const command = page.getByRole('textbox', { name: 'Try a command' })
+    await command.fill('rm -rf /')
+    await command.press('Enter')
+    await expect(page.locator('.portfolio-console-output')).toContainText('not in the fixed command list')
+    await expect(page.locator('.portfolio-console-output')).not.toContainText('executed successfully')
+    await expect(page.locator('.portfolio-console-entry')).toHaveCount(1)
+  })
+})
