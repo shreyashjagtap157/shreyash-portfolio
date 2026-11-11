@@ -250,5 +250,8 @@
   "console_principles": "गृहीतकांपूर्वी specification; स्पष्ट मर्यादा आणि किमान अधिकार; root-cause सुधारणा; पुनरुत्पादनीय पडताळणी; प्रामाणिक अहवाल.",
   "console_omni": "Omni हा सुरुवातीच्या टप्प्यातील Rust compiler आणि toolchain आहे. संपूर्ण भाषा qualification आणि self-hosting अजून पूर्ण झालेले नाही. हा console GitHub ची live माहिती तपासत नाही.",
   "console_selfhost": "Self-hosting हे Omni roadmap वरील दीर्घकालीन उद्दिष्ट आहे; पूर्ण झालेली क्षमता नाही. सध्याची compiler implementation Rust वर आधारित आहे.",
-  "console_unknown": "ही command निश्चित यादीत नाही. काहीही execute झालेले नाही. help वापरून पाहा."
+  "console_unknown": "ही command निश्चित यादीत नाही. काहीही execute झालेले नाही. help वापरून पाहा.",
+  "reader_hero_overview": "माझ्या अनुभवात Django REST Framework वापरून REST API विकास आणि सध्याची Java full-stack internship यांचा समावेश आहे. निवडक प्रकल्प, त्यामागील काम आणि त्यांची सध्याची maturity पाहा.",
+  "reader_hero_engineering": "निवडक systems ची architecture, implementation decisions, verification evidence आणि ज्ञात मर्यादा पाहा. Code, tests आणि qualification यांतील फरक स्पष्ट ठेवला आहे.",
+  "reader_hero_research": "कठीण समस्यांकडे पाहण्याची माझी पद्धत जाणून घ्या: स्पष्ट assumptions, specifications, design alternatives, executable prototypes आणि खुले research प्रश्न. Concepts आणि प्रत्यक्ष implemented systems वेगळे दाखवले आहेत."
 }
