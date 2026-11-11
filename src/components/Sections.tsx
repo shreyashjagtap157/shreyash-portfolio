@@ -3,6 +3,7 @@ import { Section } from './Section'
 import { SKILLS } from '../data/projects'
 import { RESUME, EMAIL, LINKEDIN, GITHUB, NAME, PHONE_DISPLAY, PHONE_HREF } from '../data/profile'
 import { useI18n } from '../i18n/I18nProvider'
+import { PortfolioConsole } from './PortfolioConsole'
 
 export function CaseStudy() {
   const { t } = useI18n()
@@ -123,5 +124,13 @@ export function Contact() {
 
 export function Footer() {
   const { t } = useI18n()
-  return <footer className="container foot"><span>{t('foot')}</span><span>© {new Date().getFullYear()} {NAME}</span></footer>
+  return (
+    <footer className="container foot">
+      <span>{t('foot')}</span>
+      <div className="foot-actions">
+        <PortfolioConsole />
+        <span>© {new Date().getFullYear()} {NAME}</span>
+      </div>
+    </footer>
+  )
 }
