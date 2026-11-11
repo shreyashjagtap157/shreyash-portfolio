@@ -245,12 +245,13 @@
   "console_close": "Close console",
   "console_prompt": "Command",
   "console_welcome": "Welcome. This is a local, read-only portfolio console—not a real shell.",
-  "console_help": "Commands: help, about, projects, principles, omni, selfhost.",
+  "console_help": "Commands: help, about, projects, constellation, principles, omni, selfhost.",
   "console_about": "This console only shows predefined responses. It does not execute code or access files or the network.",
   "console_projects": "The project grid contains the current selection, repository links, and maturity labels.",
   "console_principles": "Research before implementation; explicit specifications; clear boundaries; verifiable results.",
   "console_omni": "The Omni project entry separates compiler implementation, research prototypes, and open qualification work.",
   "console_selfhost": "Self-hosting is a roadmap goal, not a completed capability.",
   "console_sudo": "Permission denied: this portfolio accepts evidence, not privilege escalation.",
-  "console_unknown": "Unknown command. Type help to see the available commands."
+  "console_unknown": "Unknown command. Type help to see the available commands.",
+  "console_constellation": "Selected-work constellation (the portfolio's existing categories):\nSystems: Omni, AetherOS, Mosaic-µ, AI-OS.\nAI and agents: Helios, NexusAgent, Kilo Code fork, Dynamic Neural Computation, Tensor Ring Decomposition.\nPlatforms and web: Universal Education Platform, Decentralized IoT Network, ACTSConnect, OldAgeHome, MilkyWay."
 }
