@@ -193,3 +193,11 @@ Portfolio consequence: describe a local-first, unreleased alpha platform with re
 - A fresh GitHub repository-metadata lookup resolved all 14 selected project-card targets as existing, public, non-archived repositories: Omni---New, Helios, nexus-agent, AetherOS, Mosaic, kilocode, Dynamic-Neural-Computing, tensor-ring-decomposition, UEP, decentralized-iot-network, ACTSConnect, OldAgeHome, MilkyWay, and ai-os. Their default branches include both `main` and `master`; this validates repository-link existence, not the health or qualification of each project's implementation/CI.
 - Manual terminology and fluency review of German, French, Hindi, and Marathi by competent speakers remains open. Automated key parity and browser interaction coverage do not qualify translation quality.
 - The prior evidence register records `main` as unprotected. A fresh branch-protection API read was denied with HTTP 403 by the connected GitHub integration, so current protection/required-check configuration could not be independently reverified or changed here. Do not claim branch protection is configured.
+
+
+## 20. GitHub Actions cache runtime modernization — 2026-11-11
+
+- Post-merge main CI run [43038502690](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43038502690) passed on main SHA `e55ea4c42bc4ac6758df33f5ef953d1fb092b0b4`, but its post-job log emitted a deprecation warning: `actions/cache@v4` targets Node.js 20 and was being forced to execute on Node.js 24 by the hosted runner.
+- GitHub's current official Cache action release is v6.1.0; v6 is the Node.js 24-compatible major line. The v5 release notes introduced Node.js 24 and require Actions Runner 2.327.1 or newer; hosted GitHub runners used by these successful workflows already satisfy the runtime needed by the action. See the [GitHub Cache action listing](https://github.com/marketplace/actions/cache).
+- Both repository workflows previously using cache v4 are updated to `actions/cache@v6`: the normal Portfolio CI and the scheduled/manual production-browser workflow. Cache paths, keys, restore prefixes, and browser install behavior are unchanged.
+- This is a runtime-compatibility/deprecation cleanup, not a fix for an observed functional failure. Both workflows must pass on the PR and merged main head before the warning can be considered resolved.
