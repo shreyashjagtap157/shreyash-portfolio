@@ -1,0 +1,54 @@
+name: Portfolio production browser smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # 08:30 Asia/Kolkata every Monday, ahead of the weekly evidence review.
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-production-smoke
+  cancel-in-progress: false
+
+jobs:
+  production-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PORTFOLIO_PRODUCTION_URL: https://shreyash-portfolio.ssjagtap2016.workers.dev
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Cache Playwright browser binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      - name: Install Chromium
+        run: npx playwright install chromium
+      - name: Exercise the deployed portfolio
+        run: npm run test:e2e:production
+      - name: Upload production-browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: production-playwright-diagnostics
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
