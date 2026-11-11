@@ -64,4 +64,33 @@ describe('portfolio content integrity', () => {
     expect(en.detail_kilo).toContain('upstream README still describes the upstream product')
     expect(en.detail_kilo).toContain('experimental fork')
   })
+
+  it('provides the reader views and safe console in every maintained locale', () => {
+    const dictionaries = { en, de, fr, hi, mr }
+    const keys = [
+      'reader_kicker', 'reader_label', 'reader_balanced', 'reader_overview',
+      'reader_engineering', 'reader_research', 'reader_desc_balanced',
+      'reader_desc_overview', 'reader_desc_engineering', 'reader_desc_research',
+      'console_title', 'console_intro', 'console_command_label', 'console_run',
+      'console_placeholder', 'console_help', 'console_about', 'console_projects',
+      'console_principles', 'console_omni', 'console_selfhost', 'console_unknown',
+    ] as const
+    for (const [language, dictionary] of Object.entries(dictionaries)) {
+      for (const key of keys) {
+        expect(dictionary[key], language + ':' + key).toBeTruthy()
+        expect(dictionary[key], language + ':' + key).not.toBe(key)
+      }
+    }
+  })
+
+  it('keeps the portfolio console explicitly non-executing and maturity-aware', () => {
+    for (const dictionary of [en, de, fr, hi, mr]) {
+      expect(dictionary.console_intro.length).toBeGreaterThan(40)
+      expect(dictionary.console_omni).toBeTruthy()
+      expect(dictionary.console_selfhost).toBeTruthy()
+    }
+    expect(en.console_omni).toContain('Full-language qualification and self-hosting are not complete')
+    expect(en.console_selfhost).toContain('not a completed capability')
+  })
+
 })
