@@ -93,4 +93,19 @@ describe('portfolio content integrity', () => {
     expect(en.console_selfhost).toContain('not a completed capability')
   })
 
+
+  it('provides reader-specific hero introductions in all maintained locales', () => {
+    const dictionaries = { en, de, fr, hi, mr }
+    const keys = ['reader_hero_overview', 'reader_hero_engineering', 'reader_hero_research'] as const
+    for (const [language, dictionary] of Object.entries(dictionaries)) {
+      for (const key of keys) {
+        expect(dictionary[key], language + ':' + key).toBeTruthy()
+        expect(dictionary[key], language + ':' + key).not.toBe(key)
+      }
+    }
+    expect(en.reader_hero_engineering).toContain('architecture')
+    expect(en.reader_hero_research).toContain('assumptions')
+    expect(en.reader_hero_overview).toContain('experience')
+  })
+
 })
