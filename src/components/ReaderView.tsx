@@ -12,16 +12,17 @@ const OPTIONS: { value: ReaderViewId; key: string }[] = [
 interface Props {
   value: ReaderViewId
   onChange: (value: ReaderViewId) => void
+  compact?: boolean
 }
 
-export function ReaderView({ value, onChange }: Props) {
+export function ReaderView({ value, onChange, compact = false }: Props) {
   const { t } = useI18n()
   return (
-    <section className="reader-view" aria-labelledby="reader-view-title">
+    <section className={compact ? 'reader-view reader-view-compact' : 'reader-view'} aria-labelledby="reader-view-title">
       <div className="reader-view-copy">
         <span className="reader-view-kicker">{t('reader_kicker')}</span>
         <h2 id="reader-view-title">{t('reader_label')}</h2>
-        <p aria-live="polite">{t('reader_desc_' + value)}</p>
+        {!compact && <p aria-live="polite">{t('reader_desc_' + value)}</p>}
       </div>
       <div className="reader-view-options" role="group" aria-label={t('reader_label')}>
         {OPTIONS.map(option => (
