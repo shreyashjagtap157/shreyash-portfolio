@@ -73,3 +73,41 @@ A Lighthouse report is evidence only for the exact deployed build, URL, device p
 ## Hosting
 
 Production hosting is Cloudflare Workers Static Assets using the existing free `workers.dev` hostname. Custom domains are optional. Do not deploy this portfolio to another hosting provider.
+
+
+## Audience-adaptive reading experience (approved direction — 2026-11-11)
+
+The portfolio has a **balanced default audience**: hiring managers/recruiters, engineers, and research-oriented readers should all be able to understand the same body of work through a reading style they choose. Do not create separate websites or contradictory copies.
+
+Introduce a persistent, user-controlled reading lens with four choices:
+
+- **Balanced (default):** concise orientation followed by accessible technical and research depth. Nothing important is hidden.
+- **Overview:** prioritize role, contribution, problem solved, project maturity, practical relevance, and résumé/contact routes. Intended to be approachable to hiring managers and recruiters without inventing business outcomes or impact metrics.
+- **Engineering:** prioritize architecture, components, interfaces, implementation decisions, technologies, tests, CI, reproducibility, and known engineering limitations.
+- **Research:** prioritize problem framing, assumptions, specifications, design alternatives, methods, evidence, unresolved questions, and future research.
+
+Reading lenses may adjust emphasis, ordering, summary length and progressive disclosure. They must never change project facts, suppress maturity/qualification warnings, imply that a planned capability is implemented, or remove access to the full content. Every project must keep a common set of verified facts and provenance, with lens-specific presentation blocks layered on top.
+
+Use an explicitly labeled accessible control; do not infer a visitor's profession or profile. Persist the choice locally (versioned preference key) only, with a clear way to return to Balanced. No account, remote profile, analytics, or audience tracking is permitted. All visible labels and instructions must be translated in the five built-in locales. The default experience must remain useful when browser storage is unavailable.
+
+## Easter eggs and playful interactions
+
+Small, optional discoveries are approved as part of the portfolio personality. They must be technically relevant, polished and secondary to the professional content.
+
+Preferred direction:
+- A small, accessible portfolio terminal/console with a fixed set of harmless, prewritten commands and project/engineering-themed responses. It is an interface simulation, not a real shell: it must not execute arbitrary input, access files, run commands, make network requests or expose secrets.
+- Optional project-specific discoveries (for example, a small project constellation, hidden engineering-principles note, or a playful but factual Omni status response).
+- An optional keyboard shortcut may complement a visible touch-accessible entry point; keyboard discovery must not be the only way to reach an easter egg.
+
+Easter eggs must never obscure navigation, launch automatically, block the page, play surprise audio, require a particular theme, or be required to learn important facts. All dialogs need keyboard and touch operation, sensible focus management, Escape dismissal, screen-reader labels, and reduced-motion support. Easter eggs must not use trackers, hidden network calls, deceptive fake status, or fabricated project achievements. A joke command must visibly be a joke and must not resemble an actual system operation.
+
+## Verification requirements for reading lenses and easter eggs
+
+- Verify Balanced is the initial default and persists only as a local preference.
+- Verify all four lenses on desktop and mobile, with keyboard and touch, and with storage unavailable.
+- Verify lens switching does not alter the URL, project maturity, source links, factual content or browser history.
+- Verify each lens is understandable and complete in English, German, French, Hindi and Marathi; locale-key parity is necessary but manual language review is still required.
+- Verify technical and research details remain reachable in Overview mode, even when collapsed.
+- Verify every easter egg has a visible, accessible discovery path; test keyboard shortcut behavior separately.
+- Verify no arbitrary code or commands can be executed; no network/storage side effects beyond an explicitly documented local preference.
+- Verify focus return, Escape behavior, reduced motion, RTL where applicable, and no viewport overflow.
