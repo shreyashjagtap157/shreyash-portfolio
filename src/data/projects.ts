@@ -8,7 +8,7 @@ export const PROJECTS: Project[] = [
   { id: 'nexus', name: 'NexusAgent', cat: 'ai', status: 'alpha', tags: ['Python', 'Multi-agent systems', 'MCP'], repo: 'nexus-agent' },
   { id: 'aether', name: 'AetherOS', cat: 'sys', status: 'spec', tags: ['OS architecture', 'Rust', 'Capabilities'], repo: 'AetherOS' },
   { id: 'mosaic', name: 'Mosaic-µ', cat: 'sys', status: 'candidate', tags: ['C', 'Rust', 'Python', 'Unicode'], repo: 'Mosaic' },
-  { id: 'kilo', name: 'Kilo Code fork', cat: 'ai', status: 'progress', tags: ['TypeScript', 'Specialist agents', 'NVIDIA NIM'], repo: 'kilocode' },
+  { id: 'kilo', name: 'Kilo Code fork', cat: 'ai', status: 'progress', tags: ['TypeScript', 'Specialist agents', 'Swarm orchestration', 'NVIDIA NIM (experimental)'], repo: 'kilocode' },
   { id: 'dnc', name: 'Dynamic Neural Computation', cat: 'ai', status: 'research', tags: ['Python', 'Execution model', 'Formal methods'], repo: 'Dynamic-Neural-Computing' },
   { id: 'tensor', name: 'Tensor Ring Decomposition', cat: 'ai', status: 'progress', tags: ['Python', 'PyTorch', 'Tensor decomposition'], repo: 'tensor-ring-decomposition' },
   { id: 'uep', name: 'Universal Education Platform', cat: 'plat', status: 'progress', tags: ['Java', 'Spring Boot', 'React', 'PostgreSQL'], repo: 'UEP' },

@@ -59,10 +59,16 @@ describe('portfolio content integrity', () => {
     expect(en.detail_helios).toContain('Specification conflict to resolve')
   })
 
-  it('does not attribute upstream Kilo Code functionality to the personal fork', () => {
-    expect(PROJECTS.find(project => project.id === 'kilo')?.name).toBe('Kilo Code fork')
-    expect(en.detail_kilo).toContain('upstream README still describes the upstream product')
-    expect(en.detail_kilo).toContain('experimental fork')
+  it('describes the public Kilo fork accurately without overstating qualification', () => {
+    const kilo = PROJECTS.find(project => project.id === 'kilo')
+    expect(kilo?.name).toBe('Kilo Code fork')
+    expect(kilo?.tags).toContain('NVIDIA NIM (experimental)')
+    expect(en.detail_kilo).toContain('The public Kilo Code fork contains committed fork-specific specialist-agent and swarm implementation')
+    expect(en.detail_kilo).toContain('M2 durable-state foundation has one passing focused workflow on an earlier commit dated 24 October 2026')
+    expect(en.detail_kilo).toContain('M3 remains under qualification')
+    expect(en.detail_kilo).toContain('NVIDIA NIM routing remains experimental')
+    expect(en.p_kilo).toContain('M3 remains under qualification')
+    expect(en.p_kilo).toContain('NVIDIA NIM routing remains experimental')
   })
 
   it('provides the reader views and safe console in every maintained locale', () => {
