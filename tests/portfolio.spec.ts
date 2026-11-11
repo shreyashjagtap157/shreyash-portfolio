@@ -479,9 +479,11 @@ test.describe('portfolio console easter egg', () => {
     await expect(log).toContainText('AI and agents: Helios, NexusAgent, Kilo Code fork, Dynamic Neural Computation, Tensor Ring Decomposition.')
     await expect(log).toContainText('Platforms and web: Universal Education Platform, Decentralized IoT Network, ACTSConnect, OldAgeHome, MilkyWay.')
 
-    await command.fill('rm -rf /')
-    await command.press('Enter')
-    await expect(log).toContainText('Unknown command. Type help to see the available commands.')
+    for (const unsafeName of ['rm -rf /', 'constructor', 'toString', '__proto__']) {
+      await command.fill(unsafeName)
+      await command.press('Enter')
+      await expect(log).toContainText('Unknown command. Type help to see the available commands.')
+    }
 
     await command.fill('sudo make portfolio-awesome')
     await command.press('Enter')
@@ -522,5 +524,29 @@ test('reader lens labels and options are localized in all five maintained locale
     await expect(page.locator('.reader-lens-menu button')).toHaveCount(4)
     await page.keyboard.press('Escape')
     await expect(page.getByRole('group', { name: locale.label })).toBeHidden()
+  }
+})
+
+
+test('portfolio console responses are localized across all five maintained locales', async ({ page }) => {
+  const locales = [
+    { code: 'en', label: 'Portfolio console', response: 'Bienvenue' },
+    { code: 'de', label: 'Portfolio-Konsole', response: 'Befehle' },
+    { code: 'fr', label: 'Console du portfolio', response: 'Commandes' },
+    { code: 'hi', label: 'पोर्टफोलियो कंसोल', response: 'कमांड' },
+    { code: 'mr', label: 'पोर्टफोलिओ कन्सोल', response: 'आदेश' },
+  ] as const
+  await page.goto('/')
+  for (const locale of locales) {
+    await page.evaluate(code => localStorage.setItem('lang', code), locale.code)
+    await page.reload()
+    await page.getByRole('button', { name: locale.label }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
+    await expect(dialog.getByRole('log')).toContainText(locale.response)
+    await dialog.getByRole('textbox').fill('help')
+    await dialog.getByRole('textbox').press('Enter')
+    await expect(dialog.getByRole('log')).toContainText(locale.response)
+    await page.keyboard.press('Escape')
   }
 })
