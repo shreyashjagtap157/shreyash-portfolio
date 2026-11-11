@@ -253,5 +253,8 @@
   "console_unknown": "That command is not in the fixed command list. Nothing was executed. Try help.",
   "reader_hero_overview": "My experience includes Django REST Framework API development and a current Java full-stack internship. Explore selected projects, the work behind them, and each project's current maturity.",
   "reader_hero_engineering": "Explore selected systems through their architecture, implementation decisions, verification evidence, and known limitations. The portfolio distinguishes code, tests, and qualification so engineering claims remain inspectable.",
-  "reader_hero_research": "Explore how I approach difficult problems: explicit assumptions, specifications, design alternatives, executable prototypes, and open research questions. Concepts are clearly separated from implemented systems."
+  "reader_hero_research": "Explore how I approach difficult problems: explicit assumptions, specifications, design alternatives, executable prototypes, and open research questions. Concepts are clearly separated from implemented systems.",
+  "console_sudo": "Permission denied: this portfolio grants no elevated privileges. Every capability needs an explicit scope.",
+  "console_42": "42. The acceptance criteria still need to be written.",
+  "console_constellation": "A conceptual constellation, not a dependency graph: Omni explores language and compiler foundations; Mosaic explores byte-exact tokenization; NexusAgent and the Kilo fork explore agent workflows; UEP develops a multi-tenant education platform; Helios remains symbolic-computing research."
 }
