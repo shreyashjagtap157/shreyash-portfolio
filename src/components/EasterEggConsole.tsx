@@ -3,7 +3,7 @@ import { useI18n } from '../i18n/I18nProvider'
 
 interface ConsoleEntry {
   command: string
-  response: string
+  responseKey: string
 }
 
 const COMMANDS: Record<string, string> = {
@@ -25,7 +25,7 @@ export function EasterEggConsole() {
     const normalized = command.trim().toLowerCase().slice(0, 80)
     if (!normalized) return
     const responseKey = COMMANDS[normalized] ?? 'console_unknown'
-    setEntries(current => [...current.slice(-7), { command: normalized, response: t(responseKey) }])
+    setEntries(current => [...current.slice(-7), { command: normalized, responseKey }])
     setCommand('')
   }
 
@@ -58,7 +58,7 @@ export function EasterEggConsole() {
               : entries.map((entry, index) => (
                   <article className="portfolio-console-entry" key={index}>
                     <code>$ {entry.command}</code>
-                    <p>{entry.response}</p>
+                    <p>{t(entry.responseKey)}</p>
                   </article>
                 ))}
           </div>
