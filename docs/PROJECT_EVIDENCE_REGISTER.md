@@ -83,3 +83,49 @@ The current `docs/swarm/M2-QUALIFICATION.md` calls M2 implemented and M3 under a
 `docs/swarm/M3-USABILITY-QUALIFICATION.md` describes intended bounded specialist execution and lists real provider/model execution and CI as required proof. `docs/swarm/REAL-WORLD-VALIDATION.md` says mocked tests establish orchestration correctness but do not establish operational usefulness; a real configured provider workload, CI, and independent evidence/reviewer acceptance are required.
 
 **Portfolio consequence:** the public repo contains more fork-specific work than the top-level README communicates. The case study may describe the committed M2 durable-state foundation and the M3 execution/reviewer architecture as source-level implementation under qualification, while explicitly stating that M3 is not yet fully qualified and that the sole located green M2 workflow belongs to an earlier commit.
+
+
+
+## 16. Featured-project source and failing-gate refinement — 2026-11-11
+
+This section records source-level checks and exact failures inspected after the initial repository sweep. These are observations from the named revisions/runs, not blanket qualification decisions.
+
+### Mosaic-µ
+
+The latest inspected head remains `794e76867e09d9bfa9d3c03cde7df4b5b5da971f` (22 October). The nightly workflow has repeatedly run against that same head; the 11 November run [42995229092](https://github.com/shreyashjagtap157/Mosaic/actions/runs/42995229092) failed in several jobs.
+
+- The Rust cross-platform matrix fails Clippy with warnings denied in the `mosaic-core` test `exactness`: “adding items after statements is confusing” (the `clippy::items_after_statements` lint).
+- The Miri job reports that `cargo-miri` is unavailable for `1.97.1-x86_64-unknown-linux-gnu`.
+- The fuzz-smoke job passes sanitizer-only `-Z` flags to `rustc 1.97.1`; the compiler rejects them because `-Z` options require nightly.
+- The repository's `rust-toolchain.toml` pins channel `1.97.1`. The actual CI logs show stable 1.97.1 even in jobs intended to run Miri/fuzz tooling. Resolve the toolchain-selection contract explicitly; do not call these fuzz/Miri gates successful.
+- The native sanitizer `make test` invocation runs several smoke binaries successfully, but then tries to execute `../build/mosaic-low-memory-smoke`, which is not present, and exits 127. The Makefile declares a sanitized low-memory binary separately; the ordinary test target/recipe needs review.
+- The three native cross-platform matrix jobs also fail during early Python requirements installation in the retrieved logs. The captured log does not contain enough pip diagnostic detail to attribute the failure to a specific dependency or platform.
+
+The project still has meaningful implemented scope: byte-authoritative token handling, token/source spans, Unicode projections, native C runtime, Rust components, Python wrappers, deterministic packs, and a versioned TokenDocument serialization format. Its own CI topology differentiates PR, nightly and release/milestone gates; it explicitly says a milestone qualifies only the claimed subsystem and a public release qualifies every included subsystem. Keep the public status at candidate / release qualification blocked.
+
+### Dynamic Neural Computation
+
+The latest inspected head is `3157410c43994f79b2e5c90264e601ab30adad26` (22 October). Quality-gates run [39757898336](https://github.com/shreyashjagtap157/Dynamic-Neural-Computing/actions/runs/39757898336) completed with three matrix jobs passing (Ubuntu Python 3.12, Ubuntu Python 3.13, Windows Python 3.12) and Ubuntu Python 3.11 failing. The failing job reported **514 passed, 1 failed, 2 skipped**; the sole failure is `tests/test_phase3_observability.py::TestPhase3ExitCriteria::test_ec6_evaluation_trial_count`, where an exact float assertion expected `0.8` and received `0.8000000000000004`. This is a numerical-test contract defect, not evidence that the whole execution platform fails.
+
+Source inspection confirms:
+- `StructuralProjector.project()` first runs `DNCIRValidator.validate_graph()`; governed graphs require an `ExecutionContext`, which is independently validated before projection.
+- The projector builds an adjacency graph over DATA/CONTROL/DEPENDENCY edges, uses deterministic Kahn topological ordering, and constructs a distinct `ExecutableDAG` carrying node contracts (idempotency, side effects, placement, security) and sorted edge data.
+- `Checkpoint.validate()` currently checks snapshot presence, non-negative integer step index, non-null W/M/C/H components, and that `provenance_ref` is a string before setting `is_valid=True`. The docstring describes additional conditions (R completeness, event resolution, matching execution step and active invariants) that are not all performed in that method. Verify whether a separate admission path enforces those conditions before describing checkpoints as fully provenance- and invariant-qualified.
+
+The repository's own status as of 1 August says its default `ReferenceExecutionCore` is deterministic test infrastructure, some durability/enterprise components are process-local references unless bound to qualified infrastructure, and Phase 16 readiness is NO-GO because external canary outcomes and independent human approvals are absent. Do not repeat stronger claims from older README paragraphs that say the “complete test suite” passes without aligning them to the newer 22 October matrix result.
+
+### Universal Education Platform (UEP)
+
+At head `51c4dd7ced6f79cb6c9dda63d3974bc7a44c3b99`, UEP CI [41776225411](https://github.com/shreyashjagtap157/UEP/actions/runs/41776225411) had passing web, vulnerability-scan and Keycloak staging-container jobs. Backend jobs on Java 18.4 and 17.11 both reached 258 tests, with zero assertion failures and one error: Spring Modulith rejects a dependency from the `identity` module to `tenancy` through `LocalDevelopmentIdentityBootstrapper -> LocalTenantBootstrapService`; identity's allowed targets are security and audit. This path is specifically the `local-native` bootstrap path, but its dependency still violates the enforced module boundary.
+
+The repository-policy job ran `bash scripts/verify-repository.sh` and exited 1; the retrieved log did not expose its detailed diagnostic. The Windows local-presentation smoke job also exited 1; the retrieved log confirms the launcher was invoked but does not preserve sufficient child-process output to attribute a specific root cause. Keep those two as unresolved CI failures rather than guessing. UEP README status still says production qualification has not passed and target-workstation acceptance remains outstanding.
+
+### Tensor Ring Decomposition
+
+At head `33428ad3a2288b72716a2735772bb5641420ec5e`, the Tests workflow run [39757267864](https://github.com/shreyashjagtap157/tensor-ring-decomposition/actions/runs/39757267864) ended in `startup_failure`; the workflow-jobs API returned no runner jobs. The Security workflow run [39757266079](https://github.com/shreyashjagtap157/tensor-ring-decomposition/actions/runs/39757266079) failed, also with no runner-job detail available. This is not enough evidence to claim that a security scanner found vulnerabilities or that tests themselves failed.
+
+The package metadata declares version `0.4.0`; `BENCHMARK_REPORT.md` describes `0.3.0`. The report says 60 model profiles were analyzed but only 9 have full quality metrics. Its compression maxima should not be presented as measured production performance or quality equivalence without reproducing the exact benchmark configuration. The project README itself says release readiness is not established.
+
+### Evidence limits
+
+Where a GitHub workflow is `startup_failure` or no job record/log is available, report that exact status; do not invent a test or vulnerability diagnosis. A source implementation, design document or passing subset of a matrix does not qualify the full product.
