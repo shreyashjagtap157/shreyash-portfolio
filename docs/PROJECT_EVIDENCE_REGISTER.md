@@ -190,5 +190,6 @@ Portfolio consequence: describe a local-first, unreleased alpha platform with re
 ### Remaining qualifications and access limits
 
 - The production interaction gate is now passed; earlier statements that production click/typing checks remained open are superseded by run 43036856722.
+- A fresh GitHub repository-metadata lookup resolved all 14 selected project-card targets as existing, public, non-archived repositories: Omni---New, Helios, nexus-agent, AetherOS, Mosaic, kilocode, Dynamic-Neural-Computing, tensor-ring-decomposition, UEP, decentralized-iot-network, ACTSConnect, OldAgeHome, MilkyWay, and ai-os. Their default branches include both `main` and `master`; this validates repository-link existence, not the health or qualification of each project's implementation/CI.
 - Manual terminology and fluency review of German, French, Hindi, and Marathi by competent speakers remains open. Automated key parity and browser interaction coverage do not qualify translation quality.
 - The prior evidence register records `main` as unprotected. A fresh branch-protection API read was denied with HTTP 403 by the connected GitHub integration, so current protection/required-check configuration could not be independently reverified or changed here. Do not claim branch protection is configured.
