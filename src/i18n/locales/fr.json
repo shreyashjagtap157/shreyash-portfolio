@@ -250,5 +250,8 @@
   "console_principles": "Spécifications avant suppositions ; frontières explicites et privilèges minimaux ; corrections à la source ; vérification reproductible ; compte rendu honnête.",
   "console_omni": "Omni est un compilateur Rust et une chaîne d’outils à un stade précoce. La qualification complète du langage et l’auto-hébergement ne sont pas achevés. Cette console ne consulte pas GitHub.",
   "console_selfhost": "L’auto-hébergement est un objectif à long terme de la feuille de route Omni, pas une capacité achevée. L’implémentation actuelle du compilateur repose sur Rust.",
-  "console_unknown": "Cette commande ne figure pas dans la liste fixe. Rien n’a été exécuté. Essayez help."
+  "console_unknown": "Cette commande ne figure pas dans la liste fixe. Rien n’a été exécuté. Essayez help.",
+  "reader_hero_overview": "Mon expérience comprend le développement d’API REST avec Django REST Framework et un stage actuel en développement Java full-stack. Découvrez les projets sélectionnés, les contributions réalisées et leur niveau de maturité.",
+  "reader_hero_engineering": "Explorez des systèmes sélectionnés à travers leur architecture, leurs décisions d’implémentation, leurs preuves de vérification et leurs limites connues. Le code, les tests et la qualification sont clairement distingués.",
+  "reader_hero_research": "Découvrez ma démarche face aux problèmes difficiles : hypothèses explicites, spécifications, alternatives de conception, prototypes exécutables et questions de recherche ouvertes. Les concepts sont distingués des systèmes implémentés."
 }
