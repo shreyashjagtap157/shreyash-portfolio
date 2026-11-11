@@ -105,3 +105,25 @@ The strongest recurring areas are programming-language and compiler engineering,
 AstraVCS is deliberately not added to the selected-work grid at this point. Its current public repository explicitly identifies itself as a documentation and project-handoff shell: the Rust workspace, Python reference implementation, tests, conformance programs, and original source history have not yet been imported. Historical audit figures are not fresh implementation evidence. Revisit portfolio inclusion only after the executable source is imported and independently revalidated.
 
 The selected-work grid remains a curated 14-project list, not a claim that it contains every project or research workspace.
+
+
+## Additional project-candidate assessment — 2026-11-11
+
+The selected-work grid remains a curated 14-project inventory. A repository is not added solely because its README describes a broad feature set or a deployment URL.
+
+### CivicGuide (repository: PromptWars-Virtual-2) — candidate for the next inclusion review
+
+The README identifies the project as CivicGuide, a civic-tech election-process assistant. The inspected repository has a Next.js 16 / React 19 frontend, an Express 5 / TypeScript backend, shared types, English/Hindi/Marathi content, local browser persistence, geolocation-assisted guidance, and text-to-speech accessibility features. The README lists a Google Cloud Run URL.
+
+The latest inspected repository commit is `f546d2c...` (2 May 2026). No GitHub Actions workflow runs were found. The listed Cloud Run URL could not be independently opened during the 11 November review. Therefore:
+- Keep CivicGuide outside the public project grid until the actual deployed experience is independently verified.
+- Verify clean frontend and backend installation/build/test commands.
+- Inspect current roadmap/legal-content provenance, localization accuracy, privacy behavior, geolocation permission handling and accessibility.
+- Establish the exact work personally authored and maintained before writing a case study.
+- If accepted, give it a concise civic-tech/accessibility case study and preserve the distinction between repository claims and verified behavior.
+
+### Miner — reviewed and not selected
+
+The Miner repository's README describes an Android cryptocurrency-mining application. Its latest inspected code commit is 3 February 2026 and no Actions runs were found. It is not currently a strong fit for the portfolio's selected narrative of compiler, systems, symbolic-computing, agent-platform and backend engineering. Keep it excluded unless a specific, verifiable engineering contribution makes it materially valuable to the intended audience.
+
+No selection decision above changes the existing 14-project inventory.
