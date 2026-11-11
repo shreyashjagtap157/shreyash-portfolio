@@ -250,5 +250,8 @@
   "console_principles": "Spezifikation vor Annahmen; klare Grenzen und minimale Rechte; Ursachen statt Symptome beheben; reproduzierbare Prüfung; ehrliche Berichterstattung.",
   "console_omni": "Omni ist ein Compiler und eine Toolchain für Rust in einer frühen Entwicklungsphase. Die vollständige Sprachqualifizierung und Self-Hosting sind nicht abgeschlossen. Diese Konsole fragt GitHub nicht ab.",
   "console_selfhost": "Self-Hosting ist ein langfristiges Ziel der Omni-Roadmap und noch keine abgeschlossene Fähigkeit. Die aktuelle Compilerimplementierung basiert auf Rust.",
-  "console_unknown": "Dieser Befehl ist nicht in der festen Befehlsliste enthalten. Es wurde nichts ausgeführt. Verwenden Sie help."
+  "console_unknown": "Dieser Befehl ist nicht in der festen Befehlsliste enthalten. Es wurde nichts ausgeführt. Verwenden Sie help.",
+  "reader_hero_overview": "Meine Erfahrung umfasst die Entwicklung von REST-APIs mit Django REST Framework und ein aktuelles Praktikum in der Java-Full-Stack-Entwicklung. Entdecken Sie ausgewählte Projekte, die geleistete Arbeit und den jeweiligen Reifegrad.",
+  "reader_hero_engineering": "Entdecken Sie ausgewählte Systeme anhand ihrer Architektur, Implementierungsentscheidungen, Prüfnachweise und bekannten Einschränkungen. Code, Tests und Qualifizierung werden klar unterschieden.",
+  "reader_hero_research": "Erfahren Sie, wie ich schwierige Probleme angehe: explizite Annahmen, Spezifikationen, Entwurfsalternativen, ausführbare Prototypen und offene Forschungsfragen. Konzepte werden klar von implementierten Systemen getrennt."
 }
