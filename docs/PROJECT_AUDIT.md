@@ -390,3 +390,58 @@ No known production deployment gate remains open. The portfolio application and 
 - PR [#16](https://github.com/shreyashjagtap157/shreyash-portfolio/pull/16) was merged with a normal history-preserving merge as `586ac91a0e0bc387a07f3fded146aa63e17568b5`. Exact-head CI [42628166687](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42628166687) and merged-main CI [42628471360](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/42628471360) both passed. The main run confirms zero npm vulnerabilities, three unit-test files passed, and 79 Chromium tests passed; TypeScript and the production build were also successful.
 - Cloudflare Workers Build `daa5ef4a-9de7-4ee1-b8cc-3cd1604015ec` completed with outcome `success` against exact main SHA `586ac91a0e0bc387a07f3fded146aa63e17568b5`. It deployed Worker v28, ID `8b7e4650-da12-4907-9dff-74ce071a2682`, at 100% traffic at `2026-11-09T13:49:27.897Z`.
 - Live Browser Rendering of `/#project/kilo` verified the selected Kilo Code fork detail view under the sticky toolbar, with the implementation-focused case-study section visible directly after the project detail. The deployed homepage and case-study selector also rendered successfully.
+
+
+## 14. Repository-wide evidence refresh — 2026-11-11
+
+This section supersedes older per-project status snapshots above where their dates or workflow states conflict with the table below. The current portfolio source branch at the start of this review was `main` at `129a6ebd44890f5b7eb73497678529e451b8d635` (PR #18 merge). Portfolio CI run [43010941030](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43010941030) passed on that exact main head. No portfolio PRs were open. GitHub reports the main branch as unprotected; branch protection is a recommendation, not a change made by this audit.
+
+The complete point-in-time repository evidence register is in [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md). It covers all 14 selected projects plus the two previously excluded candidates, CivicGuide and Miner. It records the observed default branch, latest commit, inspected workflow evidence, maturity and the next verification action.
+
+### Cross-repository findings that affect public claims
+
+- **Omni:** latest inspected main head `27c55651d8d20c4d46d1fb28a3c440770b9d4363` (9 November). Rust, Clippy, Security Audit and CodeQL checks passed; aggregate Omni CI and the fuzz-dependency job failed. The README's broader full-pipeline pass refers to earlier commit `3902f6d...`, not the currently inspected head. Keep early-stage/compiler qualification limitations visible.
+- **NexusAgent:** its default branch is `master`, not `main`. At `27441a7822e827474b719f49fbffea96f10ee5c5` the general GitHub Actions and Rust component workflows observed on 10 November passed, while the Security workflow failed on 9 November. Version `0.3.0-alpha.5` remains an unreleased prerelease.
+- **Helios:** latest inspected main head `cd9ebe2...` (2 November); its documentation-validation workflow passed, but that validates repository documentation/governance only. The README still prohibits pretrained neural models and inference services, conflicting with the newer user-directed concept of isolated frozen perception models whose outputs are untrusted observations. No runtime implementation exists; the intended exception must not be portrayed as accepted canonical repository specification or implementation.
+- **AetherOS:** latest inspected main head `b64f9f5...` (22 October). Recent reference-validation runs failed. It remains an architecture/specification and host-reference prototype, not a bootable kernel; the QEMU RISC-V64 product slice is not started.
+- **Mosaic-µ:** latest inspected main head `794e768...` (22 October). Nightly runs on 7–11 November all failed on that head. Preserve candidate status and the explicit release-qualification blocker.
+- **Kilo Code fork:** latest inspected main head `775a0f5...` (27 October). The public README continues to describe upstream Kilo Code rather than the fork's specialist-agent/swarm work. No recent successful qualification run for the fork-specific changes was established in this audit. Continue to distinguish upstream functionality from fork-specific experiments.
+- **Dynamic Neural Computation:** latest inspected main head `3157410...` (22 October); the latest inspected quality-gate run failed. The README records a Python 3.11 floating-point assertion discrepancy and a NO-GO external pilot/production decision. Do not carry forward claims of a fully green cross-platform gate.
+- **Tensor Ring Decomposition:** latest inspected main head `33428ad...` (22 October); the Tests workflow ended in startup failure and the Security workflow failed. The README also identifies a version mismatch between package metadata and benchmark report. No release-readiness or performance claim is established.
+- **UEP:** latest inspected main head `51c4dd7...` (4 November). Maven component and GitHub Actions workflows passed on 9 November; the aggregate UEP CI workflow failed on 4 November. These results do not qualify the full product. Its README explicitly says production qualification has not passed and local Windows acceptance remains to be completed.
+- **Decentralized IoT Network:** latest inspected main head `2283fb9...` (22 October); the inspected backend CI run failed. The latest load-testing run found in the audit failed on 5 April. The repository does not establish an end-to-end deployed network or verified production operation.
+- **ACTSConnect:** latest inspected master head `05987f6...` (22 October); no repository Actions runs or releases were found. The README identifies a frontend/submodule layout discrepancy and unresolved end-to-end integration.
+- **OldAgeHome:** latest inspected master head `1621bdc...` (22 October); no Actions runs or releases were found. The documented root dependency install target is missing from the inspected branch, and the README identifies incomplete workflows and production security/configuration work. Do not publish security-sensitive configuration values.
+- **MilkyWay:** latest inspected master head `c16240a...` (22 October); no Actions runs or releases were found. The documented root dependency manifest is missing; the README flags production-host configuration and tracked logs for security/privacy review. Do not expose log contents or personal/operational data.
+- **AI-OS:** latest inspected master head `b6a76eb...` (3 February); its inspected CI run failed. It remains a Python research prototype, not a bootable operating system.
+- **CivicGuide / PromptWars-Virtual-2:** candidate only, not yet part of the selected-work grid. Latest inspected master head `f546d2c...` (2 May). README describes a Next.js 16 + React 19 frontend, Express 5 + TypeScript backend, shared types, English/Hindi/Marathi localization, browser-local progress, accessibility text-to-speech and a Cloud Run URL. No Actions runs were found. The linked Cloud Run application could not be independently opened by the current review environment. Verify the live deployment, clean frontend/backend builds, tests, accessibility behavior and current maintainer ownership before deciding to include it.
+- **Miner:** remains excluded from the current professional portfolio. Its README describes an Android cryptocurrency-mining application and the latest inspected code commit is from 3 February; no Actions runs were found. This exclusion is about current portfolio focus and verified presentation value, not a claim that the repository has no code.
+
+### Portfolio-source integrity checks
+
+- Current project inventory remains 14 unique IDs and repository slugs; the grid has not been expanded.
+- All five locale dictionaries (en, de, fr, hi, mr) have exactly 230 keys and identical key sets at the inspected main head. Each contains 14 project-card descriptions, 14 project-detail notes and 65 case-study keys. Key parity establishes structural completeness only; it does not establish translation quality.
+- The existing seven implementation case studies are still Omni, NexusAgent, Kilo Code fork, UEP, Mosaic-µ, Dynamic Neural Computation and Tensor Ring Decomposition. Helios remains a specification/research presentation, not an implementation case study.
+- The portfolio README's main-head statement needs a follow-up correction: it still identifies `a386912...` as the latest documentation commit, while the actual current main head is the PR #18 merge `129a6eb...`. This is a documentation-only discrepancy; the deployed application code remains the Worker v28 release from PR #16.
+- No application code, deployment configuration, secrets, DNS, KV state, or production Worker version was changed in this audit.
+
+
+## 16. Kilo Code fork source-level evidence correction — 2026-11-11
+
+The public Kilo Code fork contains committed fork-specific swarm implementation and documentation, despite its top-level README remaining primarily upstream-oriented. See the updated [project evidence register](PROJECT_EVIDENCE_REGISTER.md#15-kilo-code-fork-source-level-qualification-refinement--2026-11-11).
+
+One M2 Swarm Foundation workflow passed on earlier commit `13ff9a7c0a34ddf94418e23fe21981745e580b41` on 24 October (run [40116350112](https://github.com/shreyashjagtap157/kilocode/actions/runs/40116350112)). The workflow covered migration/schema checks, durable events, migration upgrades, claims, reservations, recovery and process-race tests. Its commit message explicitly kept M3 dispatch out of scope.
+
+At the inspected 27 October main head `775a0f5c1870fb5e4e45de1014f1e5b935eddecf`, the repository includes M3 runtime code and focused tests. Its own qualification docs still require current focused CI and a real provider-backed workload; M3 remains under qualification. No production-ready swarm claim is permitted.
+
+
+## 17. Featured-project source audit update — 2026-11-11
+
+A second source/CI pass has refined the public maturity descriptions for Mosaic-µ, Dynamic Neural Computation, UEP and Tensor Ring Decomposition. It records exact test/job causes where the logs support them, labels unavailable runner diagnostics as unresolved, and distinguishes structural projection/checkpoint code from the larger formal guarantees claimed in documentation. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#16-featured-project-source-and-failing-gate-refinement--2026-11-11).
+
+
+## 18. Omni and NexusAgent case-study evidence refinement — 2026-11-11
+
+Omni's normative Edition 1 grammar contract and parser tests now provide direct evidence for the specification-first narrative. Candidate 2 Vibe-first syntax is not in force by default; strict Edition 1 remains enforced, and experimental syntax is explicitly opt-in. The latest aggregate compiler failure belongs to an isolated memory research prototype, while code generation and other compiler stages remain incomplete.
+
+NexusAgent source and tests establish actual concurrent `AgentLoop` team orchestration and persisted team messages, but the team integration tests use a `FakeProvider`; no real provider-backed team qualification is established by those tests. The latest security workflow reported 13 `filelock 4.0.12` findings and failed its required gate. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#17-omni-and-nexusagent-source-level-case-study-evidence--2026-11-11).

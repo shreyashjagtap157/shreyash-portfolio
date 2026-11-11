@@ -45,7 +45,7 @@ All listed repositories are under https://github.com/shreyashjagtap157/.
 | NexusAgent | `nexus-agent` | Local-first general-purpose multi-agent platform for coding, research, analysis, and automation, with specialist teams, tools, memory, MCP, and provider routing. Version 0.3.0-alpha.5 is an unreleased prerelease. |
 | AetherOS | `AetherOS` | Operating-system architecture/specification and host reference prototype. Not a bootable kernel; the QEMU RISC-V64 product slice has not started. |
 | Mosaic-µ | `Mosaic` | Byte-exact tokenizer/runtime candidate with C, Rust, and Python components, Unicode handling, and deterministic model packs. Full-release qualification is blocked; do not imply a qualified stable release. |
-| Kilo Code fork | `kilocode` | Local fork of upstream Kilo Code. Experimental specialist-agent/swarm/NVIDIA NIM work belongs to the local fork context; the public README still mirrors upstream documentation and does not prove those changes are published. Keep those claims clearly separated. |
+| Kilo Code fork | `kilocode` | Public fork of upstream Kilo Code. The top-level README remains upstream-oriented, but the public repository contains committed swarm-specific code under `packages/core/src/kilocode/swarm/` and `packages/opencode/src/kilocode/swarm/`, tests under `packages/opencode/test/kilocode/swarm/`, and qualification/design docs under `docs/swarm/`. M2 durable-state foundation has one passing focused run on an earlier 24 Oct commit; M3 execution/reviewer bridge is in source but its own docs still require current CI and a real provider-backed workload. NVIDIA NIM remains experimental unless separately verified. |
 | Dynamic Neural Computing | `Dynamic-Neural-Computing` | Formal execution model and Python research/reference runtime. External production qualification and full tensor-native execution remain open. |
 | Tensor Ring Decomposition | `tensor-ring-decomposition` | Python/PyTorch library with tensor-ring, ALS/SVD, and quantization-related implementations. Release readiness and benchmark claims require verification. |
 | Universal Education Platform | `UEP` | Multi-tenant education/training operations platform using Java/Spring Boot, React, and database adapters. Production qualification has not passed; local Windows acceptance remains in progress. |
@@ -59,7 +59,7 @@ All listed repositories are under https://github.com/shreyashjagtap157/.
 
 - Do not claim a project is production-ready merely because source code, modules, tests, or a prototype exist.
 - Keep planned milestones separate from completed implementation.
-- For Kilo Code, distinguish upstream product functionality from local experimental work.
+- For Kilo Code, distinguish upstream product functionality from fork-specific public source. The public fork contains committed swarm implementation; document its exact M2/M3 maturity and qualification evidence, and keep NVIDIA NIM claims separate unless independently verified.
 - For Helios, state clearly that it is concept/specification stage with no runtime implementation.
 - Do not publish private operational data, credentials, API keys, customer data, internal service identifiers, or personal data from project repositories.
 - Do not infer skill levels or impact metrics.
@@ -105,3 +105,47 @@ The strongest recurring areas are programming-language and compiler engineering,
 AstraVCS is deliberately not added to the selected-work grid at this point. Its current public repository explicitly identifies itself as a documentation and project-handoff shell: the Rust workspace, Python reference implementation, tests, conformance programs, and original source history have not yet been imported. Historical audit figures are not fresh implementation evidence. Revisit portfolio inclusion only after the executable source is imported and independently revalidated.
 
 The selected-work grid remains a curated 14-project list, not a claim that it contains every project or research workspace.
+
+
+## Additional project-candidate assessment — 2026-11-11
+
+The selected-work grid remains a curated 14-project inventory. A repository is not added solely because its README describes a broad feature set or a deployment URL.
+
+### CivicGuide (repository: PromptWars-Virtual-2) — candidate for the next inclusion review
+
+The README identifies the project as CivicGuide, a civic-tech election-process assistant. The inspected repository has a Next.js 16 / React 19 frontend, an Express 5 / TypeScript backend, shared types, English/Hindi/Marathi content, local browser persistence, geolocation-assisted guidance, and text-to-speech accessibility features. The README lists a Google Cloud Run URL.
+
+The latest inspected repository commit is `f546d2c...` (2 May 2026). No GitHub Actions workflow runs were found. The listed Cloud Run URL could not be independently opened during the 11 November review. Therefore:
+- Keep CivicGuide outside the public project grid until the actual deployed experience is independently verified.
+- Verify clean frontend and backend installation/build/test commands.
+- Inspect current roadmap/legal-content provenance, localization accuracy, privacy behavior, geolocation permission handling and accessibility.
+- Establish the exact work personally authored and maintained before writing a case study.
+- If accepted, give it a concise civic-tech/accessibility case study and preserve the distinction between repository claims and verified behavior.
+
+### Miner — reviewed and not selected
+
+The Miner repository's README describes an Android cryptocurrency-mining application. Its latest inspected code commit is 3 February 2026 and no Actions runs were found. It is not currently a strong fit for the portfolio's selected narrative of compiler, systems, symbolic-computing, agent-platform and backend engineering. Keep it excluded unless a specific, verifiable engineering contribution makes it materially valuable to the intended audience.
+
+No selection decision above changes the existing 14-project inventory.
+
+
+## Kilo Code fork evidence refinement — 2026-11-11
+
+The public fork contains a substantial M2 durable-state foundation and an M3 execution bridge in the current source tree. The repository's own swarm qualification documents are more precise than its upstream-oriented top-level README. M2 has one located passing focused workflow on the earlier 24 October commit; M3 is still under qualification and requires current CI plus a real provider-backed workload. This does not establish production release or upstream Kilo Code functionality. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#15-kilo-code-fork-source-level-qualification-refinement--2026-11-11).
+
+
+## Featured-project source-evidence update — 2026-11-11
+
+The case-study audit now records:
+- Mosaic's byte-authoritative tokenizer/TokenDocument work and the exact current nightly blockers (stable/nightly toolchain mismatch, Clippy in the exactness test, missing native low-memory test binary, and incomplete pip-install diagnostics).
+- DNC's implemented StructuralProjector path and the discrepancy between the documented checkpoint validation contract and the checks in `Checkpoint.validate()`.
+- UEP's implemented module boundaries and the concrete local-native identity-to-tenancy dependency violation.
+- Tensor Ring's implementation scope, version mismatch and benchmark evidence limits.
+
+No claim of production readiness is added. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#16-featured-project-source-and-failing-gate-refinement--2026-11-11).
+
+
+## Omni and NexusAgent case-study source notes — 2026-11-11
+
+- **Omni:** present the normative Edition 1 grammar contract and tests for semicolon/newline rules and default rejection of unratified Vibe syntax. The separate experimental parser profile is opt-in. The language is not yet a complete production compiler; no full-language conformance or self-hosting claim is supported.
+- **NexusAgent:** present the concurrent team runtime and persistent team board as implemented/tested under a fake provider. State that real provider-backed workload qualification remains separate. Keep the unreleased 0.3.0-alpha.5 status and the latest failed dependency audit visible.
