@@ -129,3 +129,30 @@ The package metadata declares version `0.4.0`; `BENCHMARK_REPORT.md` describes `
 ### Evidence limits
 
 Where a GitHub workflow is `startup_failure` or no job record/log is available, report that exact status; do not invent a test or vulnerability diagnosis. A source implementation, design document or passing subset of a matrix does not qualify the full product.
+
+
+## 17. Omni and NexusAgent source-level case-study evidence — 2026-11-11
+
+### Omni — normative grammar and implementation boundary
+
+At inspected `main` head `27c55651d8d20c4d46d1fb28a3c440770b9d4363`:
+
+- The normative Edition 1 grammar is in `spec/grammar/omni-edition1.ebnf`; its header explicitly identifies it as the normative grammar.
+- `compiler/omni-parse/src/grammar_contract.rs` states that the bound Edition 1 EBNF predates the Candidate 2 Vibe-First amendment. It records the conflict across VIBE-GRAM-0001..0007 and LEX-0002 / GRAM-0002 / GRAM-0003, and states Candidate 2 is not in force; strict Edition 1 governs until the established process changes that.
+- Contract tests explicitly keep newline trivia from terminating a statement, require semicolons for affected statement forms, reject unratified Vibe-first syntax in the default profile, and allow explicitly opted-in experimental profile probes. This is concrete executable specification-governance work, not evidence of a complete grammar implementation.
+- The README's highlighted full-pipeline pass is tied to older commit `3902f6d...`; latest inspected head `27c55651...` has the aggregate CI failure described earlier. The README also lists effects, HIR lowering, complete MIR verification and machine/code-generation/runtime components as partial or incomplete.
+- The current failing aggregate build is in the isolated research model `research/memory-model/domain_lifetimes.rs:471` (unresolved `object` name). Keep that research-prototype failure distinct from language front-end contract tests and other independently passing focused Rust checks.
+
+Portfolio consequence: the strongest case-study narrative is specification-governed language implementation, normative grammar enforcement, explicit rejection of unratified syntax, and a staged Rust-first/self-hosting roadmap. Do not claim full-language conformance, a complete production compiler, or self-hosting.
+
+### NexusAgent — executable multi-agent orchestration and security boundary
+
+At inspected `master` head `27441a7822e827474b719f49fbffea96f10ee5c5`:
+
+- `src/nexus_agent/team/runtime.py` implements a concurrent team runtime using `ThreadPoolExecutor` / `as_completed` and creates actual `AgentLoop` workers. Team storage, planning, event handling and specialist role models are separate modules.
+- `tests/test_multi_agent_team.py` exercises three configured specialist profiles (Architect, Implementer, Reviewer) with distinct read/write permissions, parallelism of three, worker completion and synthesis; another test checks persisted team-board message types in `TeamStore`.
+- These tests use a `FakeProvider` that returns canned role-plan, worker and synthesis responses. They demonstrate actual orchestration/runtime wiring and persistence under test doubles, but do not prove a successful real provider/model-backed workload.
+- The inspected Security workflow uses strict `pip-audit` and has a narrow explicit ignore for `PYSEC-2026-2447` affecting an unused transitive diskcache path. The 9 November security run [42597084938](https://github.com/shreyashjagtap157/nexus-agent/actions/runs/42597084938) reports 13 known findings for `filelock 4.0.12`, with `4.2.1` listed as the fix version. The aggregate `Required` security job also fails. Do not mark security as green until the dependency resolution and policy are rerun.
+- The runtime's workspace-tool factory includes filesystem write/delete/restore, shell, Git, browser, web, LSP and other tools. Case-study descriptions should discuss permission planning and tool boundaries rather than imply the agent has a narrow or read-only authority by default.
+
+Portfolio consequence: describe a local-first, unreleased alpha platform with real agent-loop/team orchestration, persistence and test coverage under a fake provider. Keep provider-backed operational usefulness, security qualification and stable release status open.
