@@ -468,7 +468,7 @@ test.describe('audience-adaptive reader views', () => {
 
   test('reader preference persists locally and Balanced resets the selection', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Research' }).click()
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Research', exact: true }).click()
     await expect.poll(() => page.evaluate(() => localStorage.getItem('reader-view-v1'))).toBe('research')
     await page.reload()
     await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
@@ -497,7 +497,8 @@ test.describe('audience-adaptive reader views', () => {
       await page.reload()
       await expect(page.locator('.reader-view')).toBeVisible()
       await expect(page.locator('.reader-view-option')).toHaveCount(4)
-      await expect(page.locator('.reader-view-copy p')).not.toBeEmpty()
+      await expect(page.locator('.reader-view-copy h2')).not.toBeEmpty()
+      await expect(page.locator('.reader-view-option').first()).toHaveAttribute('title', /.+/)
       await expect(page.locator('.portfolio-console summary')).not.toBeEmpty()
     }
   })
@@ -544,4 +545,20 @@ test.describe('safe portfolio console easter egg', () => {
     await expect(page.locator('.portfolio-console-output')).not.toContainText('executed successfully')
     await expect(page.locator('.portfolio-console-entry')).toHaveCount(1)
   })
+  test('hidden easter-egg commands stay local, factual and harmless', async ({ page }) => {
+    await page.goto('/')
+    await page.locator('.portfolio-console summary').click()
+    const command = page.getByRole('textbox', { name: 'Try a command' })
+    await command.fill('sudo')
+    await command.press('Enter')
+    await expect(page.locator('.portfolio-console-output')).toContainText('no elevated privileges')
+    await command.fill('42')
+    await command.press('Enter')
+    await expect(page.locator('.portfolio-console-output')).toContainText('The acceptance criteria still need to be written')
+    await command.fill('constellation')
+    await command.press('Enter')
+    await expect(page.locator('.portfolio-console-output')).toContainText('not a dependency graph')
+    await expect(page.locator('.portfolio-console-entry')).toHaveCount(3)
+  })
+
 })
