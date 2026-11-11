@@ -83,7 +83,7 @@ The final merged main head 8afdcefa65fa882fdfa5f0854aee6cce58a96226 passed post-
 | Five locales have complete automated keys and controls | Automated pass | Manual terminology and fluency review remains open |
 | Console is fixed-response and non-executing | Pass | Closed command map, source review, and negative-input tests |
 | Touch, keyboard, focus, Escape, and reduced motion | Pass after hardening | Browser regression tests |
-| Existing portfolio regression suite | Pass on implementation head | Full CI run above; recheck merged `main` |
+| Existing portfolio regression suite | Pass on merged `main` | Post-merge run 43028148893 passed the 94-test browser suite |
 | Production deployment control-plane verification | Pass | Cloudflare Build bd156174-db59-4aed-a477-2892d9bf5287 succeeded; Worker v29 receives 100% traffic |
 | Live browser rendering/interaction smoke test | Pending | Current audit environment could not fetch the public workers.dev page; verify from a normal browser |
 
