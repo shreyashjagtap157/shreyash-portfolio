@@ -253,5 +253,6 @@
   "console_selfhost": "Self-Hosting ist ein Roadmap-Ziel und keine bereits abgeschlossene Fähigkeit.",
   "console_sudo": "Zugriff verweigert: Dieses Portfolio akzeptiert Nachweise, keine Rechteausweitung.",
   "console_unknown": "Unbekannter Befehl. Geben Sie help ein, um die verfügbaren Befehle zu sehen.",
-  "console_constellation": "Ausgewählte Projektkonstellation (die bestehenden Portfolio-Kategorien):\nSysteme: Omni, AetherOS, Mosaic-µ, AI-OS.\nKI und Agenten: Helios, NexusAgent, Kilo-Code-Fork, Dynamic Neural Computation, Tensor Ring Decomposition.\nPlattformen und Web: Universal Education Platform, Decentralized IoT Network, ACTSConnect, OldAgeHome, MilkyWay."
+  "console_constellation": "Ausgewählte Projektkonstellation (die bestehenden Portfolio-Kategorien):\nSysteme: Omni, AetherOS, Mosaic-µ, AI-OS.\nKI und Agenten: Helios, NexusAgent, Kilo-Code-Fork, Dynamic Neural Computation, Tensor Ring Decomposition.\nPlattformen und Web: Universal Education Platform, Decentralized IoT Network, ACTSConnect, OldAgeHome, MilkyWay.",
+  "console_status": "LOKAL / NUR LESEN"
 }
