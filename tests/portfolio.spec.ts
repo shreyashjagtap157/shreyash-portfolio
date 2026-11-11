@@ -640,3 +640,20 @@ test('reader controls and the optional console remain touch-usable on a narrow v
     await context.close()
   }
 })
+
+
+test('Escape closes the portfolio console and restores focus to its summary', async ({ page }) => {
+  await page.goto('/')
+  const details = page.locator('.portfolio-console details')
+  const summary = page.locator('.portfolio-console summary')
+
+  await summary.click()
+  await expect(details).toHaveAttribute('open', '')
+  const command = page.getByRole('textbox', { name: 'Try a command' })
+  await command.focus()
+  await expect(command).toBeFocused()
+
+  await page.keyboard.press('Escape')
+  await expect(details).not.toHaveAttribute('open', '')
+  await expect(summary).toBeFocused()
+})
