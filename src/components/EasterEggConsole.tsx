@@ -13,6 +13,9 @@ const COMMANDS: Record<string, string> = {
   principles: 'console_principles',
   omni: 'console_omni',
   selfhost: 'console_selfhost',
+  sudo: 'console_sudo',
+  '42': 'console_42',
+  constellation: 'console_constellation',
 }
 
 export function EasterEggConsole() {
