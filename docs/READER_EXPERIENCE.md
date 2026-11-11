@@ -86,7 +86,8 @@ The application-code head 8afdcefa65fa882fdfa5f0854aee6cce58a96226 passed main C
 | Existing portfolio regression suite | Pass on merged `main` | Post-merge run 43028148893 passed the 94-test browser suite |
 | Production deployment control-plane verification | Pass | Cloudflare Build bd156174-db59-4aed-a477-2892d9bf5287 succeeded; Worker v29 receives 100% traffic |
 | Desktop production page-render smoke test | Pass | Cloudflare Browser Rendering returned HTTP 200, expected title, main region, Balanced default, and four view labels at 1440×1000 |
-| Mobile rendering and desktop/mobile accessibility-tree smoke tests | Pass | HTTP 200 at 360×800 mobile; accessibility tree exposes four reader buttons, named navigation, main landmark, and console disclosure |\n| Production browser interaction suite | Pass | Main production smoke workflow 43036856722 ran all 94 Playwright tests against the live Worker; reader views, five built-in locales, projects, activity UI, console, keyboard, Escape/focus, touch, and responsive behavior passed |
+| Mobile rendering and desktop/mobile accessibility-tree smoke tests | Pass | HTTP 200 at 360×800 mobile; accessibility tree exposes four reader buttons, named navigation, main landmark, and console disclosure |
+| Production browser interaction suite | Pass | Main production smoke workflow 43036856722 ran all 94 Playwright tests against the live Worker; reader views, five built-in locales, projects, activity UI, console, keyboard, Escape/focus, touch, and responsive behavior passed |
 
 ## 8. Release sequence
 
@@ -94,7 +95,7 @@ The application-code head 8afdcefa65fa882fdfa5f0854aee6cce58a96226 passed main C
 2. **Completed:** post-merge GitHub Actions passed on exact main SHA 8afdcefa65fa882fdfa5f0854aee6cce58a96226.
 3. **Completed:** the existing Cloudflare Workers Builds trigger deployed that exact commit without changing hosting, bindings, secrets, DNS, KV, or deployment configuration.
 4. **Completed:** Cloudflare build bd156174-db59-4aed-a477-2892d9bf5287 succeeded; Worker v29 receives 100% production traffic. The release record contains the exact commit, version ID, and deployment timestamp.
-5. **Completed:** production page rendering at desktop and mobile sizes returned HTTP 200; both accessibility-tree checks exposed the expected named reader controls, navigation/main landmarks, and console disclosure. **Still open:** perform a production browser-driven interaction pass for lens switching, locale switching, project links, activity refresh, console commands, and Escape/focus restoration.
+5. **Completed:** production page rendering at desktop and mobile sizes returned HTTP 200; both accessibility-tree checks exposed the expected named reader controls, navigation/main landmarks, and console disclosure. Production Playwright run 43036856722 passed all 94 tests against the deployed HTTPS Worker, including reader, locale, project, activity UI, console, keyboard, Escape/focus, touch, and responsive interaction checks.
 6. **Still open:** complete the manual locale terminology and fluency review as a separate editorial qualification item.
 
 No production readiness, native-speaker validation, or live deployment claim should be made without its corresponding evidence.
