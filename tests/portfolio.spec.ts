@@ -456,7 +456,7 @@ test.describe('audience-adaptive reader views', () => {
 
   test('research puts the engineering approach and project context first', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Research' }).click()
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Research', exact: true }).click()
     await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
     const order = await page.locator('#main').evaluate(main => {
       const ids = ['approach', 'work', 'case', 'skills', 'exp', 'activity']
@@ -472,7 +472,7 @@ test.describe('audience-adaptive reader views', () => {
     await expect.poll(() => page.evaluate(() => localStorage.getItem('reader-view-v1'))).toBe('research')
     await page.reload()
     await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
-    await page.getByRole('button', { name: 'Balanced' }).click()
+    await page.locator('.reader-view-options').getByRole('button', { name: 'Balanced', exact: true }).click()
     await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'balanced')
     await expect.poll(() => page.evaluate(() => localStorage.getItem('reader-view-v1'))).toBe('balanced')
   })
