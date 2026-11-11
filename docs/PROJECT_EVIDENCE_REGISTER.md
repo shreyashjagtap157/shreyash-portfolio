@@ -41,7 +41,7 @@ This is a point-in-time review of public repository metadata, READMEs and visibl
 - GitHub reported `main` as unprotected. Branch protection and required checks are a recommended hardening task, not yet configured.
 - The five built-in locales each contain 230 keys with identical key sets. Each contains 14 project cards, 14 project-detail notes and 65 case-study keys. This checks structure, not translation quality.
 - The selected grid remains 14 projects; CivicGuide was not added and Miner remains excluded.
-- Worker v28 is the last verified production application release from PR #16. The PR #18 change was documentation-only and no deployment was performed for it.
+- Worker v29 is the current verified production deployment for merged main commit 8afdcefa65fa882fdfa5f0854aee6cce58a96226, deployed at 100% traffic on 11 November 2026. Cloudflare Workers Build bd156174-db59-4aed-a477-2892d9bf5287 succeeded; Worker version ID is 47a3bb11-5080-4039-9df9-346c677dd6d0. The control plane confirms the active version; a fresh browser-level live-site smoke test remains outstanding because the audit environment could not access the workers.dev hostname.
 
 ## Evidence boundaries
 
@@ -156,3 +156,14 @@ At inspected `master` head `27441a7822e827474b719f49fbffea96f10ee5c5`:
 - The runtime's workspace-tool factory includes filesystem write/delete/restore, shell, Git, browser, web, LSP and other tools. Case-study descriptions should discuss permission planning and tool boundaries rather than imply the agent has a narrow or read-only authority by default.
 
 Portfolio consequence: describe a local-first, unreleased alpha platform with real agent-loop/team orchestration, persistence and test coverage under a fake provider. Keep provider-backed operational usefulness, security qualification and stable release status open.
+
+## 18. Portfolio adaptive-reader implementation and production release — 2026-11-11
+
+- PR #19 merged the evidence register and approved reader-experience design.
+- PR #21 merged Balanced, Overview, Engineering, and Research reading views; localized safe portfolio-console commands; and the five-locale Kilo Code fork evidence correction.
+- PR #22 added Escape dismissal with focus restoration and replaced the stale design-only reader document with the as-built record.
+- Final merged main commit: 8afdcefa65fa882fdfa5f0854aee6cce58a96226.
+- GitHub Actions run [43028148893](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43028148893) passed: zero npm audit vulnerabilities, TypeScript, 45 Vitest tests across three files, production build, and 94 Chromium browser tests.
+- Cloudflare Workers Build bd156174-db59-4aed-a477-2892d9bf5287 succeeded on the exact merged commit. Worker v29, ID 47a3bb11-5080-4039-9df9-346c677dd6d0, is assigned 100% production traffic; deployment 45541e4e-729c-4cea-94e1-a958fd0cfd6c was created at 2026-11-11T13:22:54.735Z.
+- Remaining qualification: a live browser rendering/smoke test could not be executed from the current audit environment because the public workers.dev endpoint was inaccessible to the available fetch tools. The Cloudflare deployment and 100% traffic assignment are verified independently. A human/browser check should still exercise all four lenses, mobile layout, each locale, project links, and console Escape behavior.
+- Editorial gate: automated five-locale key and control checks pass, but native/competent-speaker terminology and fluency review remains open. Do not describe it as completed.
