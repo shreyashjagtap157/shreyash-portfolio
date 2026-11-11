@@ -86,7 +86,9 @@ export function PortfolioConsole() {
     event.preventDefault()
     const normalized = command.trim().toLowerCase()
     if (!normalized) return
-    const responseKey = COMMANDS[normalized] ?? 'console_unknown'
+    const responseKey = Object.prototype.hasOwnProperty.call(COMMANDS, normalized)
+      ? COMMANDS[normalized]
+      : 'console_unknown'
     setEntries(current => [...current, { command: normalized, responseKey }].slice(-40))
     setCommand('')
   }
