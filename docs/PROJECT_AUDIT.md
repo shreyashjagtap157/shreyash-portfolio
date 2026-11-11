@@ -438,3 +438,10 @@ At the inspected 27 October main head `775a0f5c1870fb5e4e45de1014f1e5b935eddecf`
 ## 17. Featured-project source audit update — 2026-11-11
 
 A second source/CI pass has refined the public maturity descriptions for Mosaic-µ, Dynamic Neural Computation, UEP and Tensor Ring Decomposition. It records exact test/job causes where the logs support them, labels unavailable runner diagnostics as unresolved, and distinguishes structural projection/checkpoint code from the larger formal guarantees claimed in documentation. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#16-featured-project-source-and-failing-gate-refinement--2026-11-11).
+
+
+## 18. Omni and NexusAgent case-study evidence refinement — 2026-11-11
+
+Omni's normative Edition 1 grammar contract and parser tests now provide direct evidence for the specification-first narrative. Candidate 2 Vibe-first syntax is not in force by default; strict Edition 1 remains enforced, and experimental syntax is explicitly opt-in. The latest aggregate compiler failure belongs to an isolated memory research prototype, while code generation and other compiler stages remain incomplete.
+
+NexusAgent source and tests establish actual concurrent `AgentLoop` team orchestration and persisted team messages, but the team integration tests use a `FakeProvider`; no real provider-backed team qualification is established by those tests. The latest security workflow reported 13 `filelock 4.0.12` findings and failed its required gate. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#17-omni-and-nexusagent-source-level-case-study-evidence--2026-11-11).
