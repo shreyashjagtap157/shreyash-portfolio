@@ -414,3 +414,83 @@ test.describe('Cloudflare-backed GitHub activity', () => {
     await expect.poll(() => requests.some(url => url.includes('refresh=1'))).toBe(true)
   })
 })
+
+
+test.describe('audience-adaptive reading views', () => {
+  test('reorders the same complete content and persists the selected reading lens', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('html')).toHaveAttribute('data-reader-lens', 'balanced')
+    const originalUrl = page.url()
+    const readOrder = () => page.locator('main .section').evaluateAll(elements => elements.map(element => element.id))
+
+    expect(await readOrder()).toEqual(['work', 'case', 'skills', 'approach', 'activity', 'exp', 'contact'])
+    await page.getByRole('button', { name: /Reading view: Balanced/ }).click()
+    await page.getByRole('button', { name: /Overview/ }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-reader-lens', 'overview')
+    expect(page.url()).toBe(originalUrl)
+    expect(await readOrder()).toEqual(['exp', 'work', 'skills', 'approach', 'case', 'activity', 'contact'])
+    await expect(page.locator('.project-card')).toHaveCount(14)
+
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-reader-lens', 'overview')
+    await page.getByRole('button', { name: /Reading view: Overview/ }).click()
+    await page.getByRole('button', { name: /Engineering/ }).click()
+    expect(await readOrder()).toEqual(['work', 'case', 'skills', 'approach', 'activity', 'exp', 'contact'])
+
+    await page.getByRole('button', { name: /Reading view: Engineering/ }).click()
+    await page.getByRole('button', { name: /Research/ }).click()
+    expect(await readOrder()).toEqual(['approach', 'case', 'work', 'skills', 'activity', 'exp', 'contact'])
+    await expect(page.locator('.project-card')).toHaveCount(14)
+  })
+
+  test('reading views remain usable when local storage is blocked', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        get() { throw new DOMException('Storage is blocked', 'SecurityError') },
+      })
+    })
+    await page.goto('/')
+    await expect(page.locator('html')).toHaveAttribute('data-reader-lens', 'balanced')
+    await page.getByRole('button', { name: /Reading view: Balanced/ }).click()
+    await page.getByRole('button', { name: /Overview/ }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-reader-lens', 'overview')
+    await expect(page.locator('#exp')).toBeVisible()
+  })
+})
+
+test.describe('portfolio console easter egg', () => {
+  test('runs only predefined local responses and supports Escape/focus restoration', async ({ page }) => {
+    await page.goto('/')
+    const launcher = page.getByRole('button', { name: 'Portfolio console' })
+    await launcher.click()
+    const dialog = page.getByRole('dialog', { name: 'Portfolio console' })
+    await expect(dialog).toBeVisible()
+    const command = dialog.getByRole('textbox', { name: 'Command' })
+    const log = dialog.getByRole('log')
+
+    await command.fill('help')
+    await command.press('Enter')
+    await expect(log).toContainText('Commands: help, about, projects, principles, omni, selfhost.')
+
+    await command.fill('rm -rf /')
+    await command.press('Enter')
+    await expect(log).toContainText('Unknown command. Type help to see the available commands.')
+
+    await command.fill('sudo make portfolio-awesome')
+    await command.press('Enter')
+    await expect(log).toContainText('Permission denied: this portfolio accepts evidence, not privilege escalation.')
+
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    await expect(launcher).toBeFocused()
+  })
+
+  test('the question-mark shortcut opens the same touch-accessible console', async ({ page }) => {
+    await page.goto('/')
+    await page.keyboard.press('?')
+    await expect(page.getByRole('dialog', { name: 'Portfolio console' })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog', { name: 'Portfolio console' })).toBeHidden()
+  })
+})
