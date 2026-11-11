@@ -245,12 +245,13 @@
   "console_close": "कन्सोल बंद करा",
   "console_prompt": "आदेश",
   "console_welcome": "स्वागत आहे. हा स्थानिक, केवळ-वाचनासाठी असलेला पोर्टफोलिओ कन्सोल आहे—खरा शेल नाही.",
-  "console_help": "आदेश: help, about, projects, principles, omni, selfhost.",
+  "console_help": "आदेश: help, about, projects, constellation, principles, omni, selfhost.",
   "console_about": "हा कन्सोल फक्त पूर्वनिश्चित उत्तरे दाखवतो. तो कोड चालवत नाही किंवा फाइल्स अथवा नेटवर्कमध्ये प्रवेश करत नाही.",
   "console_projects": "प्रकल्प विभागात सध्याची निवड, रिपॉझिटरी दुवे आणि परिपक्वतेची लेबले आहेत.",
   "console_principles": "अंमलबजावणीपूर्वी संशोधन; स्पष्ट विनिर्देश; स्पष्ट मर्यादा; पडताळता येणारे परिणाम.",
   "console_omni": "Omni च्या प्रकल्प नोंदीत कंपायलरची अंमलबजावणी, संशोधन प्रोटोटाइप आणि उर्वरित पात्रता काम वेगळे दाखवले आहे.",
   "console_selfhost": "स्वयं-होस्टिंग हे रोडमॅपचे उद्दिष्ट आहे; पूर्ण झालेली क्षमता नाही.",
   "console_sudo": "प्रवेश नाकारला: हे पोर्टफोलिओ पुरावे स्वीकारते, विशेषाधिकार वाढवणे नाही.",
-  "console_unknown": "अज्ञात आदेश. उपलब्ध आदेश पाहण्यासाठी help टाइप करा."
+  "console_unknown": "अज्ञात आदेश. उपलब्ध आदेश पाहण्यासाठी help टाइप करा.",
+  "console_constellation": "निवडलेल्या प्रकल्पांची मांडणी (पोर्टफोलिओमधील विद्यमान श्रेणी):\nसिस्टम्स: Omni, AetherOS, Mosaic-µ, AI-OS.\nAI आणि एजंट्स: Helios, NexusAgent, Kilo Code fork, Dynamic Neural Computation, Tensor Ring Decomposition.\nप्लॅटफॉर्म्स आणि वेब: Universal Education Platform, Decentralized IoT Network, ACTSConnect, OldAgeHome, MilkyWay."
 }
