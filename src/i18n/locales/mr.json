@@ -253,5 +253,8 @@
   "console_unknown": "ही command निश्चित यादीत नाही. काहीही execute झालेले नाही. help वापरून पाहा.",
   "reader_hero_overview": "माझ्या अनुभवात Django REST Framework वापरून REST API विकास आणि सध्याची Java full-stack internship यांचा समावेश आहे. निवडक प्रकल्प, त्यामागील काम आणि त्यांची सध्याची maturity पाहा.",
   "reader_hero_engineering": "निवडक systems ची architecture, implementation decisions, verification evidence आणि ज्ञात मर्यादा पाहा. Code, tests आणि qualification यांतील फरक स्पष्ट ठेवला आहे.",
-  "reader_hero_research": "कठीण समस्यांकडे पाहण्याची माझी पद्धत जाणून घ्या: स्पष्ट assumptions, specifications, design alternatives, executable prototypes आणि खुले research प्रश्न. Concepts आणि प्रत्यक्ष implemented systems वेगळे दाखवले आहेत."
+  "reader_hero_research": "कठीण समस्यांकडे पाहण्याची माझी पद्धत जाणून घ्या: स्पष्ट assumptions, specifications, design alternatives, executable prototypes आणि खुले research प्रश्न. Concepts आणि प्रत्यक्ष implemented systems वेगळे दाखवले आहेत.",
+  "console_sudo": "परवानगी नाकारली: हे portfolio कोणतेही अतिरिक्त अधिकार देत नाही. प्रत्येक capability साठी स्पष्ट scope आवश्यक आहे.",
+  "console_42": "42. पण acceptance criteria अजून लिहायचे बाकी आहेत.",
+  "console_constellation": "ही संकल्पनात्मक constellation आहे, dependency graph नाही: Omni language आणि compiler foundations शोधतो; Mosaic byte-exact tokenization; NexusAgent आणि Kilo fork agent workflows; UEP multi-tenant education platform; Helios अजून symbolic-computing संशोधन आहे."
 }
