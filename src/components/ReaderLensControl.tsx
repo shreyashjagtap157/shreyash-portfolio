@@ -44,7 +44,6 @@ export function ReaderLensControl() {
         ref={trigger}
         className="btn ghost reader-lens-trigger"
         type="button"
-        aria-haspopup="true"
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => setOpen(value => !value)}
