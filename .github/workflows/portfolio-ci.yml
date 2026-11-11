@@ -68,8 +68,18 @@ jobs:
         run: npm run test:unit
       - name: Production build
         run: npm run build
+      - name: Cache Playwright browser binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      # GitHub-hosted Ubuntu runners already include Chromium's shared system libraries.
+      # Avoid Playwright's --with-deps APT path here: transient Ubuntu mirror DNS
+      # failures have blocked the browser suite before it could start.
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Browser tests
         run: npm run test:e2e
       - name: Upload browser-test diagnostics
