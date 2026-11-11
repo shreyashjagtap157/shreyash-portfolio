@@ -1,6 +1,6 @@
 # Reader paths and easter-egg implementation
 
-**Status:** Implemented on `main` and deployed to Cloudflare Worker v29; desktop page-render smoke test passed; mobile/accessibility production checks and manual locale review remain open  
+**Status:** Implemented on `main` and deployed to Cloudflare Worker v29; desktop/mobile rendering and accessibility-tree smoke checks passed; production interaction and manual locale review remain open  
 **Implementation date:** 11 November 2026  
 **Design decision date:** 11 November 2026  
 **Production target:** Existing Cloudflare Workers Static Assets deployment
@@ -69,7 +69,7 @@ The exact implementation head `fdef8c9b9c189a652ffa354fbac5cc937efdb8df` passed 
 
 The browser suite covers the four reader orders, project availability and maturity, local preference persistence and storage-unavailable fallback, five locale controls, hero and navigation changes, safe command handling, inherited-property rejection, keyboard-only operation, URL/history stability, 360-pixel touch operation, responsive layout, reduced motion, and existing portfolio behavior. Escape-key closure and focus restoration are covered in the follow-up hardening change.
 
-The final merged main head 8afdcefa65fa882fdfa5f0854aee6cce58a96226 passed post-merge GitHub Actions run [43028148893](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43028148893), including the Escape/focus-restoration regression. That exact commit was deployed by Cloudflare Workers Build bd156174-db59-4aed-a477-2892d9bf5287 as Worker v29 (47a3bb11-5080-4039-9df9-346c677dd6d0), with 100% production traffic. Cloudflare Browser Rendering then fetched the production page at a 1440×1000 viewport and returned HTTP 200, the expected title/final URL, the main content region, Balanced as the default, and all four view labels. Its immediate mobile and accessibility-tree follow-ups were rate-limited (HTTP 429), so live mobile visual/accessibility behavior was not independently verified. Keyboard, touch, Escape, and responsive interactions were covered by the successful merged-main Playwright run.
+The final merged main head 8afdcefa65fa882fdfa5f0854aee6cce58a96226 passed post-merge GitHub Actions run [43028148893](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43028148893), including the Escape/focus-restoration regression. That exact commit was deployed by Cloudflare Workers Build bd156174-db59-4aed-a477-2892d9bf5287 as Worker v29 (47a3bb11-5080-4039-9df9-346c677dd6d0), with 100% production traffic. Cloudflare Browser Rendering fetched the production page at 1440×1000 desktop and 360×800 touch-enabled mobile viewports; both returned HTTP 200 with the expected title/final URL, main content region, Balanced default, and all four reader-view labels. Desktop and mobile accessibility-tree calls returned HTTP 200 and exposed the reader-view group with four buttons, primary-navigation landmark, main landmark, and optional console disclosure. No production click/typing sequence was executed. Keyboard, touch, Escape, and responsive interaction behavior was covered by the successful merged-main Playwright run.
 
 ## 7. Acceptance status
 
@@ -86,7 +86,7 @@ The final merged main head 8afdcefa65fa882fdfa5f0854aee6cce58a96226 passed post-
 | Existing portfolio regression suite | Pass on merged `main` | Post-merge run 43028148893 passed the 94-test browser suite |
 | Production deployment control-plane verification | Pass | Cloudflare Build bd156174-db59-4aed-a477-2892d9bf5287 succeeded; Worker v29 receives 100% traffic |
 | Desktop production page-render smoke test | Pass | Cloudflare Browser Rendering returned HTTP 200, expected title, main region, Balanced default, and four view labels at 1440×1000 |
-| Mobile/accessibility production smoke test | Pending | Follow-up Cloudflare Browser Rendering requests returned HTTP 429; verify from a normal browser |
+| Mobile rendering and desktop/mobile accessibility-tree smoke tests | Pass | HTTP 200 at 360×800 mobile; accessibility tree exposes four reader buttons, named navigation, main landmark, and console disclosure |
 
 ## 8. Release sequence
 
@@ -94,7 +94,7 @@ The final merged main head 8afdcefa65fa882fdfa5f0854aee6cce58a96226 passed post-
 2. **Completed:** post-merge GitHub Actions passed on exact main SHA 8afdcefa65fa882fdfa5f0854aee6cce58a96226.
 3. **Completed:** the existing Cloudflare Workers Builds trigger deployed that exact commit without changing hosting, bindings, secrets, DNS, KV, or deployment configuration.
 4. **Completed:** Cloudflare build bd156174-db59-4aed-a477-2892d9bf5287 succeeded; Worker v29 receives 100% production traffic. The release record contains the exact commit, version ID, and deployment timestamp.
-5. **Partially completed:** the desktop production page-render smoke test confirmed HTTP 200, the Balanced default, and all four view labels. **Still open:** verify mobile rendering, the accessibility tree, locale switching, project links, activity feed, and live console command/Escape interactions from a normal browser. Cloudflare rate-limited the follow-up mobile/accessibility requests.
+5. **Completed:** production page rendering at desktop and mobile sizes returned HTTP 200; both accessibility-tree checks exposed the expected named reader controls, navigation/main landmarks, and console disclosure. **Still open:** perform a production browser-driven interaction pass for lens switching, locale switching, project links, activity refresh, console commands, and Escape/focus restoration.
 6. **Still open:** complete the manual locale terminology and fluency review as a separate editorial qualification item.
 
 No production readiness, native-speaker validation, or live deployment claim should be made without its corresponding evidence.
