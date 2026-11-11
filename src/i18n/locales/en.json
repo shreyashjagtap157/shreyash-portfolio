@@ -250,5 +250,8 @@
   "console_principles": "Specification before assumptions; explicit boundaries and least authority; root-cause fixes; reproducible verification; honest reporting.",
   "console_omni": "Omni is an early-stage Rust compiler and toolchain. Full-language qualification and self-hosting are not complete. This console does not query GitHub.",
   "console_selfhost": "Self-hosting is a long-term Omni roadmap goal, not a completed capability. The current compiler implementation is Rust-based.",
-  "console_unknown": "That command is not in the fixed command list. Nothing was executed. Try help."
+  "console_unknown": "That command is not in the fixed command list. Nothing was executed. Try help.",
+  "reader_hero_overview": "My experience includes Django REST Framework API development and a current Java full-stack internship. Explore selected projects, the work behind them, and each project's current maturity.",
+  "reader_hero_engineering": "Explore selected systems through their architecture, implementation decisions, verification evidence, and known limitations. The portfolio distinguishes code, tests, and qualification so engineering claims remain inspectable.",
+  "reader_hero_research": "Explore how I approach difficult problems: explicit assumptions, specifications, design alternatives, executable prototypes, and open research questions. Concepts are clearly separated from implemented systems."
 }
