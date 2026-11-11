@@ -445,3 +445,16 @@ A second source/CI pass has refined the public maturity descriptions for Mosaic-
 Omni's normative Edition 1 grammar contract and parser tests now provide direct evidence for the specification-first narrative. Candidate 2 Vibe-first syntax is not in force by default; strict Edition 1 remains enforced, and experimental syntax is explicitly opt-in. The latest aggregate compiler failure belongs to an isolated memory research prototype, while code generation and other compiler stages remain incomplete.
 
 NexusAgent source and tests establish actual concurrent `AgentLoop` team orchestration and persisted team messages, but the team integration tests use a `FakeProvider`; no real provider-backed team qualification is established by those tests. The latest security workflow reported 13 `filelock 4.0.12` findings and failed its required gate. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#17-omni-and-nexusagent-source-level-case-study-evidence--2026-11-11).
+
+## 27. Adaptive reader and safe-console production release — 2026-11-11
+
+The approved reader-experience work is integrated and deployed. PR #19 added the project evidence and reader-experience specification, PR #21 implemented the four reading views and closed-command portfolio console, and PR #22 added Escape dismissal/focus restoration while updating the implementation record.
+
+- Final main SHA: 8afdcefa65fa882fdfa5f0854aee6cce58a96226.
+- GitHub Actions run [43028148893](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43028148893) passed the dependency audit (zero npm vulnerabilities), TypeScript, 45 Vitest tests across three files, the Vite production build, and 94 Chromium Playwright tests.
+- Cloudflare Workers Build bd156174-db59-4aed-a477-2892d9bf5287 completed successfully for that exact SHA. Wrangler deployed Worker version 29, ID 47a3bb11-5080-4039-9df9-346c677dd6d0, to 100% traffic. Deployment ID 45541e4e-729c-4cea-94e1-a958fd0cfd6c was created at 2026-11-11T13:22:54.735Z.
+- Existing Worker bindings ACTIVITY_KV and ASSETS were retained. No hosting provider, DNS, secret, KV configuration, or analytics changes were made for the reader feature.
+- The reader preference remains browser-local under reader-view-v1; all 14 projects and all maturity/qualification caveats remain available in every lens. The portfolio console uses a fixed command set and local responses only.
+- Kilo Code fork copy now matches source evidence: public M2 swarm foundation, one earlier M2-only successful qualification run, M3 still awaiting current focused/provider-backed qualification, and NVIDIA NIM experimental. This correction is localized in all five maintained dictionaries.
+- Unverified: a fresh production browser rendering/smoke test could not be completed from this audit environment because the available external fetch tools could not access the public workers.dev hostname. Cloudflare control-plane state verifies the active deployment and its 100% traffic allocation, but that is not equivalent to a live visual/interaction check.
+- Open editorial gate: automated locale parity, presence, and browser control tests pass. Manual terminology and fluency review by competent speakers remains outstanding.
