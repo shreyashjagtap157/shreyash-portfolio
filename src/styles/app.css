@@ -489,3 +489,5 @@ img,svg,video,canvas{max-width:100%}
 @media(prefers-reduced-motion:reduce){
   .reader-lens-menu,.console-dialog,.console-overlay{animation:none!important;transition:none!important}
 }
+
+.console-response{white-space:pre-line}
