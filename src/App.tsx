@@ -7,11 +7,13 @@ import { useI18n } from './i18n/I18nProvider'
 import { useReader, type ReadingLens } from './reader/ReaderProvider'
 import type { ComponentType } from 'react'
 
-const SECTION_ORDER: Record<ReadingLens, ComponentType[]> = {
-  balanced: [Projects, CaseStudy, Skills, Approach, GitHubActivity, Experience, Contact],
-  overview: [Experience, Projects, Skills, Approach, CaseStudy, GitHubActivity, Contact],
-  engineering: [Projects, CaseStudy, Skills, Approach, GitHubActivity, Experience, Contact],
-  research: [Approach, CaseStudy, Projects, Skills, GitHubActivity, Experience, Contact],
+type SectionEntry = readonly [string, ComponentType]
+
+const SECTION_ORDER: Record<ReadingLens, SectionEntry[]> = {
+  balanced: [['work', Projects], ['case', CaseStudy], ['skills', Skills], ['approach', Approach], ['activity', GitHubActivity], ['exp', Experience], ['contact', Contact]],
+  overview: [['exp', Experience], ['work', Projects], ['skills', Skills], ['approach', Approach], ['case', CaseStudy], ['activity', GitHubActivity], ['contact', Contact]],
+  engineering: [['work', Projects], ['case', CaseStudy], ['skills', Skills], ['approach', Approach], ['activity', GitHubActivity], ['exp', Experience], ['contact', Contact]],
+  research: [['approach', Approach], ['case', CaseStudy], ['work', Projects], ['skills', Skills], ['activity', GitHubActivity], ['exp', Experience], ['contact', Contact]],
 }
 
 export default function App() {
@@ -23,8 +25,8 @@ export default function App() {
       <Header />
       <main id="main" className="container">
         <Hero />
-        {SECTION_ORDER[lens].map(SectionComponent => (
-          <SectionComponent key={SectionComponent.name} />
+        {SECTION_ORDER[lens].map(([id, SectionComponent]) => (
+          <SectionComponent key={id} />
         ))}
       </main>
       <Footer />
