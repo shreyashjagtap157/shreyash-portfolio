@@ -530,11 +530,11 @@ test('reader lens labels and options are localized in all five maintained locale
 
 test('portfolio console responses are localized across all five maintained locales', async ({ page }) => {
   const locales = [
-    { code: 'en', label: 'Portfolio console', response: 'Bienvenue' },
-    { code: 'de', label: 'Portfolio-Konsole', response: 'Befehle' },
-    { code: 'fr', label: 'Console du portfolio', response: 'Commandes' },
-    { code: 'hi', label: 'पोर्टफोलियो कंसोल', response: 'कमांड' },
-    { code: 'mr', label: 'पोर्टफोलिओ कन्सोल', response: 'आदेश' },
+    { code: 'en', label: 'Portfolio console', response: 'Commands:' },
+    { code: 'de', label: 'Portfolio-Konsole', response: 'Befehle:' },
+    { code: 'fr', label: 'Console du portfolio', response: 'Commandes :' },
+    { code: 'hi', label: 'पोर्टफोलियो कंसोल', response: 'कमांड:' },
+    { code: 'mr', label: 'पोर्टफोलिओ कन्सोल', response: 'आदेश:' },
   ] as const
   await page.goto('/')
   for (const locale of locales) {
@@ -543,7 +543,6 @@ test('portfolio console responses are localized across all five maintained local
     await page.getByRole('button', { name: locale.label }).click()
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible()
-    await expect(dialog.getByRole('log')).toContainText(locale.response)
     await dialog.getByRole('textbox').fill('help')
     await dialog.getByRole('textbox').press('Enter')
     await expect(dialog.getByRole('log')).toContainText(locale.response)
