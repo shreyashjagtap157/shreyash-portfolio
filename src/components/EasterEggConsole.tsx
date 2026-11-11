@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type KeyboardEvent } from 'react'
 import { useI18n } from '../i18n/I18nProvider'
 
 interface ConsoleEntry {
@@ -23,6 +23,13 @@ export function EasterEggConsole() {
   const [command, setCommand] = useState('')
   const [entries, setEntries] = useState<ConsoleEntry[]>([])
 
+  const closeOnEscape = (event: KeyboardEvent<HTMLDetailsElement>) => {
+    if (event.key !== 'Escape' || !event.currentTarget.open) return
+    event.preventDefault()
+    event.currentTarget.open = false
+    event.currentTarget.querySelector('summary')?.focus()
+  }
+
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const normalized = command.trim().toLowerCase().slice(0, 80)
@@ -36,7 +43,7 @@ export function EasterEggConsole() {
 
   return (
     <section className="portfolio-console" aria-labelledby="portfolio-console-title">
-      <details>
+      <details onKeyDown={closeOnEscape}>
         <summary id="portfolio-console-title">{t('console_title')}</summary>
         <div className="portfolio-console-body">
           <p>{t('console_intro')}</p>
