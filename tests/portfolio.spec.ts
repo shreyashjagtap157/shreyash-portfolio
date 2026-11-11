@@ -492,8 +492,9 @@ test.describe('audience-adaptive reader views', () => {
 
   test('reader view controls are available in all five maintained locales', async ({ page }) => {
     for (const locale of ['en', 'de', 'fr', 'hi', 'mr']) {
-      await page.addInitScript(value => localStorage.setItem('lang', value), locale)
       await page.goto('/')
+      await page.evaluate(value => localStorage.setItem('lang', value), locale)
+      await page.reload()
       await expect(page.locator('.reader-view')).toBeVisible()
       await expect(page.locator('.reader-view-option')).toHaveCount(4)
       await expect(page.locator('.reader-view-copy p')).not.toBeEmpty()
