@@ -494,3 +494,27 @@ test.describe('portfolio console easter egg', () => {
     await expect(page.getByRole('dialog', { name: 'Portfolio console' })).toBeHidden()
   })
 })
+
+
+test('reader lens labels and options are localized in all five maintained locales', async ({ page }) => {
+  const locales = [
+    { code: 'en', label: 'Reading view' },
+    { code: 'de', label: 'Lesemodus' },
+    { code: 'fr', label: 'Mode de lecture' },
+    { code: 'hi', label: 'पठन दृश्य' },
+    { code: 'mr', label: 'वाचन दृश्य' },
+  ] as const
+
+  await page.goto('/')
+  for (const locale of locales) {
+    await page.evaluate(code => localStorage.setItem('lang', code), locale.code)
+    await page.reload()
+    const trigger = page.getByRole('button', { name: new RegExp(locale.label) })
+    await expect(trigger).toBeVisible()
+    await trigger.click()
+    await expect(page.getByRole('group', { name: locale.label })).toBeVisible()
+    await expect(page.locator('.reader-lens-menu button')).toHaveCount(4)
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('group', { name: locale.label })).toBeHidden()
+  }
+})
