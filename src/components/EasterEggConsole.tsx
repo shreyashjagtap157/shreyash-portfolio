@@ -27,7 +27,9 @@ export function EasterEggConsole() {
     event.preventDefault()
     const normalized = command.trim().toLowerCase().slice(0, 80)
     if (!normalized) return
-    const responseKey = COMMANDS[normalized] ?? 'console_unknown'
+    const responseKey = Object.prototype.hasOwnProperty.call(COMMANDS, normalized)
+      ? COMMANDS[normalized]
+      : 'console_unknown'
     setEntries(current => [...current.slice(-7), { command: normalized, responseKey }])
     setCommand('')
   }
