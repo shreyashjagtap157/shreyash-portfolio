@@ -74,7 +74,7 @@ export default function App() {
       <a className="skip" href="#main">{t('skip')}</a>
       <Header readerView={readerView} onReaderViewChange={setReaderView} />
       <main id="main" className="container" data-reader-view={readerView}>
-        <Hero />
+        <Hero readerView={readerView} />
         {sections}
         <EasterEggConsole />
         <Contact />
