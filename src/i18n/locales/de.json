@@ -253,5 +253,8 @@
   "console_unknown": "Dieser Befehl ist nicht in der festen Befehlsliste enthalten. Es wurde nichts ausgeführt. Verwenden Sie help.",
   "reader_hero_overview": "Meine Erfahrung umfasst die Entwicklung von REST-APIs mit Django REST Framework und ein aktuelles Praktikum in der Java-Full-Stack-Entwicklung. Entdecken Sie ausgewählte Projekte, die geleistete Arbeit und den jeweiligen Reifegrad.",
   "reader_hero_engineering": "Entdecken Sie ausgewählte Systeme anhand ihrer Architektur, Implementierungsentscheidungen, Prüfnachweise und bekannten Einschränkungen. Code, Tests und Qualifizierung werden klar unterschieden.",
-  "reader_hero_research": "Erfahren Sie, wie ich schwierige Probleme angehe: explizite Annahmen, Spezifikationen, Entwurfsalternativen, ausführbare Prototypen und offene Forschungsfragen. Konzepte werden klar von implementierten Systemen getrennt."
+  "reader_hero_research": "Erfahren Sie, wie ich schwierige Probleme angehe: explizite Annahmen, Spezifikationen, Entwurfsalternativen, ausführbare Prototypen und offene Forschungsfragen. Konzepte werden klar von implementierten Systemen getrennt.",
+  "console_sudo": "Zugriff verweigert: Dieses Portfolio vergibt keine erhöhten Rechte. Jede Fähigkeit benötigt einen ausdrücklich festgelegten Umfang.",
+  "console_42": "42. Die Akzeptanzkriterien müssen trotzdem noch geschrieben werden.",
+  "console_constellation": "Eine konzeptionelle Konstellation, kein Abhängigkeitsgraph: Omni erforscht Sprach- und Compilergrundlagen; Mosaic die bytegenaue Tokenisierung; NexusAgent und der Kilo-Fork Agenten-Workflows; UEP eine mandantenfähige Bildungsplattform; Helios bleibt Forschung zum symbolischen Computing."
 }
