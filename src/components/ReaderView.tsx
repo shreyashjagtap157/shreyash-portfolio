@@ -31,6 +31,7 @@ export function ReaderView({ value, onChange, compact = false }: Props) {
             type="button"
             className="reader-view-option"
             aria-pressed={value === option.value}
+            title={t('reader_desc_' + option.value)}
             onClick={() => onChange(option.value)}
           >
             {t(option.key)}
