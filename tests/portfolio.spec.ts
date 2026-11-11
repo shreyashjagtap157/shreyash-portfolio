@@ -588,3 +588,55 @@ test.describe('safe portfolio console easter egg', () => {
   })
 
 })
+
+
+test('reader view controls support keyboard navigation without changing URL or history', async ({ page }) => {
+  await page.goto('/')
+  const initialUrl = page.url()
+  const historyLength = await page.evaluate(() => history.length)
+  const group = page.getByRole('group', { name: 'Choose how to explore' })
+  const balanced = group.getByRole('button', { name: 'Balanced', exact: true })
+  const overview = group.getByRole('button', { name: 'Overview', exact: true })
+
+  await balanced.focus()
+  await expect(balanced).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(overview).toBeFocused()
+  await page.keyboard.press('Space')
+  await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'overview')
+  await page.getByRole('button', { name: 'Research', exact: true }).click()
+  await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
+  expect(page.url()).toBe(initialUrl)
+  expect(await page.evaluate(() => history.length)).toBe(historyLength)
+})
+
+test('reader controls and the optional console remain touch-usable on a narrow viewport', async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 360, height: 800 },
+    isMobile: true,
+    hasTouch: true,
+  })
+  try {
+    const page = await context.newPage()
+    await page.goto('/')
+    const dimensions = await page.evaluate(() => ({
+      viewportWidth: document.documentElement.clientWidth,
+      documentWidth: document.documentElement.scrollWidth,
+    }))
+    expect(dimensions.documentWidth).toBeLessThanOrEqual(dimensions.viewportWidth)
+
+    await page.getByRole('button', { name: 'Research', exact: true }).tap()
+    await expect(page.locator('#main')).toHaveAttribute('data-reader-view', 'research')
+
+    const details = page.locator('.portfolio-console details')
+    await page.locator('.portfolio-console summary').tap()
+    await expect(details).toHaveAttribute('open', '')
+
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    const transitionDuration = await page.locator('.reader-view-option').first()
+      .evaluate(element => getComputedStyle(element).transitionDuration)
+    expect(transitionDuration).toBe('0s')
+  } finally {
+    await context.close()
+  }
+})
