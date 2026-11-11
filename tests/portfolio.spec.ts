@@ -471,7 +471,7 @@ test.describe('portfolio console easter egg', () => {
 
     await command.fill('help')
     await command.press('Enter')
-    await expect(log).toContainText('Commands: help, about, projects, principles, omni, selfhost.')
+    await expect(log).toContainText('Commands: help, about, projects, constellation, principles, omni, selfhost.')
 
     await command.fill('constellation')
     await command.press('Enter')
