@@ -424,3 +424,12 @@ The complete point-in-time repository evidence register is in [PROJECT_EVIDENCE_
 - The existing seven implementation case studies are still Omni, NexusAgent, Kilo Code fork, UEP, Mosaic-µ, Dynamic Neural Computation and Tensor Ring Decomposition. Helios remains a specification/research presentation, not an implementation case study.
 - The portfolio README's main-head statement needs a follow-up correction: it still identifies `a386912...` as the latest documentation commit, while the actual current main head is the PR #18 merge `129a6eb...`. This is a documentation-only discrepancy; the deployed application code remains the Worker v28 release from PR #16.
 - No application code, deployment configuration, secrets, DNS, KV state, or production Worker version was changed in this audit.
+
+
+## 16. Kilo Code fork source-level evidence correction — 2026-11-11
+
+The public Kilo Code fork contains committed fork-specific swarm implementation and documentation, despite its top-level README remaining primarily upstream-oriented. See the updated [project evidence register](PROJECT_EVIDENCE_REGISTER.md#15-kilo-code-fork-source-level-qualification-refinement--2026-11-11).
+
+One M2 Swarm Foundation workflow passed on earlier commit `13ff9a7c0a34ddf94418e23fe21981745e580b41` on 24 October (run [40116350112](https://github.com/shreyashjagtap157/kilocode/actions/runs/40116350112)). The workflow covered migration/schema checks, durable events, migration upgrades, claims, reservations, recovery and process-race tests. Its commit message explicitly kept M3 dispatch out of scope.
+
+At the inspected 27 October main head `775a0f5c1870fb5e4e45de1014f1e5b935eddecf`, the repository includes M3 runtime code and focused tests. Its own qualification docs still require current focused CI and a real provider-backed workload; M3 remains under qualification. No production-ready swarm claim is permitted.
