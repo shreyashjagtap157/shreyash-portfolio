@@ -544,6 +544,11 @@ test.describe('safe portfolio console easter egg', () => {
     await expect(page.locator('.portfolio-console-output')).toContainText('not in the fixed command list')
     await expect(page.locator('.portfolio-console-output')).not.toContainText('executed successfully')
     await expect(page.locator('.portfolio-console-entry')).toHaveCount(1)
+    for (const inheritedKey of ['constructor', 'toString', '__proto__']) {
+      await command.fill(inheritedKey)
+      await command.press('Enter')
+      await expect(page.locator('.portfolio-console-entry').last()).toContainText('not in the fixed command list')
+    }
   })
   test('hidden easter-egg commands stay local, factual and harmless', async ({ page }) => {
     await page.goto('/')
