@@ -253,5 +253,6 @@
   "console_selfhost": "सेल्फ-होस्टिंग रोडमैप का लक्ष्य है, पूरी हो चुकी क्षमता नहीं।",
   "console_sudo": "अनुमति अस्वीकृत: यह पोर्टफोलियो प्रमाण स्वीकार करता है, विशेषाधिकार-वृद्धि नहीं।",
   "console_unknown": "अज्ञात कमांड। उपलब्ध कमांड देखने के लिए help लिखें।",
-  "console_constellation": "चयनित परियोजनाओं का समूह (पोर्टफोलियो की मौजूदा श्रेणियाँ):\nसिस्टम: Omni, AetherOS, Mosaic-µ, AI-OS.\nAI और एजेंट: Helios, NexusAgent, Kilo Code fork, Dynamic Neural Computation, Tensor Ring Decomposition.\nप्लेटफ़ॉर्म और वेब: Universal Education Platform, Decentralized IoT Network, ACTSConnect, OldAgeHome, MilkyWay."
+  "console_constellation": "चयनित परियोजनाओं का समूह (पोर्टफोलियो की मौजूदा श्रेणियाँ):\nसिस्टम: Omni, AetherOS, Mosaic-µ, AI-OS.\nAI और एजेंट: Helios, NexusAgent, Kilo Code fork, Dynamic Neural Computation, Tensor Ring Decomposition.\nप्लेटफ़ॉर्म और वेब: Universal Education Platform, Decentralized IoT Network, ACTSConnect, OldAgeHome, MilkyWay.",
+  "console_status": "स्थानीय / केवल पढ़ने के लिए"
 }
