@@ -132,3 +132,14 @@ No selection decision above changes the existing 14-project inventory.
 ## Kilo Code fork evidence refinement — 2026-11-11
 
 The public fork contains a substantial M2 durable-state foundation and an M3 execution bridge in the current source tree. The repository's own swarm qualification documents are more precise than its upstream-oriented top-level README. M2 has one located passing focused workflow on the earlier 24 October commit; M3 is still under qualification and requires current CI plus a real provider-backed workload. This does not establish production release or upstream Kilo Code functionality. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#15-kilo-code-fork-source-level-qualification-refinement--2026-11-11).
+
+
+## Featured-project source-evidence update — 2026-11-11
+
+The case-study audit now records:
+- Mosaic's byte-authoritative tokenizer/TokenDocument work and the exact current nightly blockers (stable/nightly toolchain mismatch, Clippy in the exactness test, missing native low-memory test binary, and incomplete pip-install diagnostics).
+- DNC's implemented StructuralProjector path and the discrepancy between the documented checkpoint validation contract and the checks in `Checkpoint.validate()`.
+- UEP's implemented module boundaries and the concrete local-native identity-to-tenancy dependency violation.
+- Tensor Ring's implementation scope, version mismatch and benchmark evidence limits.
+
+No claim of production readiness is added. See [PROJECT_EVIDENCE_REGISTER.md](PROJECT_EVIDENCE_REGISTER.md#16-featured-project-source-and-failing-gate-refinement--2026-11-11).
