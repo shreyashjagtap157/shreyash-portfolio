@@ -16,8 +16,9 @@ import './styles/app.css'
 import App from './App'
 import { I18nProvider } from './i18n/I18nProvider'
 import { PrefsProvider, initPrefs } from './theme/PrefsProvider'
+import { ReaderProvider } from './reader/ReaderProvider'
 
 initPrefs()
 createRoot(document.getElementById('root')!).render(
-  <StrictMode><PrefsProvider><I18nProvider><App /></I18nProvider></PrefsProvider></StrictMode>,
+  <StrictMode><PrefsProvider><ReaderProvider><I18nProvider><App /></I18nProvider></ReaderProvider></PrefsProvider></StrictMode>,
 )
