@@ -250,5 +250,8 @@
   "console_principles": "मान्यताओं से पहले specification; स्पष्ट सीमाएँ और न्यूनतम अधिकार; root-cause सुधार; दोहराए जा सकने वाले परीक्षण; ईमानदार रिपोर्टिंग।",
   "console_omni": "Omni शुरुआती चरण का Rust compiler और toolchain है। पूरी भाषा की qualification और self-hosting अभी पूर्ण नहीं हैं। यह console GitHub से live जानकारी नहीं लेता।",
   "console_selfhost": "Self-hosting Omni के दीर्घकालिक roadmap का लक्ष्य है, पूरी हो चुकी क्षमता नहीं। वर्तमान compiler implementation Rust पर आधारित है।",
-  "console_unknown": "यह command तय सूची में नहीं है। कुछ भी execute नहीं किया गया। help आज़माएँ।"
+  "console_unknown": "यह command तय सूची में नहीं है। कुछ भी execute नहीं किया गया। help आज़माएँ।",
+  "reader_hero_overview": "मेरे अनुभव में Django REST Framework के साथ REST API विकास और वर्तमान Java full-stack internship शामिल हैं। चुने हुए projects, उनमें किए गए काम और उनकी मौजूदा maturity देखें।",
+  "reader_hero_engineering": "चुने हुए systems को उनकी architecture, implementation decisions, verification evidence और ज्ञात सीमाओं के माध्यम से देखें। Code, tests और qualification को स्पष्ट रूप से अलग रखा गया है।",
+  "reader_hero_research": "कठिन समस्याओं पर मेरा दृष्टिकोण देखें: स्पष्ट assumptions, specifications, design alternatives, executable prototypes और खुले research प्रश्न। Concepts और implemented systems को अलग-अलग बताया गया है।"
 }
