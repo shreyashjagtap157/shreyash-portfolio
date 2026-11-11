@@ -1,108 +1,99 @@
-# Reader paths and easter-egg design
+# Reader paths and easter-egg implementation
 
-**Status:** Approved direction; implementation not yet started  
-**Decision date:** 11 November 2026  
-**Applies to:** Public portfolio at the existing Cloudflare Workers Static Assets deployment
+**Status:** Implemented on `main`; production release pending post-merge verification  
+**Implementation date:** 11 November 2026  
+**Design decision date:** 11 November 2026  
+**Production target:** Existing Cloudflare Workers Static Assets deployment
 
 ## 1. Product principle
 
-Build one truthful portfolio with multiple reading paths. Readers choose how information is organized and emphasized; the portfolio does not try to identify them, guess their job, or create separate facts for separate audiences.
+Build one truthful portfolio with multiple reading paths. Readers choose how information is organized and emphasized; the portfolio does not identify visitors, guess their job, or create different facts for different audiences.
 
-The balanced presentation is the default. Hiring managers/recruiters, engineers and research-oriented readers can then select a reading lens that fits their current purpose. Every visitor retains access to the same complete evidence.
+Balanced is the default. Hiring managers and recruiters, engineers, and research-oriented readers can choose a presentation that fits their current purpose. Every reader retains access to the same projects, case studies, evidence, source links, and qualification limits.
 
-## 2. Reading lenses
+## 2. Implemented reading lenses
 
-| Lens | Primary reader need | First emphasis | Deeper content |
-|---|---|---|---|
-| Balanced (default) | Understand the person and inspect the work | Clear profile, selected work and maturity | Case studies, architecture, research and validation |
-| Overview | Quickly evaluate professional relevance | Role, experience, contribution, practical context and contact | Technical explanations remain available through progressive disclosure |
-| Engineering | Understand how systems are built | Architecture, interfaces, implementation and design decisions | Tests, CI evidence, code links, failure modes and limitations |
-| Research | Understand why a system is designed a certain way | Problem, assumptions, constraints and specifications | Alternatives, methods, evidence, open questions and research roadmap |
+| Lens | First emphasis | Content that remains available |
+|---|---|---|
+| Balanced (default) | Profile, selected work, technical depth | Experience, projects, case studies, skills, approach, activity, and contact |
+| Overview | Experience and education, selected work, practical context | Full case studies, engineering approach, project maturity, and source links |
+| Engineering | Projects, case studies, implementation activity, skills | Research approach, experience, evidence, known limitations, and contact |
+| Research | Engineering approach, project context, case studies | Full project details, implementation evidence, skills, experience, and activity |
 
-These are reading preferences, not user types or eligibility categories. A reader can be a recruiter and still choose Engineering, or an engineer and still choose Overview.
+These are reading preferences, not user types or eligibility categories. A reader can be a recruiter and choose Engineering, or an engineer and choose Overview.
 
-## 3. Shared content model
+The selector is placed in the site header near the portfolio identity. It uses labeled buttons and an explicit selected state. The hero introduction and primary-navigation order adapt to the current selection. The selected view is saved under the versioned browser-local key `reader-view-v1`. When storage is unavailable, the selector still works for the current page session. Balanced is directly selectable as the reset action.
 
-Each project uses one factual record, then presentation blocks:
+**No project is removed by a lens.** All 14 selected repositories, the same project maturity labels, the seven case studies, qualification caveats, and contact routes remain available. A lens changes presentation order and introductory emphasis, not truth, maturity, source links, URL, route, or browser history. The site does not infer visitor profession or send the preference to a remote service.
 
-- **Identity:** project name, repository, category and canonical links.
-- **Maturity:** research/specification, prototype, alpha, candidate, in-progress or qualified; use only supported states.
-- **Overview:** problem, purpose, contribution and current state in plain language.
-- **Engineering:** architecture, implementation, tools, interfaces, tests and operational constraints.
-- **Research:** assumptions, specifications, methods, alternatives, evidence and unresolved questions.
-- **Provenance:** repository revision, relevant documentation/workflow links, last verification date and reviewer confidence.
+## 3. Shared content and truth constraints
 
-Facts and maturity are shared across all lenses. Lens-specific blocks may change order, emphasis and summary density only. Do not derive unverified business outcomes, user counts, savings, benchmarks, production use or proficiency claims.
+The portfolio uses shared project records and localized presentation copy. Each project retains its identity, repository, category, maturity, description, and available case-study evidence across every lens.
 
-## 4. Interaction model
+The implementation must not:
+- Derive unverified business outcomes, user counts, savings, benchmarks, production use, or proficiency claims.
+- Present a planned capability as implemented.
+- Upgrade a maturity label because a feature appears in the portfolio.
+- Hide an unresolved qualification gate in Overview mode.
+- Attribute fork-specific work to an upstream project.
 
-- Add a clearly labeled “Reading view” control near the opening content, not another crowded toolbar menu.
-- Choices: Balanced, Overview, Engineering, Research.
-- Balanced is the first-visit default.
-- Persist a versioned preference in local browser storage; if storage is unavailable, keep the control functional for the current page session.
-- Provide a direct “Reset to Balanced” action.
-- Do not infer the lens using referrer, device, browser fingerprint, IP address, external identity, or analytics.
-- Switching a lens must not modify the URL, page route, GitHub data, or browser history.
-- Preserve all core information and links. Overview may collapse detail panels, but must clearly disclose that more detail is available.
-- Use semantic controls, visible focus, keyboard operation, touch targets and clear selected-state announcements.
+The Kilo Code case study now reflects the public fork's committed specialist-agent and swarm implementation. It distinguishes the earlier M2-focused passing workflow from the still-unqualified M3 execution/reviewer work, and labels NVIDIA NIM routing experimental. This description is aligned across English, German, French, Hindi, and Marathi. The same source-attribution rule applies to all project case studies.
 
-## 5. Page-level presentation
+## 4. Safe portfolio console
 
-### Balanced
-Profile and a concise engineering statement first. Show selected work, clear maturity labels and the seven implementation-focused case studies. Technical and research sections remain present and discoverable.
+The optional console is a native `details/summary` disclosure, not a shell or terminal session. It accepts only a fixed list of own-property command keys with prewritten local responses. Input is bounded, normalized, rendered as text, and rejected safely when it is not in the list. Unknown input cannot be evaluated or executed.
 
-### Overview
-Bring experience, demonstrated contribution and concise project summaries forward. Use plain explanations of technical work. Keep project maturity and release limitations visible. Make résumé, repository and contact links easy to find. Do not invent impact metrics or overstate delivery.
+Commands:
+- `help`, `about`, `projects`, `principles`, `omni`, `selfhost`
+- Hidden discoveries: `sudo`, `42`, `constellation`
 
-### Engineering
-Prioritize selected projects with implementation evidence, architecture diagrams, component boundaries, interfaces, design decisions, verification results and source links. Distinguish code present from code tested and tested from production-qualified.
+The console performs no shell invocation, dynamic evaluation, file access, network request, telemetry, or privileged operation. The copy explicitly identifies the panel as a harmless fixed-response toy and preserves project maturity caveats.
 
-### Research
-Prioritize research-stage projects and the reasoning behind them. Explain problem framing, explicit assumptions, constraints, specifications, alternative designs, validation approach and unanswered questions. Clearly mark intended architecture versus implemented systems.
+The disclosure is touch- and keyboard-operable. Pressing Escape while focus is inside an open console closes it and returns focus to the summary control. It does not trap focus or cover the page. Reduced-motion styling is respected.
 
-## 6. Easter-egg direction
+## 5. Localization
 
-Easter eggs should reward curiosity and reinforce the portfolio's engineering personality without becoming a gimmick.
+Reader controls, helper copy, hero introductions, console commands, and responses are present in the five built-in locale dictionaries: English, German, French, Hindi, and Marathi. Automated checks enforce key parity and prevent missing reader/console strings.
 
-### Primary concept: safe portfolio console
-An optional terminal-style panel with a fixed command vocabulary, such as:
-- `help` — show the available commands.
-- `about` — explain the portfolio's engineering approach.
-- `projects` — show a concise project index and maturity labels.
-- `principles` — show the research/specification/implementation/verification principles.
-- `omni` — show a factual, current, explicitly qualified Omni status.
-- `selfhost` — show that self-hosting is a roadmap goal, not a completed capability.
+**Editorial qualification remains open:** matching keys and automated browser assertions do not prove natural language quality. A final terminology and fluency review by competent speakers is still needed, particularly for compiler, runtime, specification, qualification, provenance, symbolic reasoning, perception, memory, and mixed technical terminology. Do not claim native-speaker review has occurred until it has.
 
-The console must use a fixed parser and local predefined responses. It must never evaluate arbitrary text, invoke a shell, execute code, access the filesystem, call network endpoints, or expose internal/private data. Unknown input returns a safe help response.
+## 6. Verification record
 
-### Secondary discoveries
-Consider a small project constellation or a hidden engineering note that links related work. Every discovery should have a visible or touch-accessible path as well as any optional keyboard shortcut. Avoid a keyboard-only secret sequence.
+The exact implementation head `fdef8c9b9c189a652ffa354fbac5cc937efdb8df` passed GitHub Actions run [43026668267](https://github.com/shreyashjagtap157/shreyash-portfolio/actions/runs/43026668267):
 
-### Safety and usability constraints
-No automatic launch, audio, blocking overlays, external API calls, telemetry, deceptive status messages, or fabricated achievements. Support mobile, keyboard, screen readers, focus restoration, Escape dismissal and reduced-motion settings. Easter eggs must be optional and must never contain information necessary to understand the work.
+- Dependency security audit passed; npm reported zero vulnerabilities.
+- TypeScript check passed.
+- Vitest: 45 tests passed across 3 files.
+- Production build passed.
+- Chromium Playwright: 93 tests passed.
 
-## 7. Five-language requirements
+The browser suite covers the four reader orders, project availability and maturity, local preference persistence and storage-unavailable fallback, five locale controls, hero and navigation changes, safe command handling, inherited-property rejection, keyboard-only operation, URL/history stability, 360-pixel touch operation, responsive layout, reduced motion, and existing portfolio behavior. Escape-key closure and focus restoration are covered in the follow-up hardening change.
 
-Every visible control, helper text, status message and console response must be present in English, German, French, Hindi and Marathi. Do not treat identical key counts as proof of translation quality. Have a terminology pass for engineering terms, especially compiler, runtime, specification, qualification, symbolic reasoning, provenance, perception, and memory.
+A separate post-merge GitHub Actions run on the resulting `main` commit is the release gate. Do not treat a green pull-request run as a substitute for checking the final merged commit.
 
-## 8. Acceptance criteria
+## 7. Acceptance status
 
-1. Balanced is the initial default and is useful without changing any setting.
-2. All four lenses can be switched without reload and without changing routes or factual project data.
-3. The preference survives reload when local storage is available; the site remains usable when it is not.
-4. All project maturity and qualification warnings remain visible in every lens.
-5. Engineering and Research views expose detailed evidence and limitations; Overview provides a clear route to those details.
-6. All five built-in locales have complete labels and helper text, with manual terminology review.
-7. The console is a closed, harmless command interpreter with no arbitrary execution or network access.
-8. Easter eggs are reachable by touch and keyboard, never auto-launch, and pass accessibility/reduced-motion checks.
-9. Existing responsive, locale, theme, density, route, activity-feed and security tests continue to pass.
-10. No production deployment occurs until the implementation PR, CI and explicit production review gates are complete.
+| Acceptance criterion | Status | Evidence / remaining work |
+|---|---|---|
+| Balanced is the useful first-visit default | Pass | Default state and browser assertion |
+| All four lenses switch without reload or route/history change | Pass | View and URL/history browser tests |
+| Local persistence and storage-unavailable fallback | Pass | Browser tests |
+| Project maturity and qualification caveats remain available | Pass | All 14 projects remain rendered; factual content unchanged |
+| Overview retains a clear route to detailed evidence | Pass | Case studies and engineering/research sections remain available |
+| Five locales have complete automated keys and controls | Automated pass | Manual terminology and fluency review remains open |
+| Console is fixed-response and non-executing | Pass | Closed command map, source review, and negative-input tests |
+| Touch, keyboard, focus, Escape, and reduced motion | Pass after hardening | Browser regression tests |
+| Existing portfolio regression suite | Pass on implementation head | Full CI run above; recheck merged `main` |
+| Production deployment and live smoke test | Pending | Release only after merged-main CI and deployment verification |
 
-## 9. Delivery sequence
+## 8. Release sequence
 
-1. Finalize the project evidence register and shared content schema.
-2. Implement the reading preference state/control and the Overview/Engineering/Research presentation blocks.
-3. Localize all new content and controls; add automated locale and lens tests.
-4. Implement the safe portfolio console and one secondary discovery only after the reading paths pass.
-5. Run full CI and browser review across viewports, themes, density modes and locales.
-6. Open a focused PR for review; keep it separate from deployment.
+1. Keep the approved implementation and evidence changes merged to `main`.
+2. Confirm GitHub Actions is green on the exact merged `main` SHA.
+3. Run the existing Cloudflare Workers Builds production trigger against that exact commit; do not change hosting provider, bindings, secrets, DNS, KV, or deployment configuration for this feature.
+4. Confirm the Cloudflare build succeeds and the new Worker version receives the intended production traffic.
+5. Smoke-test the production URL: first-visit Balanced default, all four reader controls, local persistence, mobile layout, each locale, console open/command/Escape-close behavior, project links, and existing GitHub activity.
+6. Update the release record with the verified Worker version, deployment timestamp, and smoke-test evidence.
+7. Complete the manual locale terminology review as a separate editorial qualification item.
+
+No production readiness, native-speaker validation, or live deployment claim should be made without its corresponding evidence.
