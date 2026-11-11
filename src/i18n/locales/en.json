@@ -253,5 +253,6 @@
   "console_selfhost": "Self-hosting is a roadmap goal, not a completed capability.",
   "console_sudo": "Permission denied: this portfolio accepts evidence, not privilege escalation.",
   "console_unknown": "Unknown command. Type help to see the available commands.",
-  "console_constellation": "Selected-work constellation (the portfolio's existing categories):\nSystems: Omni, AetherOS, Mosaic-µ, AI-OS.\nAI and agents: Helios, NexusAgent, Kilo Code fork, Dynamic Neural Computation, Tensor Ring Decomposition.\nPlatforms and web: Universal Education Platform, Decentralized IoT Network, ACTSConnect, OldAgeHome, MilkyWay."
+  "console_constellation": "Selected-work constellation (the portfolio's existing categories):\nSystems: Omni, AetherOS, Mosaic-µ, AI-OS.\nAI and agents: Helios, NexusAgent, Kilo Code fork, Dynamic Neural Computation, Tensor Ring Decomposition.\nPlatforms and web: Universal Education Platform, Decentralized IoT Network, ACTSConnect, OldAgeHome, MilkyWay.",
+  "console_status": "LOCAL / READ-ONLY"
 }
