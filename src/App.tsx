@@ -4,7 +4,7 @@ import { Hero } from './components/Hero'
 import { Projects } from './components/Projects'
 import { Approach, CaseStudy, Contact, Experience, Footer, Skills } from './components/Sections'
 import { GitHubActivity } from './components/GitHubActivity'
-import { ReaderView, type ReaderViewId } from './components/ReaderView'
+import { type ReaderViewId } from './components/ReaderView'
 import { EasterEggConsole } from './components/EasterEggConsole'
 import { useI18n } from './i18n/I18nProvider'
 
@@ -72,10 +72,9 @@ export default function App() {
   return (
     <>
       <a className="skip" href="#main">{t('skip')}</a>
-      <Header />
+      <Header readerView={readerView} onReaderViewChange={setReaderView} />
       <main id="main" className="container" data-reader-view={readerView}>
         <Hero />
-        <ReaderView value={readerView} onChange={setReaderView} />
         {sections}
         <EasterEggConsole />
         <Contact />
