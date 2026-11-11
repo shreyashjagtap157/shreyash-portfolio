@@ -1,4 +1,5 @@
 import { useI18n } from '../i18n/I18nProvider'
+import { ReaderLensControl } from './ReaderLensControl'
 
 export function Hero() {
   const { t } = useI18n()
@@ -7,7 +8,11 @@ export function Hero() {
       <div className="hero-copy">
         <h1>{t('h1')}</h1>
         <p className="sub">{t('sub')}</p>
-        <p className="actions"><a className="btn" href="#work">{t('b1')}</a><a className="btn ghost" href="#contact">{t('b2')}</a></p>
+        <div className="actions">
+          <a className="btn" href="#work">{t('b1')}</a>
+          <a className="btn ghost" href="#contact">{t('b2')}</a>
+          <ReaderLensControl />
+        </div>
       </div>
       <div className="viz" aria-hidden="true" translate="no">
         <pre className="v-void"><b>$</b> omni build --edition 1{'\n'}<b>ok</b> lex  <b>ok</b> parse  <b>ok</b> sema{'\n'}<b>ok</b> ir   <b>..</b> codegen{'\n'}# governed by spec/, not guesswork <i>_</i></pre>
