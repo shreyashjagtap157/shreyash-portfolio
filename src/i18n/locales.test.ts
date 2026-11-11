@@ -74,6 +74,7 @@ describe('portfolio content integrity', () => {
       'console_title', 'console_intro', 'console_command_label', 'console_run',
       'console_placeholder', 'console_help', 'console_about', 'console_projects',
       'console_principles', 'console_omni', 'console_selfhost', 'console_unknown',
+      'console_sudo', 'console_42', 'console_constellation',
     ] as const
     for (const [language, dictionary] of Object.entries(dictionaries)) {
       for (const key of keys) {
@@ -88,9 +89,14 @@ describe('portfolio content integrity', () => {
       expect(dictionary.console_intro.length).toBeGreaterThan(40)
       expect(dictionary.console_omni).toBeTruthy()
       expect(dictionary.console_selfhost).toBeTruthy()
+      expect(dictionary.console_sudo).toBeTruthy()
+      expect(dictionary.console_42).toBeTruthy()
+      expect(dictionary.console_constellation).toBeTruthy()
     }
     expect(en.console_omni).toContain('Full-language qualification and self-hosting are not complete')
     expect(en.console_selfhost).toContain('not a completed capability')
+    expect(en.console_sudo).toContain('no elevated privileges')
+    expect(en.console_constellation).toContain('not a dependency graph')
   })
 
 
