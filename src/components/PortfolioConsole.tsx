@@ -10,6 +10,7 @@ const COMMANDS: Record<string, string> = {
   help: 'console_help',
   about: 'console_about',
   projects: 'console_projects',
+  constellation: 'console_constellation',
   principles: 'console_principles',
   omni: 'console_omni',
   selfhost: 'console_selfhost',
