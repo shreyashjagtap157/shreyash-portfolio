@@ -46,3 +46,22 @@ This is a point-in-time review of public repository metadata, READMEs and visibl
 ## Evidence boundaries
 
 Do not interpret a README's project description as runtime proof. Do not treat a component workflow as an aggregate product pass. Do not infer production deployment from a listed URL. Do not reuse historical benchmark counts or CI results as current without matching the exact commit/configuration. The next source-level audit should inspect relevant implementation files and workflow logs for projects prioritized by the public case studies.
+
+
+## Targeted failure-log inspection — 11 November 2026
+
+The following details come from the actual failed-job logs, not only the workflow summary:
+
+- **Omni aggregate CI:** job “Build & Qualify (Pinned Rust 1.95.0)” fails to compile `research/memory-model/domain_lifetimes.rs` at line 471 with `cannot find value object in this scope`. The log also shows the focused ownership test command passed 12/12 immediately before this compile failure. Do not attribute this isolated research-model compile error to all compiler front-end or production language components.
+  - [Failed aggregate run](https://github.com/shreyashjagtap157/Omni---New/actions/runs/42590880366)
+- **Mosaic fuzz-smoke:** the job passes `-Zsanitizer=address` and sanitizer-coverage flags to the stable `rustc 1.97.1` selected in the job; the compiler explicitly rejects `-Z` because nightly is required.
+  - **Mosaic native sanitizer:** after several sanitizer smoke executables report success, the test target attempts to execute `../build/mosaic-low-memory-smoke`, which is absent, and `make test` exits 127. This points to a build/test-target dependency mismatch that needs reproduction; it is not evidence that all sanitizer scenarios failed.
+  - [Nightly run](https://github.com/shreyashjagtap157/Mosaic/actions/runs/42995229092)
+- **NexusAgent Security:** the Python dependency-audit job reports 13 known vulnerability findings for `filelock 4.0.12`, with `4.2.1` shown as the fix version. The workflow exits non-zero. Do not describe the security audit as passing until the resolved dependency graph and policy exceptions are rerun and reviewed.
+  - [Security run](https://github.com/shreyashjagtap157/nexus-agent/actions/runs/42597084938)
+- **UEP aggregate CI:** Maven's platform-server test task reports 258 tests, zero assertion failures and one error. The failing `ModularityTest.moduleBoundariesAreValid` identifies a direct dependency from module `identity` to `tenancy` through `LocalDevelopmentIdentityBootstrapper -> LocalTenantBootstrapService`; allowed targets for identity are `security` and `audit`. This is a concrete architecture-boundary violation, not a generic test failure. The log also includes database constraint errors emitted by negative-path integration tests; they should not be classified as separate failures without their test outcomes.
+  - [UEP CI run](https://github.com/shreyashjagtap157/UEP/actions/runs/41776225411)
+- **AetherOS reference validation:** host-reference tests shown before the final validation step pass, but `./check.sh` cannot execute `./tools/verify-reproducible-reference.sh` because the script has no executable permission; the job exits 126. Artifact upload then also finds no evidence directory. The immediate failure is the script invocation/file-mode contract; this does not invalidate the individual tests that passed earlier in the same job.
+  - [Reference-validation run](https://github.com/shreyashjagtap157/AetherOS/actions/runs/39757872721)
+
+These observations prioritize fixes in the source repositories, but this portfolio PR does not change those repositories. They are recorded so the portfolio can represent project maturity accurately and so future reviews can compare new runs against precise failure modes.
